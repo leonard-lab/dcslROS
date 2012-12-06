@@ -1,0 +1,14 @@
+<package>
+  <description brief="dcsl_state_estimator">
+
+     dcsl_state_estimator
+
+  </description>
+  <author>bandrade</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/dcsl_state_estimator</url>
+
+</package>
+
+

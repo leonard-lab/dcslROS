@@ -1,0 +1,14 @@
+<package>
+  <description brief="dcsl_low_level_control">
+
+     dcsl_low_level_control
+
+  </description>
+  <author>bandrade</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/dcsl_low_level_control</url>
+
+</package>
+
+
