@@ -1,0 +1,12 @@
+Here are the MAC addresses and device names for each of the miabots.
+Their passcodes are all set to 1234.
+
+00:07:80:80:11:EB mid617
+00:07:80:80:11:43 MiaBot1
+00:07:80:80:11:DF miabot2
+00:07:80:80:10:B4 miabot3
+00:07:80:80:11:F0 miaBot4
+00:07:80:80:11:8E miabot5
+00:07:80:80:19:81 miabot6
+
+Note that some of the names have different uppercase letters.
