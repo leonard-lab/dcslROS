@@ -1,0 +1,19 @@
+<package>
+  <description brief="dcsl_miabot_driver">
+
+     dcsl_miabot_driver
+
+  </description>
+  <author>bandrade</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/dcsl_miabot_driver</url>
+  <depend package="std_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="rospy"/>
+  <rosdep name="python-serial"/>
+  
+  
+</package>
+
+
