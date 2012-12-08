@@ -1,0 +1,36 @@
+ROS Packages summary
+
+packages are lowercase with underscores
+topics are lowercase with underscores
+
+MIABOT STACK
+- miabot_driver
+	sub: CmdVelocitySubscriber (twist)
+- swarm_control node (and swarm_simulator)
+	sub: lowLevelControl
+	pub: inPutsToRobots (or something)
+
+CONTROL STACK
+- low_level
+	sub: highLevelControl (waypoint or vel)
+	pub: lowLevelControl (one message per robot (?))
+  (within low level, have nodes for [traj generation]->[traj following]->[LQR]->[lowLevelControl])
+
+VISION STACK
+- vision
+	sub: camera
+	sub: state
+	pub: measurement
+
+- estimator
+	sub: measurement
+	sub: depth
+	pub: state
+
+MATLAB STACK
+- communicator node
+	sub: state
+	pub: highLevelControl
+
+
+
