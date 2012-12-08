@@ -3,3 +3,8 @@
 setup.bash
 setup.sh
 setup.zsh
+cmake_install.cmake
+build/
+bin/
+msg_gen/
+srv_gen/
