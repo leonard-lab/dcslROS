@@ -1,0 +1,15 @@
+<package>
+  <description brief="dcsl_messages">
+
+     dcsl_messages
+
+  </description>
+  <author>Will Scott</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/dcsl_messages</url>
+  <depend package="geometry_msgs" />
+
+</package>
+
+
