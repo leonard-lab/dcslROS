@@ -8,7 +8,9 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_low_level_control</url>
-
+  <depend package="dcsl_messages" />
+  <depend package="roscpp"/>
+  <depend package="geometry_msgs"/>
 </package>
 
 
