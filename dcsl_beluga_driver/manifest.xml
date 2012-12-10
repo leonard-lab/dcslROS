@@ -1,0 +1,20 @@
+<package>
+  <description brief="dcsl_beluga_driver">
+
+     dcsl_beluga_driver
+
+  </description>
+  <author>bandrade</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/dcsl_beluga_driver</url>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="rosserial_python"/>
+  <depend package="rosserial_arduino"/>
+  <depend package="rosserial_client"/>
+
+</package>
+
+
