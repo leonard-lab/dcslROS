@@ -19,7 +19,7 @@
 
 #include <ros.h>
 #include <std_msgs/Int16.h>
-#include <dcsl_beluga_driver/belugaInput.h> //For adding custom messages see http://www.ros.org/wiki/rosserial_arduino/Tutorials/Adding%20Custom%20Messages
+#include <dcsl_messages/belugaInput.h> //For adding custom messages see http://www.ros.org/wiki/rosserial_arduino/Tutorials/Adding%20Custom%20Messages
 
 
 int sensorPin = 1; //Analog pin to which the depth sensor is attached
@@ -38,7 +38,7 @@ std_msgs::Int16 rawDepth;
 ros::Publisher depth("depth_measurement", &rawDepth);
 
 //Callback function for receiving motor inputs
-void command( const dcsl_beluga_driver::belugaInput& input){
+void command( const dcsl_messages::belugaInput& input){
   if (input.vertical_motor > 0){
     vert.run(FORWARD);
   }
@@ -67,7 +67,7 @@ void command( const dcsl_beluga_driver::belugaInput& input){
 }
 
 //Declare Subscriber object
-ros::Subscriber<dcsl_beluga_driver::belugaInput> sub("cmd_inputs", &command);
+ros::Subscriber<dcsl_messages::belugaInput> sub("cmd_inputs", &command);
 
 //Declare RunningAverage object
 const int numReadings = 10; //Number of analog readings for the running average

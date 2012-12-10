@@ -14,6 +14,7 @@
   <depend package="rosserial_python"/>
   <depend package="rosserial_arduino"/>
   <depend package="rosserial_client"/>
+  <depend package="dcsl_messages"/>
 
 </package>
 
