@@ -4,16 +4,15 @@
      dcsl_vision_tracker
 
   </description>
-  <author>bandrade</author>
+  <author>Brendan Andrade</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_vision_tracker</url>
-  <depends package="rospy" />
-  <depends package="std_msgs" />
-  <depends package="sensor_msgs" />
-  <depends package="cv_bridge" />
-  <depends package="opencv2" />
-  <depends package="roscpp" />
+  <depend package="sensor_msgs"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+  <depend package="rospy"/>
+  <depend package="std_msgs"/>
 
 </package>
 

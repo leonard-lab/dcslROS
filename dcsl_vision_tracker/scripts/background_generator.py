@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import roslib; roslib.load_manifest('dcsl_vision_tracker')
 import rospy
 import cv
