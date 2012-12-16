@@ -8,6 +8,12 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_vision_tracker</url>
+  <depends package="rospy" />
+  <depends package="std_msgs" />
+  <depends package="sensor_msgs" />
+  <depends package="cv_bridge" />
+  <depends package="opencv2" />
+  <depends package="roscpp" />
 
 </package>
 

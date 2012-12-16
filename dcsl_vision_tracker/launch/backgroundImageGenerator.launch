@@ -1,0 +1,8 @@
+<launch>
+	<node pkg="camera1394" type="camera1394_node" name="camera1394_node" >
+	      <remap from="/camera/image_raw" to="image_feed"/>
+	</node>
+	
+	<node pkg="dcsl_vision_tracker" type="background_generator.py" name="background_generator">
+	</node>
+</launch>
