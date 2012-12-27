@@ -10,22 +10,34 @@ class miabot_tracker:
 
     def __init__(self):
         self.image_pub = rospy.Publisher("tracked_image",Image)
-        self.background = cv.LoadImageM('background.jpg',cv.CV_LOAD_IMAGE_GRAYSCALE)
-        self.image_sub = rospy.Subscriber("/usb_cam/image_raw",Image,self.callback)
+        self.background = cv.LoadImageM('background.png',cv.CV_LOAD_IMAGE_GRAYSCALE)
+        self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.callback)
         self.bridge = CvBridge()
 
     def callback(self,data):
         try:
-            cv_image = self.bridge.imgmsg_to_cv(data, "mono8")
+            working_image = self.bridge.imgmsg_to_cv(data, "mono8")
         except CvBridgeError, e:
             print e
 
-        ## cv.AbsDiff(cv_image,self.background,cv_image)
-        cv.ShowImage("Image Window", cv_image)
+        output_image = cv.CreateMat(working_image.width,working_image.height,cv.CV_8UC3)
+       # cv.Merge(working_image,working_image,working_image, None, output_image)
+        #cv.CvtColor(output_image, working_image,cv.CV_GRAY2BGR)        
+
+        cv.AbsDiff(working_image,self.background,working_image)
+        threshold = 100
+        cv.Threshold(working_image,working_image,threshold,255,cv.CV_THRESH_BINARY)
+        erodeIterations = 3
+        cv.Erode(working_image, working_image, None, erodeIterations)
+        contours = cv.FindContours(working_image, cv.CreateMemStorage(), cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
+        red = cv.RGB(255,0,0)
+        blue = cv.RGB(0,0,255)
+        cv.DrawContours(output_image, contours, red, blue,2)
+        cv.ShowImage("Image Window", output_image)
         cv.WaitKey(3)
-        
+
         try:
-            self.image_pub.publish(self.bridge.cv_to_imgmsg(cv_image,"mono8"))
+            self.image_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
             print e
 
