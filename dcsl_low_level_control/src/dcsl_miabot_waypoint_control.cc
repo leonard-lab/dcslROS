@@ -1,7 +1,9 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
+#include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseArray.h"
 #include "dcsl_messages/TwistArray.h"
+#include "dcsl_miabot_control_math.h"
 
 
 /* dcsl_miabot_waypoint_control.cc
@@ -30,22 +32,40 @@ public:
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
-    Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel", 100);
+    Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
-    Sub_state = n.subscribe("state_estimate",100,&MiabotWaypointController::stateCallback,this);
-    Sub_waypoint = n.subscribe("waypoints",100,&MiabotWaypointController::waypointCallback,this);
+    Sub_state = n.subscribe("state_estimate",1,&MiabotWaypointController::stateCallback,this);
+    Sub_waypoint = n.subscribe("waypoints",1,&MiabotWaypointController::waypointCallback,this);
   }
 
-  void stateCallback(const geometry_msgs::PoseArray::ConstPtr& states)
+  void stateCallback(const geometry_msgs::PoseArray::ConstPtr& newStates)
   {
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
+    states = *newStates;
+    geometry_msgs::Pose thisPose;
+    geometry_msgs::Pose thisWaypoint;
+    geometry_msgs::Twist thisVelocity;
+    double outputVel[3];
+
+
     for (int i = 0; i < numRobots; i++)
-      {
-	// compute i-th robot's desired velocity
-	
-      }
+    {
+    	// compute i-th robot's desired velocity...
+      thisPose = states.poses[i];
+      double pos[3] = {thisPose.position.x, thisPose.position.y, thisPose.position.z};
+      double quat[4] = {thisPose.orientation.w,thisPose.orientation.x,thisPose.orientation.y,thisPose.orientation.z};
+      thisWaypoint = waypoints.poses[i];
+      double way[3] = {thisWaypoint.position.x, thisWaypoint.position.y, thisWaypoint.position.z};
+      
+      // call function to compute outputVel = [v,omega]
+      miabot_waypoint(outputVel,pos,quat,way);
+
+      // place that into velocities message
+      velocities.twists[i].linear.x = outputVel[0];
+      velocities.twists[i].angular.z = outputVel[1];
+    }
     Pub_low_level.publish(velocities);
   
   }
