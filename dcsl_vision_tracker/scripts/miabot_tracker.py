@@ -20,8 +20,8 @@ class miabot_tracker:
         except CvBridgeError, e:
             print e
 
-        output_image = cv.CreateMat(working_image.width,working_image.height,cv.CV_8UC3)
-       # cv.Merge(working_image,working_image,working_image, None, output_image)
+        output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
+        cv.Merge(working_image,working_image,working_image, None, output_image)
         #cv.CvtColor(output_image, working_image,cv.CV_GRAY2BGR)        
 
         cv.AbsDiff(working_image,self.background,working_image)
