@@ -20,24 +20,30 @@ class miabot_tracker:
         except CvBridgeError, e:
             print e
 
+        #Create BGR8 image to be output
         output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
-        cv.Merge(working_image,working_image,working_image, None, output_image)
-        #cv.CvtColor(output_image, working_image,cv.CV_GRAY2BGR)        
+        cv.Merge(working_image,working_image,working_image, None, output_image)        
 
-        cv.AbsDiff(working_image,self.background,working_image)
+        cv.AbsDiff(working_image,self.background,working_image) #Background subtractionstorage
         threshold = 100
-        cv.Threshold(working_image,working_image,threshold,255,cv.CV_THRESH_BINARY)
+        cv.Threshold(working_image,working_image,threshold,255,cv.CV_THRESH_BINARY) #Threshold to create binary image
         erodeIterations = 3
         cv.Erode(working_image, working_image, None, erodeIterations)
-        contours = cv.FindContours(working_image, cv.CreateMemStorage(), cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
+        contours = cv.FindContours(working_image, cv.CreateMemStorage(), cv.CV_RETR_LIST, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
+
+        red = cv.RGB(255,0,0)
+        blue = cv.RGB(0,0,255)
+
         if contours:
-            box = cv.MinAreaRect2(contours,cv.CreateMemStorage())
-            center = (int(box[0][0]),int(box[0][1]))
-            red = cv.RGB(255,0,0)
-            blue = cv.RGB(0,0,255)
+            _c = contours
+            #Cycle through all contours
+            while _c is not None:
+                box = cv.MinAreaRect2(_c,cv.CreateMemStorage())
+                center = (int(box[0][0]),int(box[0][1]))
+                radius = 5
+                cv.Circle(output_image, center, radius, blue) 
+                _c = _c.h_next()
             cv.DrawContours(output_image, contours, red, blue,2)
-            radius = 5
-            cv.Circle(output_image, center, radius, blue) 
         cv.ShowImage("Image Window", output_image)
         cv.WaitKey(3)
 
