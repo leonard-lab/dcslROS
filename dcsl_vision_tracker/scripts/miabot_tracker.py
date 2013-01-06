@@ -30,9 +30,14 @@ class miabot_tracker:
         erodeIterations = 3
         cv.Erode(working_image, working_image, None, erodeIterations)
         contours = cv.FindContours(working_image, cv.CreateMemStorage(), cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
-        red = cv.RGB(255,0,0)
-        blue = cv.RGB(0,0,255)
-        cv.DrawContours(output_image, contours, red, blue,2)
+        if contours:
+            box = cv.MinAreaRect2(contours,cv.CreateMemStorage())
+            center = (int(box[0][0]),int(box[0][1]))
+            red = cv.RGB(255,0,0)
+            blue = cv.RGB(0,0,255)
+            cv.DrawContours(output_image, contours, red, blue,2)
+            radius = 5
+            cv.Circle(output_image, center, radius, blue) 
         cv.ShowImage("Image Window", output_image)
         cv.WaitKey(3)
 
