@@ -8,6 +8,10 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_state_estimator</url>
+  <rosdep name="eigen" />
+  <depend package="dcsl_messages" />
+  <depend package="roscpp"/>
+  <depend package="geometry_msgs"/>
 
 </package>
 

@@ -28,3 +28,10 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
+
+find_package(Eigen REQUIRED)
+include_directories(${Eigen_INCLUDE_DIRS})
+
+rosbuild_add_library(dcsl_miabot_estimator_math src/dcsl_miabot_estimator_math.cc)
+rosbuild_add_executable(dcsl_miabot_state_estimator src/dcsl_miabot_state_estimator.cc)
+target_link_libraries(dcsl_miabot_state_estimator dcsl_miabot_estimator_math)
