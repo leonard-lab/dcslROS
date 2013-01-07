@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import math as m
+
 import roslib
 roslib.load_manifest('dcsl_vision_tracker')
 import rospy
@@ -37,13 +39,33 @@ class miabot_tracker:
         if contours:
             _c = contours
             #Cycle through all contours
+            i = 0
             while _c is not None:
+                #Find position in image
                 box = cv.MinAreaRect2(_c,cv.CreateMemStorage())
                 center = (int(box[0][0]),int(box[0][1]))
                 radius = 5
                 cv.Circle(output_image, center, radius, blue) 
+
+                #Find orientation in image
+                moments = cv.Moments(_c, False)
+                mu00 = cv.GetCentralMoment(moments,0,0)
+                mu11Prime = cv.GetCentralMoment(moments,1,1)/mu00
+                mu20Prime = cv.GetCentralMoment(moments,2,0)/mu00
+                mu02Prime = cv.GetCentralMoment(moments,0,2)/mu00
+                theta = 0.5*m.atan(2.0*mu11Prime/(mu20Prime-mu02Prime)) #angle of major axis of image intensity to the x axis
+                centroid = (int(cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0)),int(cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0)))
+                if centroid[0] > center[0]:
+                    theta += m.pi
+                print theta*180/m.pi
+                length = 15.0
+                end = (int(center[0]+m.cos(theta)*length),int(center[1]+m.sin(theta)*length))
+                cv.Line(output_image,center,end,blue)                
                 _c = _c.h_next()
+                i += 1
+
             cv.DrawContours(output_image, contours, red, blue,2)
+
         cv.ShowImage("Image Window", output_image)
         cv.WaitKey(3)
 
@@ -51,6 +73,8 @@ class miabot_tracker:
             self.image_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
             print e
+        
+        
 
 def main():
     rospy.init_node('dcsl_miabot_tracker')
