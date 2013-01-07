@@ -1,0 +1,34 @@
+<launch>
+
+  <node pkg="ipc"
+    name="central"
+    type="central"
+    output="screen"
+    args="-su">
+  </node>
+
+  <node pkg="ipc_geometry_msgs"
+    name="state_ipc_node"
+    type="geometry_msgs_PoseArray_publisher"
+    output="screen">
+    <remap from="~topic" to="/state_topic"/>
+    <param name="message" value="state_message"/>
+  </node>
+
+  <node pkg="ipc_geometry_msgs"
+    name="waypoint_ipc_node"
+    type="geometry_msgs_PoseArray_subscriber"
+    output="screen">
+    <remap from="~topic" to="/waypoint_topic"/>
+    <param name="message" value="waypoint_message"/>
+  </node>
+
+  <node pkg="ipc_geometry_msgs"
+    name="velocity_ipc_node"
+    type="geometry_msgs_PoseArray_subscriber"
+    output="screen">
+    <remap from="~topic" to="/velocity_topic"/>
+    <param name="message" value="velocity_message"/>
+  </node>
+
+</launch>
