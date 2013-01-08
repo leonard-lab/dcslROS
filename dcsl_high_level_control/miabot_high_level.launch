@@ -11,7 +11,7 @@
     name="state_ipc_node"
     type="geometry_msgs_PoseArray_publisher"
     output="screen">
-    <remap from="~topic" to="/state_topic"/>
+    <remap from="~topic" to="/state_estimate"/>
     <param name="message" value="state_message"/>
   </node>
 
@@ -19,7 +19,7 @@
     name="waypoint_ipc_node"
     type="geometry_msgs_PoseArray_subscriber"
     output="screen">
-    <remap from="~topic" to="/waypoint_topic"/>
+    <remap from="~topic" to="/waypoint_input"/>
     <param name="message" value="waypoint_message"/>
   </node>
 
@@ -27,7 +27,7 @@
     name="velocity_ipc_node"
     type="geometry_msgs_PoseArray_subscriber"
     output="screen">
-    <remap from="~topic" to="/velocity_topic"/>
+    <remap from="~topic" to="/velocity_input"/>
     <param name="message" value="velocity_message"/>
   </node>
 
