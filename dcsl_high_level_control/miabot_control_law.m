@@ -4,8 +4,8 @@ function [way_mat vel_mat] = miabot_control_law(state_mat)
 %
 % input: state_mat - with number of rows equal to number of robots
 %                    columns correspond to [x, y, theta] states
-% outputs: way_mat - matrix of desired waypoints, in same format
-%                    as the state matrix
+% outputs: way_mat - matrix of desired waypoints, with columns
+%                    corresponding to [x, y] of desired position
 %          vel_mat - matrix of desired velocities, with one row
 %                    for each robot, linear velocity in the first
 %                    column and angular velocity in second
