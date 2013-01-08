@@ -4,19 +4,23 @@ import math as m
 import roslib
 roslib.load_manifest('dcsl_vision_tracker')
 import rospy
+from geometry_msgs.msg import PoseArray,Pose
 import cv
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge,CvBridgeError
+import numpy
 
 class miabot_tracker:
 
     def __init__(self):
         self.image_pub = rospy.Publisher("tracked_image",Image)
+        self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
         self.background = cv.LoadImageM('background.png',cv.CV_LOAD_IMAGE_GRAYSCALE)
-        self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.callback)
+        self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.imageCallback)
+        self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
 
-    def callback(self,data):
+    def imageCallback(self,data):
         try:
             working_image = self.bridge.imgmsg_to_cv(data, "mono8")
         except CvBridgeError, e:
@@ -36,10 +40,12 @@ class miabot_tracker:
         red = cv.RGB(255,0,0)
         blue = cv.RGB(0,0,255)
 
+        measurements = PoseArray()
+        #measurements = [Pose()]
+
         if contours:
             _c = contours
             #Cycle through all contours
-            i = 0
             while _c is not None:
                 #Find position in image
                 box = cv.MinAreaRect2(_c,cv.CreateMemStorage())
@@ -51,27 +57,30 @@ class miabot_tracker:
                 moments = cv.Moments(_c,False)
                 blobSize = cv.ContourArea(_c)
                 minBlobSize = 500
-                if blobSize > minBlobSize:
-                    '''
-                    mu11Prime = cv.GetCentralMoment(moments,1,1)/mu00
-                    mu20Prime = cv.GetCentralMoment(moments,2,0)/mu00
-                    mu02Prime = cv.GetCentralMoment(moments,0,2)/mu00
-                    theta = 0.5*m.atan(2.0*mu11Prime/(mu20Prime-mu02Prime)) #angle of major axis of image intensity to the x axis
-                    '''
+                if blobSize > minBlobSize: #Ignore small blobs
+                    #Find centroid of blob
                     centroidFloat = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
                     centroid = (int(centroidFloat[0]),int(centroidFloat[1]))
-                    '''
-                    if centroid[0] > center[0]:
-                        theta += m.pi
-                    '''
+                    
+                    #Theta is found by drawing line from centroid of blob through center of the robot
                     theta = m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
                     
+                    #Point center and orientation on output_image
                     length = 15.0
                     end = (int(center[0]+m.cos(theta)*length),int(center[1]+m.sin(theta)*length))
                     cv.Line(output_image,center,end,blue)                
                     cv.Circle(output_image, center, radius, blue)
-                _c = _c.h_next()
-                i += 1
+                    p = Pose()
+
+                    #Write sensed pose to message
+                    p.position.x = center[0]
+                    p.position.y = center[1]
+                    p.orientation.z = theta
+                    p.orientation.w = 1
+                    measurements.poses.append(p)
+                #Cycle to next contour
+                _c = _c.h_next() 
+                
 
             cv.DrawContours(output_image, contours, red, blue,2)
 
@@ -82,8 +91,12 @@ class miabot_tracker:
             self.image_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
             print e
-        
-        
+
+        self.measurement_pub.publish(measurements)
+
+    def stateCallback(self, data):
+        self.currentState = data                                                
+               
 
 def main():
     rospy.init_node('dcsl_miabot_tracker')
