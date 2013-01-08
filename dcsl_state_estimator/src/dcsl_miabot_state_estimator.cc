@@ -50,11 +50,11 @@ private:
   
 public:
   MiabotStateEstimator(const ros::NodeHandle& node_handle, const int numBots) :
-      n(node_handle), 
       numRobots(numBots),
+      n(node_handle), 
       Pub_state(),
-      Sub_control(), 
       Sub_measure(),
+      Sub_control(), 
       measureTime(0.0),
       stateTime(0.0),
       state_message(),
@@ -72,7 +72,7 @@ public:
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
-    Pub_state =  n.advertise<dcsl_messages::TwistArray>("state", 1);
+    Pub_state =  n.advertise<geometry_msgs::PoseArray>("state", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
     Sub_control = n.subscribe("cmd_vel",    1,&MiabotStateEstimator::controlCallback,this);
@@ -90,18 +90,18 @@ public:
     }
  }
 
-  void controlCallback(const dcsl_messages::TwistArray::ConstPtr& newVelocities)
+  void controlCallback(const dcsl_messages::TwistArray newVelocities)
   {
     // This is called when a new control  message comes in from
     // the low level control topic, updating the stored info in this node
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
-      u[m](0) = newVelocities->twists[m].linear.x;
-      u[m](1) = newVelocities->twists[m].angular.z;
+      u[m](0) = newVelocities.twists[m].linear.x;
+      u[m](1) = newVelocities.twists[m].angular.z;
     }
   }
 
-  void measureCallback(const geometry_msgs::PoseArray::ConstPtr& newMeasurement)
+  void measureCallback(const geometry_msgs::PoseArray newMeasurement)
   {
     // This is called when a new measurement message comes in from
     // the vision tracking node, updating the stored info in this node
@@ -112,7 +112,7 @@ public:
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
       // take measurement out of message
-      z[m] = PoseToVector(newMeasurement->poses[m]);
+      z[m] = PoseToVector(newMeasurement.poses[m]);
       // perform propagation steps
       x[m] = miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
       p[m] = miabot_propagate_covariance(x[m], u[m], p[m], q, r, newMeasureTime - measureTime);
@@ -156,10 +156,12 @@ int main(int argc, char **argv)
   MiabotStateEstimator mse(n, numRobots);
   mse.init();
 
+  ros::Rate looprate(20); // 20 hz
   while(ros::ok())
   {
     ros::spinOnce();
     mse.propagateState();
+    looprate.sleep();
   }
 
   return 0;

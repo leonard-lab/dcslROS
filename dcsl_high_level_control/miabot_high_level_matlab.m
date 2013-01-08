@@ -35,7 +35,7 @@ while ~FS.Stop()
 	% if the read was unsuccessful, state_msg will be a 1x0 cell
 	while ~strcmp(class(state_msg),'struct')
 	    state_msg = geometry_msgs_PoseArray('read',pid_state,1);
-	    pause(0.1);
+	    pause(0.01);
 	end
 
 	% create and populate a matrix to hold states,
@@ -58,7 +58,6 @@ while ~FS.Stop()
 		for k=1:num_robots
 			pose.position.x = way_mat(k,1);
 			pose.position.y = way_mat(k,2);
-			pose.orientation.z = way_mat(k,3);
 			way_msg.poses{k} = pose;
 		end
 		% publish the message
@@ -67,16 +66,23 @@ while ~FS.Stop()
 		% populate the vel_msg
 		for k=1:num_robots
 			pose.position.x = vel_mat(k,1);
-			pose.position.y = vel_mat(k,2);
-			pose.orientation.z = vel_mat(k,3);
+			pose.orientation.z = vel_mat(k,2);
 			vel_msg.poses{k} = pose;
 		end
 		% publish the message
 		geometry_msgs_PoseArray('send',pid_vel,vel_msg);
 	end
 
+end % end of big control loop
+
+% make sure velocities of robots are set to zero
+pose.position.x = 0;
+pose.orientation.z = 0;
+for k=1:num_robots
+	vel_msg.poses{k} = pose;
 end
-% disconnect the ipc connections once the loop has ended
+
+% finally disconnect the ipc connections
 geometry_msgs_PoseArray('diconnect',pid_state);
 geometry_msgs_PoseArray('diconnect',pid_way);
 geometry_msgs_PoseArray('diconnect',pid_vel);
