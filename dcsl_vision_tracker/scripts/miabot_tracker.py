@@ -48,10 +48,10 @@ class miabot_tracker:
                 radius = 5 
 
                 #Find orientation in image
-                moments = cv.Moments(_c, False)
-                mu00 = cv.GetCentralMoment(moments,0,0)
+                moments = cv.Moments(_c,False)
+                blobSize = cv.ContourArea(_c)
                 minBlobSize = 500
-                if mu00 > minBlobSize:
+                if blobSize > minBlobSize:
                     '''
                     mu11Prime = cv.GetCentralMoment(moments,1,1)/mu00
                     mu20Prime = cv.GetCentralMoment(moments,2,0)/mu00
