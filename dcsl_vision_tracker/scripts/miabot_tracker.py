@@ -29,7 +29,7 @@ class miabot_tracker:
         cv.AbsDiff(working_image,self.background,working_image) #Background subtractionstorage
         threshold = 100
         cv.Threshold(working_image,working_image,threshold,255,cv.CV_THRESH_BINARY) #Threshold to create binary image
-        erodeIterations = 3
+        erodeIterations = 0
         cv.Erode(working_image, working_image, None, erodeIterations)
         contours = cv.FindContours(working_image, cv.CreateMemStorage(), cv.CV_RETR_LIST, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
 
@@ -44,27 +44,39 @@ class miabot_tracker:
                 #Find position in image
                 box = cv.MinAreaRect2(_c,cv.CreateMemStorage())
                 center = (int(box[0][0]),int(box[0][1]))
-                radius = 5
-                cv.Circle(output_image, center, radius, blue) 
+                centerFloat = (box[0][0],box[0][1])
+                radius = 5 
 
                 #Find orientation in image
                 moments = cv.Moments(_c, False)
                 mu00 = cv.GetCentralMoment(moments,0,0)
-                mu11Prime = cv.GetCentralMoment(moments,1,1)/mu00
-                mu20Prime = cv.GetCentralMoment(moments,2,0)/mu00
-                mu02Prime = cv.GetCentralMoment(moments,0,2)/mu00
-                theta = 0.5*m.atan(2.0*mu11Prime/(mu20Prime-mu02Prime)) #angle of major axis of image intensity to the x axis
-                centroid = (int(cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0)),int(cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0)))
-                if centroid[0] > center[0]:
-                    theta += m.pi
-                print theta*180/m.pi
-                length = 15.0
-                end = (int(center[0]+m.cos(theta)*length),int(center[1]+m.sin(theta)*length))
-                cv.Line(output_image,center,end,blue)                
+                minBlobSize = 500
+                if mu00 > minBlobSize:
+                    '''
+                    mu11Prime = cv.GetCentralMoment(moments,1,1)/mu00
+                    mu20Prime = cv.GetCentralMoment(moments,2,0)/mu00
+                    mu02Prime = cv.GetCentralMoment(moments,0,2)/mu00
+                    theta = 0.5*m.atan(2.0*mu11Prime/(mu20Prime-mu02Prime)) #angle of major axis of image intensity to the x axis
+                    '''
+                    centroidFloat = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
+                    centroid = (int(centroidFloat[0]),int(centroidFloat[1]))
+                    '''
+                    if centroid[0] > center[0]:
+                        theta += m.pi
+                    '''
+                    theta = m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
+                    print theta*180.0/m.pi
+
+                    length = 15.0
+                    end = (int(center[0]+m.cos(theta)*length),int(center[1]+m.sin(theta)*length))
+                    cv.Line(output_image,center,end,blue)                
+                    cv.Circle(output_image, center, radius, blue)
+                    cv.DrawContours(output_image, _c, red, blue, 2)
+
                 _c = _c.h_next()
                 i += 1
 
-            cv.DrawContours(output_image, contours, red, blue,2)
+            #cv.DrawContours(output_image, contours, red, blue,2)
 
         cv.ShowImage("Image Window", output_image)
         cv.WaitKey(3)
