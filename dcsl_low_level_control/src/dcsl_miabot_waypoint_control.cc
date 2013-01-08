@@ -19,14 +19,13 @@ public:
   ros::Subscriber Sub_state;
   ros::Subscriber Sub_waypoint;
 
-  // arrays to hold info about states and waypoints
-  geometry_msgs::PoseArray states;
+private:
+  // store latest waypoint as member variable
   geometry_msgs::PoseArray waypoints;
-  // message that will be sent
-  dcsl_messages::TwistArray velocities;
-
+  
+public:
   MiabotWaypointController(const ros::NodeHandle& node_handle, const int numBots)
-    : numRobots(numBots),  n(node_handle), states(), waypoints(), velocities()  {}
+    : numRobots(numBots),  n(node_handle), Pub_low_level(), Sub_state(), Sub_waypoint(), waypoints()  {}
 
   void init()
   {
@@ -39,28 +38,26 @@ public:
     Sub_waypoint = n.subscribe("waypoints",1,&MiabotWaypointController::waypointCallback,this);
   }
 
-  void stateCallback(const geometry_msgs::PoseArray::ConstPtr& newStates)
+  void stateCallback(const geometry_msgs::PoseArray states)
   {
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
-    states = *newStates;
-    geometry_msgs::Pose thisPose;
-    geometry_msgs::Pose thisWaypoint;
-    geometry_msgs::Twist thisVelocity;
-    double outputVel[3];
+    dcsl_messages::TwistArray velocities;
+    double pos[3];
+    double way[2];
+    double outputVel[2];
 
 
-    for (int i = 0; i < numRobots; i++)
+    for (int i = 0; i < numRobots; i++) // loop through the robots
     {
-    	// compute i-th robot's desired velocity...
-      thisPose = states.poses[i];
-      double pos[3] = {thisPose.position.x, thisPose.position.y, thisPose.position.z};
-      double quat[4] = {thisPose.orientation.w,thisPose.orientation.x,thisPose.orientation.y,thisPose.orientation.z};
-      thisWaypoint = waypoints.poses[i];
-      double way[3] = {thisWaypoint.position.x, thisWaypoint.position.y, thisWaypoint.position.z};
+    	pos[0] = states.poses[i].position.x;
+      pos[1] = states.poses[i].position.y; 
+      pos[2] = states.poses[i].orientation.z;
+      way[0] = waypoints.poses[i].position.x;
+      way[1] = waypoints.poses[i].position.y;
       
       // call function to compute outputVel = [v,omega]
-      miabot_waypoint(outputVel,pos,quat,way);
+      miabot_waypoint(outputVel,pos,way);
 
       // place that into velocities message
       velocities.twists[i].linear.x = outputVel[0];
@@ -70,13 +67,13 @@ public:
   
   }
 
-  void waypointCallback(const geometry_msgs::PoseArray::ConstPtr& newWaypoints)
+  void waypointCallback(const geometry_msgs::PoseArray newWaypoints)
   {
     // This is called when a new waypoint message comes in from
     // the high level control topic
     // It stores the new waypoint in the waypoint array to use later 
     // when a new state estimate comes in.
-    waypoints = *newWaypoints;
+    waypoints = newWaypoints;
   }
 };
 

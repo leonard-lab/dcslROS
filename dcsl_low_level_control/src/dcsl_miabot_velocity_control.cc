@@ -16,24 +16,31 @@ public:
   ros::Subscriber Sub_velocity;
 
   MiabotVelocityController(const ros::NodeHandle& node_handle, const int numBots)
-    : n(node_handle), numRobots(numBots)  {}
+    : n(node_handle), numRobots(numBots), Pub_low_level(), Sub_velocity()  {}
 
   void init()
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
-    Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel", 100);
+    Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
-    Sub_velocity = n.subscribe("velocities",100,&MiabotVelocityController::velocityCallback,this);
+    Sub_velocity = n.subscribe("velocities",1,&MiabotVelocityController::velocityCallback,this);
  }
 
-  void velocityCallback(const dcsl_messages::TwistArray::ConstPtr& newVelocities)
+  void velocityCallback(const geometry_msgs::PoseArray velocityPose)
   {
     // This is called when a new velocity  message comes in from
     // the high level control topic
-    // It just publishes that info directly to the miabot driver
-    Pub_low_level.publish(newVelocities);
+    // We move the data from the PoseArray into a TwistArray and publish it
+    // (high level control has limitation of not being able to output TwistArray)
+    dcsl_messages::TwistArray velocities;
+    for (int m = 0; m < numRobots; m++)
+    {
+      velocities.twists[m].linear.x = velocityPose.poses[m].position.x;
+      velocities.twists[m].angular.z = velocityPose.poses[m].orientation.z;
+    }
+    Pub_low_level.publish(velocities);
   }
 };
 

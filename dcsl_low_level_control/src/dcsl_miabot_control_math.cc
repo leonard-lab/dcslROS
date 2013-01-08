@@ -3,22 +3,22 @@
 #include "dcsl_miabot_control_math.h"
 #include <math.h>
 
-void miabot_waypoint(double* output, double* pos, double* quat, double* waypoint)
+void miabot_waypoint(double* output, double* pose, double* waypoint)
 {
 	// simple controller to bring differential-drive robot to waypoint
 	// as described by Brendan Andrade
+	// inputs: pose = [x, y, theta], waypoint = [x, y]
+	// output: output = [v, omega]
 
 	double k1 = 1;
 	double k2 = 1;
-	double cosHalfTheta = quat[0];
-	double sinHalfTheta = quat[3];
-	double theta = 2.0*atan2(sinHalfTheta,cosHalfTheta);
 	
-	double distance = sqrt(pow(pos[0]-waypoint[0],2) + pow(pos[1]-waypoint[1],2));
-	double phi = atan2(waypoint[1]-pos[1], waypoint[0]-pos[0]);
+	// calculate distance from bot to waypoint
+	double distance = sqrt(pow(pose[0]-waypoint[0],2) + pow(pose[1]-waypoint[1],2));
+	// calculate angle of bot relative to line towards waypoint
+	double phi = atan2(waypoint[1]-pose[1], waypoint[0]-pose[0]);
 
-	// calculate output = [forward velocity "v", angular velocity "omega"]
-	output[0] = k1*distance*cos(theta-phi);
-	output[1] = k2*sin(theta-phi);
+	output[0] = k1*distance*cos(pose[2]-phi);
+	output[1] = k2*sin(pose[2]-phi);
 }
 

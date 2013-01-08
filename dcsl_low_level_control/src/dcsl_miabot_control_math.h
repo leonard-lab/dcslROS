@@ -5,7 +5,7 @@
 
 
 
-void miabot_waypoint(double* output, double* pos, double* quat, double* waypoint);
+void miabot_waypoint(double* output, double* pos, double* waypoint);
 
 
 
