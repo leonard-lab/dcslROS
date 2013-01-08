@@ -16,7 +16,7 @@ public:
   ros::Subscriber Sub_velocity;
 
   MiabotVelocityController(const ros::NodeHandle& node_handle, const int numBots)
-    : n(node_handle), numRobots(numBots), Pub_low_level(), Sub_velocity()  {}
+    : numRobots(numBots), n(node_handle), Pub_low_level(), Sub_velocity()  {}
 
   void init()
   {
@@ -25,7 +25,7 @@ public:
     Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
-    Sub_velocity = n.subscribe("velocities",1,&MiabotVelocityController::velocityCallback,this);
+    Sub_velocity = n.subscribe("velocity_input",1,&MiabotVelocityController::velocityCallback,this);
  }
 
   void velocityCallback(const geometry_msgs::PoseArray velocityPose)

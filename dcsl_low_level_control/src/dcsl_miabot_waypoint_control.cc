@@ -35,7 +35,7 @@ public:
 
     // create Subscriber objects to collect states and new waypoint commands
     Sub_state = n.subscribe("state_estimate",1,&MiabotWaypointController::stateCallback,this);
-    Sub_waypoint = n.subscribe("waypoints",1,&MiabotWaypointController::waypointCallback,this);
+    Sub_waypoint = n.subscribe("waypoint_input",1,&MiabotWaypointController::waypointCallback,this);
   }
 
   void stateCallback(const geometry_msgs::PoseArray states)

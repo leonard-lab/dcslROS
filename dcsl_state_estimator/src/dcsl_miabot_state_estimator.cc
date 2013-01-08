@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include "ros/ros.h"
@@ -10,14 +11,15 @@
    This file defines the state estimation node
    for miabots. */
 
-geometry_msgs::Pose vectorToPose(const Eigen::Vector3d& vec)
+void vectorToPose(const Eigen::Vector3d& vec, geometry_msgs::Pose& pose)
 {
   // helper function to convert between Eigen::vector and Pose message
-  geometry_msgs::Pose pose;
+  std::cout << "in function vectorToPose, with vector:" << std::endl;
+  std::cout << vec << std::endl << std::endl;
   pose.position.x = vec(0);
   pose.position.y = vec(1);
   pose.orientation.z = vec(2);
-  return pose;
+  std::cout << "pose has been written to" << std::endl;
 }
 
 Eigen::Vector3d PoseToVector(const geometry_msgs::Pose& pose)
@@ -72,11 +74,11 @@ public:
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
-    Pub_state =  n.advertise<geometry_msgs::PoseArray>("state", 1);
+    Pub_state =  n.advertise<geometry_msgs::PoseArray>("state_estimate", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
     Sub_control = n.subscribe("cmd_vel",    1,&MiabotStateEstimator::controlCallback,this);
-    Sub_measure = n.subscribe("measurement",1,&MiabotStateEstimator::measureCallback,this);
+    Sub_measure = n.subscribe("planar_measurements",1,&MiabotStateEstimator::measureCallback,this);
 
     // put initial conditions into state arrays
     // this will change later once ros parameter server is set up
@@ -87,7 +89,16 @@ public:
       x[m] = Vector3d::Zero();
       u[m] = Vector2d::Zero();
       p[m] = Matrix3d::Constant(1.0);
+
+      // make sure state_message.poses has a pose for each robot
+      std::cout << "appending a pose to state_message..." << std::endl;
+      geometry_msgs::Pose tempPose();
+      state_message.poses.push_back(tempPose);
+      std::cout << "successfully appended a pose to state_message..." << std::endl;
+      
     }
+
+
  }
 
   void controlCallback(const dcsl_messages::TwistArray newVelocities)
@@ -122,7 +133,7 @@ public:
       x[m] = miabot_update_state(x[m],k[m],z[m]);
       p[m] = miabot_update_covariance(p[m],k[m]);
       // place the updated state into the message to be published
-      state_message.poses[m] = vectorToPose(x[m]);
+      vectorToPose(x[m], state_message.poses[m]);
     }
     Pub_state.publish(state_message);
   }
@@ -135,8 +146,12 @@ public:
     stateTime = newTime;
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
+      std::cout << x[m](0) << x[m](1) << x[m](2) << std::endl << std::endl;
       x[m] = miabot_propagate_state(x[m], u[m], dt);
+      std::cout << x[m] << std::endl;
+      vectorToPose(x[m], state_message.poses[m]);
     }
+    Pub_state.publish(state_message);
   }
 };
 
