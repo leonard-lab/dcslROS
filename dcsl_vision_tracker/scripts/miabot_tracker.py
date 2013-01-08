@@ -65,18 +65,15 @@ class miabot_tracker:
                         theta += m.pi
                     '''
                     theta = m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
-                    print theta*180.0/m.pi
-
+                    
                     length = 15.0
                     end = (int(center[0]+m.cos(theta)*length),int(center[1]+m.sin(theta)*length))
                     cv.Line(output_image,center,end,blue)                
                     cv.Circle(output_image, center, radius, blue)
-                    cv.DrawContours(output_image, _c, red, blue, 2)
-
                 _c = _c.h_next()
                 i += 1
 
-            #cv.DrawContours(output_image, contours, red, blue,2)
+            cv.DrawContours(output_image, contours, red, blue,2)
 
         cv.ShowImage("Image Window", output_image)
         cv.WaitKey(3)
