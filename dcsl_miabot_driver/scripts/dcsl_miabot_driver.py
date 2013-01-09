@@ -28,11 +28,15 @@ def listener():
     rospy.spin()
 
 def closePort():
+    leftVel = 0
+    rightVel = 0
+    motorCommand = '[=<' + str(leftVel) + '><' + str(rightVel) + '>]' + '\n'
+    ser.write(motorCommand)
     ser.close()
 
 if __name__ == "__main__":
     ser = serial.Serial()
-    ser.port = '/dev/rfcomm0'
+    ser.port = '/dev/rfcomm0' #ROSparam
     ser.baudrate = 19200
     ser.timeout = 600
     ser.bytesize = serial.EIGHTBITS
@@ -40,5 +44,5 @@ if __name__ == "__main__":
     ser.parity = serial.PARITY_NONE
     ser.open()
     listener()
-    rospy.on_shutdown(closePort)
+    rospy.on_shutdown(closePort())
         
