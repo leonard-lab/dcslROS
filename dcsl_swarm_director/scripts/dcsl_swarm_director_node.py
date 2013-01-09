@@ -24,7 +24,7 @@ class SwarmDirector:
 
 
 def main():
-    nRobots = 1 #Make ROS param
+    nRobots = rospy.get_param("/n_robots",1)
     rospy.init_node('dcsl_swarm_director')
     director = SwarmDirector(nRobots)
 
