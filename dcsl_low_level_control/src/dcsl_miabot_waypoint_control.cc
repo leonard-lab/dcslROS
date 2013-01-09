@@ -1,3 +1,6 @@
+#include <iostream>
+#include <algorithm>
+#include <iterator>
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Pose.h"
@@ -44,6 +47,8 @@ public:
   {
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
+    std::cout << "received state message" << std::endl;
+
     dcsl_messages::TwistArray velocities;
     geometry_msgs::Twist currentTwist;
     double pos[3];
@@ -67,6 +72,7 @@ public:
       currentTwist.angular.z = outputVel[1];
       velocities.twists.push_back(currentTwist);
     }
+    std::cout << "  publishing velocity message" << std::endl;
     Pub_low_level.publish(velocities);
   
   }
@@ -77,11 +83,14 @@ public:
     // the high level control topic
     // It stores the new waypoint in the waypoint array to use later 
     // when a new state estimate comes in.
+    std::cout << "received waypoint message" << std::endl;
     for (int i = 0; i < numRobots; i++) // loop through the robots
     {
       waypoints[i]             = newWaypoints.poses[i].position.x;
       waypoints[numRobots + i] = newWaypoints.poses[i].position.y;
     }
+    std::copy(waypoints.begin(), waypoints.end(), std::ostream_iterator<double>(std::cout, " "));
+    std::cout << std::endl;
   }
 };
 
