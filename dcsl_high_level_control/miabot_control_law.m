@@ -16,7 +16,7 @@ function [way_mat vel_mat] = miabot_control_law(state_mat)
 % kuramoto control law: 
 %   theta_dot(i) = omega(i) + (k/n)*sum of sin(theta(j)-theta(i)) for i~=j
 	omega = 0.2;
-	K = 1;
+	k = 1;
 	num_robots = size(state_mat, 1);
 	theta = state_mat(:,3);
 	theta_dot = omega*ones(num_robots,1);
