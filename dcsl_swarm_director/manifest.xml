@@ -8,6 +8,10 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_swarm_director</url>
+  <depend package="sensor_msgs"/>
+  <depend package="dcsl_messages"/>
+  <depend package="rospy"/>
+  <depend package="std_msgs"/>
 
 </package>
 
