@@ -15,7 +15,7 @@ class miabot_tracker:
     def __init__(self):
         self.image_pub = rospy.Publisher("tracked_image",Image)
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        self.background = cv.LoadImageM('background.png',cv.CV_LOAD_IMAGE_GRAYSCALE)
+        self.background = cv.LoadImageM("/home/bandrade/dcslROS/dcsl_miabot_main/parameters/background.png",cv.CV_LOAD_IMAGE_GRAYSCALE)
         self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.imageCallback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
@@ -107,7 +107,7 @@ def main():
         rospy.spin()
     except KeyboardInterrupt:
         print "Shutting down"
-    cv.DestroyAllWindows()
+        cv.DestroyAllWindows()
 
 
 if __name__ == '__main__':
