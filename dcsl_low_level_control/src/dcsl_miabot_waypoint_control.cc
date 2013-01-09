@@ -20,12 +20,14 @@ public:
   ros::Subscriber Sub_waypoint;
 
 private:
-  // store latest waypoint as member variable
-  geometry_msgs::PoseArray waypoints;
+  // store latest waypoint as a vector, ordered with
+  // all x values, then all y values, so the waypoint for robot j
+  // would be x = waypoints[j], y = waypoints[numRobots+j]
+  std::vector<double> waypoints;
   
 public:
   MiabotWaypointController(const ros::NodeHandle& node_handle, const int numBots)
-    : numRobots(numBots),  n(node_handle), Pub_low_level(), Sub_state(), Sub_waypoint(), waypoints()  {}
+    : numRobots(numBots),  n(node_handle), Pub_low_level(), Sub_state(), Sub_waypoint(), waypoints(numBots*2)  {}
 
   void init()
   {
@@ -43,6 +45,7 @@ public:
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
     dcsl_messages::TwistArray velocities;
+    geometry_msgs::Twist currentTwist;
     double pos[3];
     double way[2];
     double outputVel[2];
@@ -53,15 +56,16 @@ public:
     	pos[0] = states.poses[i].position.x;
       pos[1] = states.poses[i].position.y; 
       pos[2] = states.poses[i].orientation.z;
-      way[0] = waypoints.poses[i].position.x;
-      way[1] = waypoints.poses[i].position.y;
+      way[0] = waypoints[i];
+      way[1] = waypoints[numRobots + i];
       
       // call function to compute outputVel = [v,omega]
       miabot_waypoint(outputVel,pos,way);
 
       // place that into velocities message
-      velocities.twists[i].linear.x = outputVel[0];
-      velocities.twists[i].angular.z = outputVel[1];
+      currentTwist.linear.x = outputVel[0];
+      currentTwist.angular.z = outputVel[1];
+      velocities.twists.push_back(currentTwist);
     }
     Pub_low_level.publish(velocities);
   
@@ -73,7 +77,11 @@ public:
     // the high level control topic
     // It stores the new waypoint in the waypoint array to use later 
     // when a new state estimate comes in.
-    waypoints = newWaypoints;
+    for (int i = 0; i < numRobots; i++) // loop through the robots
+    {
+      waypoints[i]             = newWaypoints.poses[i].position.x;
+      waypoints[numRobots + i] = newWaypoints.poses[i].position.y;
+    }
   }
 };
 

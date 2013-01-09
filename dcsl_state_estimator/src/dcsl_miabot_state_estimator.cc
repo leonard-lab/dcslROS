@@ -14,20 +14,15 @@
 void vectorToPose(const Eigen::Vector3d& vec, geometry_msgs::Pose& pose)
 {
   // helper function to convert between Eigen::vector and Pose message
-  std::cout << "in function vectorToPose, with vector:" << std::endl;
-  std::cout << vec << std::endl << std::endl;
   pose.position.x = vec(0);
   pose.position.y = vec(1);
   pose.orientation.z = vec(2);
-  std::cout << "pose has been written to" << std::endl;
 }
 
-Eigen::Vector3d PoseToVector(const geometry_msgs::Pose& pose)
+void PoseToVector(const geometry_msgs::Pose& pose, Eigen::Vector3d& vec)
 {
-  // helper function to convert between Pose message and Eigen::Vector
-  Eigen::Vector3d vec;
+  // helper function to convert between Pose message and Eigen::Vector3d
   vec << pose.position.x, pose.position.y, pose.orientation.z;
-  return vec;
 }
 
 class MiabotStateEstimator
@@ -41,7 +36,6 @@ public:
 private:
   double measureTime;
   double stateTime;
-  geometry_msgs::PoseArray state_message;
   std::vector<Eigen::Vector3d> x;
   std::vector<Eigen::Vector2d,Eigen::aligned_allocator<Eigen::Vector2d> > u;
   std::vector<Eigen::Vector3d> z;
@@ -59,7 +53,6 @@ public:
       Sub_control(), 
       measureTime(0.0),
       stateTime(0.0),
-      state_message(),
       x(numBots),
       u(numBots),
       z(numBots),
@@ -77,7 +70,7 @@ public:
     Pub_state =  n.advertise<geometry_msgs::PoseArray>("state_estimate", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
-    Sub_control = n.subscribe("cmd_vel",    1,&MiabotStateEstimator::controlCallback,this);
+    Sub_control = n.subscribe("cmd_vel_array",      1,&MiabotStateEstimator::controlCallback,this);
     Sub_measure = n.subscribe("planar_measurements",1,&MiabotStateEstimator::measureCallback,this);
 
     // put initial conditions into state arrays
@@ -88,17 +81,8 @@ public:
     {
       x[m] = Vector3d::Zero();
       u[m] = Vector2d::Zero();
-      p[m] = Matrix3d::Constant(1.0);
-
-      // make sure state_message.poses has a pose for each robot
-      std::cout << "appending a pose to state_message..." << std::endl;
-      geometry_msgs::Pose tempPose();
-      state_message.poses.push_back(tempPose);
-      std::cout << "successfully appended a pose to state_message..." << std::endl;
-      
+      p[m] = Matrix3d::Constant(1.0);      
     }
-
-
  }
 
   void controlCallback(const dcsl_messages::TwistArray newVelocities)
@@ -118,12 +102,15 @@ public:
     // the vision tracking node, updating the stored info in this node
     // and calling the kalman filter function to update our estimate
     ros::Time rosMeasureTime = ros::Time::now();
-    state_message.header.stamp = rosMeasureTime;
     double newMeasureTime = rosMeasureTime.toSec();
+    
+    geometry_msgs::PoseArray state_message;
+    state_message.header.stamp = rosMeasureTime;
+    geometry_msgs::Pose current_pose;
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
       // take measurement out of message
-      z[m] = PoseToVector(newMeasurement.poses[m]);
+      PoseToVector(newMeasurement.poses[m], z[m]);
       // perform propagation steps
       x[m] = miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
       p[m] = miabot_propagate_covariance(x[m], u[m], p[m], q, r, newMeasureTime - measureTime);
@@ -133,24 +120,33 @@ public:
       x[m] = miabot_update_state(x[m],k[m],z[m]);
       p[m] = miabot_update_covariance(p[m],k[m]);
       // place the updated state into the message to be published
-      vectorToPose(x[m], state_message.poses[m]);
+      vectorToPose(x[m], current_pose);
+      state_message.poses.push_back(current_pose);
     }
     Pub_state.publish(state_message);
   }
 
   void propagateState()
   {
-    // calculate time elapsed and call state propagation function
-    double newTime = ros::Time::now().toSec();
+    // calculate time elapsed since last estimate was published, 
+    // propagates state forward, and publishes the result
+    ros::Time newRosTime = ros::Time::now();
+    double newTime = newRosTime.toSec();
+    //std::cout << "time is now " << std::setprecision(15) << newTime << std::endl;
     double dt = newTime - stateTime;
+    //std::cout << "  " << dt << "seconds from previous" << std::endl;
     stateTime = newTime;
+
+    geometry_msgs::PoseArray state_message;
+    state_message.header.stamp = newRosTime;
+    geometry_msgs::Pose current_pose;
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
-      std::cout << x[m](0) << x[m](1) << x[m](2) << std::endl << std::endl;
       x[m] = miabot_propagate_state(x[m], u[m], dt);
-      std::cout << x[m] << std::endl;
-      vectorToPose(x[m], state_message.poses[m]);
+      vectorToPose(x[m], current_pose);
+      state_message.poses.push_back(current_pose);
     }
+    //std::cout << "publishing state at time " << stateTime << std::endl;
     Pub_state.publish(state_message);
   }
 };
