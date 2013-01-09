@@ -31,7 +31,7 @@ public:
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
-    Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel", 1);
+    Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel_array", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
     Sub_state = n.subscribe("state_estimate",1,&MiabotWaypointController::stateCallback,this);
