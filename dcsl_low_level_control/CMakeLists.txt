@@ -29,8 +29,5 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #target_link_libraries(example ${PROJECT_NAME})
 
 rosbuild_add_library(dcsl_miabot_control_math src/dcsl_miabot_control_math.cc)
-rosbuild_add_executable(dcsl_miabot_waypoint_control src/dcsl_miabot_waypoint_control.cc)
-target_link_libraries(dcsl_miabot_waypoint_control dcsl_miabot_control_math)
-
-rosbuild_add_executable(dcsl_miabot_velocity_control src/dcsl_miabot_velocity_control.cc)
-
+rosbuild_add_executable(dcsl_miabot_low_level_control src/dcsl_miabot_low_level_control.cc)
+target_link_libraries(dcsl_miabot_low_level_control dcsl_miabot_control_math)
