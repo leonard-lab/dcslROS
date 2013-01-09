@@ -15,11 +15,12 @@ class miabot_tracker:
     def __init__(self):
         self.image_pub = rospy.Publisher("tracked_image",Image)
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        location = "/home/bandrade/dcslROS/dcsl_miabot_main/parameters/background.png"
-        self.background = cv.LoadImageM("background.png",cv.CV_LOAD_IMAGE_GRAYSCALE)
+        location = rospy.get_param('/vision_tracker/background_image')
+        self.background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
         self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.imageCallback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
+        self.nRobots = rospy.get_param("/n_robots",1)
 
     def imageCallback(self,data):
         try:
