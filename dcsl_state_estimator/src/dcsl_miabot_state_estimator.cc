@@ -70,7 +70,7 @@ public:
     Pub_state =  n.advertise<geometry_msgs::PoseArray>("state_estimate", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
-    Sub_control = n.subscribe("cmd_vel",    1,&MiabotStateEstimator::controlCallback,this);
+    Sub_control = n.subscribe("cmd_vel_array",      1,&MiabotStateEstimator::controlCallback,this);
     Sub_measure = n.subscribe("planar_measurements",1,&MiabotStateEstimator::measureCallback,this);
 
     // put initial conditions into state arrays
