@@ -35,10 +35,12 @@ public:
     // We move the data from the PoseArray into a TwistArray and publish it
     // (high level control has limitation of not being able to output TwistArray)
     dcsl_messages::TwistArray velocities;
+    geometry_msgs::Twist currentTwist;
     for (int m = 0; m < numRobots; m++)
     {
-      velocities.twists[m].linear.x = velocityPose.poses[m].position.x;
-      velocities.twists[m].angular.z = velocityPose.poses[m].orientation.z;
+      currentTwist.linear.x = velocityPose.poses[m].position.x;
+      currentTwist.angular.z = velocityPose.poses[m].orientation.z;
+      velocities.twists.push_back(currentTwist);
     }
     Pub_low_level.publish(velocities);
   }
