@@ -8,9 +8,17 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_miabot_main</url>
-  <depend package="std_msgs"/>
-  <depend package="rospy"/>
-  <depend package="roscpp"/>
+  <depend package="std_msgs" />
+  <depend package="rospy" />
+  <depend package="roscpp" />
+  <!--
+  <depend package="dcsl_high_level_control" />
+  -->
+  <depend package="dcsl_low_level_control" />
+  <depend package="dcsl_miabot_driver" />
+  <depend package="dcsl_state_estimator" />
+  <depend package="dcsl_swarm_director" />
+  <depend package="dcsl_vision_tracker" />
 
 </package>
 
