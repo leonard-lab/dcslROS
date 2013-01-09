@@ -1,5 +1,6 @@
 *~
 *#*#
+*.pyc
 .rosinstall*
 setup.bash
 setup.sh
@@ -9,3 +10,4 @@ build/
 bin/
 msg_gen/
 srv_gen/
+lib/

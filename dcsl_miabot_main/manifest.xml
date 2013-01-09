@@ -1,0 +1,17 @@
+<package>
+  <description brief="dcsl_miabot_main">
+
+     dcsl_miabot_main
+
+  </description>
+  <author>Brendan Andrade</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/dcsl_miabot_main</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+
+</package>
+
+
