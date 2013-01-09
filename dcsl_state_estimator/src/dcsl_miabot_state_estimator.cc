@@ -89,6 +89,7 @@ public:
   {
     // This is called when a new control  message comes in from
     // the low level control topic, updating the stored info in this node
+    std::cout << "received new control message" << std::endl;
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
       u[m](0) = newVelocities.twists[m].linear.x;
@@ -112,13 +113,13 @@ public:
       // take measurement out of message
       PoseToVector(newMeasurement.poses[m], z[m]);
       // perform propagation steps
-      x[m] = miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
-      p[m] = miabot_propagate_covariance(x[m], u[m], p[m], q, r, newMeasureTime - measureTime);
+      miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
+      miabot_propagate_covariance(p[m], x[m], u[m], q, r, newMeasureTime - measureTime);
       measureTime = stateTime = newMeasureTime;
       // perform update steps
-      k[m] = miabot_calculate_filter_gain(p[m],r);
-      x[m] = miabot_update_state(x[m],k[m],z[m]);
-      p[m] = miabot_update_covariance(p[m],k[m]);
+      miabot_calculate_filter_gain(k[m],p[m],r);
+      miabot_update_state(x[m],k[m],z[m]);
+      miabot_update_covariance(p[m],k[m]);
       // place the updated state into the message to be published
       vectorToPose(x[m], current_pose);
       state_message.poses.push_back(current_pose);
@@ -142,7 +143,7 @@ public:
     geometry_msgs::Pose current_pose;
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
-      x[m] = miabot_propagate_state(x[m], u[m], dt);
+      miabot_propagate_state(x[m], u[m], dt);
       vectorToPose(x[m], current_pose);
       state_message.poses.push_back(current_pose);
     }

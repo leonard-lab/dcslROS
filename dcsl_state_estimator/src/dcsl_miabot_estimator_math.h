@@ -6,12 +6,12 @@
 #include <Eigen/Dense>
 using namespace Eigen;
 
-Vector3d miabot_propagate_state(const Vector3d& x, const Vector2d& u, double dt);
-Matrix3d miabot_propagate_covariance(const Vector3d& x, const Vector2d& u,
-	const Matrix3d& p, const Matrix3d& q, const Matrix3d& r, double dt);
-Matrix3d miabot_calculate_filter_gain(const Matrix3d& p, const Matrix3d& r);
-Vector3d miabot_update_state(const Vector3d& x, const MatrixXd& k, const Vector3d& z);
-Matrix3d miabot_update_covariance(const MatrixXd& p, const MatrixXd& k);
+void miabot_propagate_state(Vector3d& x, const Vector2d& u, double dt);
+void miabot_propagate_covariance(Matrix3d& p, const Vector3d& x, const Vector2d& u,
+	const Matrix3d& q, const Matrix3d& r, double dt);
+void miabot_calculate_filter_gain(Matrix3d& k, const Matrix3d& p, const Matrix3d& r);
+void miabot_update_state(Vector3d& x, const Matrix3d& k, const Vector3d& z);
+void miabot_update_covariance(Matrix3d& p, const Matrix3d& k);
 
 
 #endif
