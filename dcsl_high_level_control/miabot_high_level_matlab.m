@@ -10,14 +10,14 @@ clear all;
 %addpath(strcat(p, '/bin')); 
 addpath('/home/illscott/ROS_workspace/ipc-bridge-32bit-3.29.2011/ipc_msgs/ipc_geometry_msgs/bin');
 
-% create a subscriber that subscribes to the state estimate
+%% create a subscriber that subscribes to the state estimate
 pid_state = geometry_msgs_PoseArray('connect','subscriber','state_module','state_message')
 
-% create publishers that publish waypoints and velocities
+%% create publishers that publish waypoints and velocities
 pid_way = geometry_msgs_PoseArray('connect','publisher','waypoint_module','waypoint_message')
 pid_vel = geometry_msgs_PoseArray('connect','publisher','velocity_module','velocity_message')
 
-% create an empty geometry_msgs/poseArray message structure
+%% create an empty geometry_msgs/poseArray message structure
 state_msg = geometry_msgs_PoseArray('empty');
 way_msg = geometry_msgs_PoseArray('empty');
 vel_msg = geometry_msgs_PoseArray('empty');
@@ -25,7 +25,7 @@ vel_msg = geometry_msgs_PoseArray('empty');
 % create an empty geometry_msgs/Pose to put into poseArrays later
 pose = geometry_msgs_Pose('empty');
 
-% THE BIG LOOP WHERE EVERYTHING HAPPENS
+%% THE BIG LOOP WHERE EVERYTHING HAPPENS
 % create this stoploop button to allow the user to stop the program
 % without pressing CTRL-C, allowing us to close connections gracefully
 FS = stoploop('Press this to stop control loop') ;
