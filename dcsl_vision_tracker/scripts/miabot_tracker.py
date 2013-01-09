@@ -33,7 +33,7 @@ class miabot_tracker:
         cv.AbsDiff(working_image,self.background,working_image) #Background subtractionstorage
         threshold = 100
         cv.Threshold(working_image,working_image,threshold,255,cv.CV_THRESH_BINARY) #Threshold to create binary image
-        erodeIterations = 0
+        erodeIterations = 1
         cv.Erode(working_image, working_image, None, erodeIterations)
         contours = cv.FindContours(working_image, cv.CreateMemStorage(), cv.CV_RETR_LIST, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
 
@@ -73,8 +73,9 @@ class miabot_tracker:
                     p = Pose()
 
                     #Write sensed pose to message
-                    p.position.x = center[0]
-                    p.position.y = center[1]
+                    scale = 1.7526/1024.0 #meters/pixel
+                    p.position.x = (center[0]-0.5*float(working_image.width))*scale
+                    p.position.y = -(center[1]-0.5*float(working_image.height))*scale
                     p.orientation.z = theta
                     p.orientation.w = 1
                     measurements.poses.append(p)
