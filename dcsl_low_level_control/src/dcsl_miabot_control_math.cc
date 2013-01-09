@@ -10,8 +10,8 @@ void miabot_waypoint(double* output, double* pose, double* waypoint)
 	// inputs: pose = [x, y, theta], waypoint = [x, y]
 	// output: output = [v, omega]
 
-	double k1 = 1;
-	double k2 = 1;
+	double k1 = 0.7;
+	double k2 = 0.5;
 	
 	// calculate distance from bot to waypoint
 	double distance = sqrt(pow(pose[0]-waypoint[0],2) + pow(pose[1]-waypoint[1],2));
@@ -19,6 +19,6 @@ void miabot_waypoint(double* output, double* pose, double* waypoint)
 	double phi = atan2(waypoint[1]-pose[1], waypoint[0]-pose[0]);
 
 	output[0] = k1*distance*cos(pose[2]-phi);
-	output[1] = k2*sin(pose[2]-phi);
+	output[1] = -k2*sin(pose[2]-phi);
 }
 
