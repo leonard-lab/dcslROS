@@ -124,19 +124,21 @@ public:
 
 int main(int argc, char **argv)
 {
-  // This will be a ROS Parameter eventually
-  const int numRobots = 1;
-
   // initialize the node, with name miabot_waypoint_control
   ros::init(argc, argv, "miabot_waypoint_control");
 
   // create the NodeHandle which tells ROS which node this is
   ros::NodeHandle n;
 
+  // collect number of robots from parameter server (default 1)
+  int numRobots;
+  n.param<int>("/num_robots", numRobots, 1);
+
   // create and initialize the controller object
   MiabotLowLevelController mllc(n, numRobots);
   mllc.init();
 
+  // loop through callback queue until node is closed
   ros::spin();
 
   return 0;

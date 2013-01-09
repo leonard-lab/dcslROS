@@ -155,19 +155,22 @@ public:
 
 int main(int argc, char **argv)
 {
-  // This will be a ROS Parameter eventually
-  const int numRobots = 1;
-
   // initialize the node, with name miabot_waypoint_control
   ros::init(argc, argv, "dcsl_miabot_state_estimator");
 
   // create the NodeHandle which tells ROS which node this is
   ros::NodeHandle n;
 
+  // collect number of robots from parameter server (default 1)
+  int numRobots;
+  n.param<int>("/num_robots", numRobots, 1);
+
   // create and initialize the controller object
   MiabotStateEstimator mse(n, numRobots);
   mse.init();
 
+  // loop continuously, updating state at roughly 20 hz
+  // (the loop rate should probably be a param in launch file)
   ros::Rate looprate(20); // 20 hz
   while(ros::ok())
   {
