@@ -1,7 +1,5 @@
-#include <iostream>
-#include <algorithm>
-#include <iterator>
 #include "ros/ros.h"
+#include "ros/console.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseArray.h"
@@ -63,34 +61,39 @@ public:
   {
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
-    std::cout << "received state message" << std::endl;
-
-    dcsl_messages::TwistArray velocities;
-    geometry_msgs::Twist currentTwist;
-    double pos[3];
-    double way[2];
-    double outputVel[2];
-
-
-    for (int i = 0; i < numRobots; i++) // loop through the robots
+    ROS_DEBUG_STREAM("received state message");
+    if(int(states.poses.size()) == numRobots)
     {
-    	pos[0] = states.poses[i].position.x;
-      pos[1] = states.poses[i].position.y; 
-      pos[2] = states.poses[i].orientation.z;
-      way[0] = waypoints[i];
-      way[1] = waypoints[numRobots + i];
-      
-      // call function to compute outputVel = [v,omega]
-      miabot_waypoint(outputVel,pos,way,k1,k2);
+      dcsl_messages::TwistArray velocities;
+      geometry_msgs::Twist currentTwist;
+      double pos[3];
+      double way[2];
+      double outputVel[2];
 
-      // place that into velocities message
-      currentTwist.linear.x = outputVel[0];
-      currentTwist.angular.z = outputVel[1];
-      velocities.twists.push_back(currentTwist);
+
+      for (int i = 0; i < numRobots; i++) // loop through the robots
+      {
+      	pos[0] = states.poses[i].position.x;
+        pos[1] = states.poses[i].position.y; 
+        pos[2] = states.poses[i].orientation.z;
+        way[0] = waypoints[i];
+        way[1] = waypoints[numRobots + i];
+        
+        // call function to compute outputVel = [v,omega]
+        miabot_waypoint(outputVel,pos,way,k1,k2);
+
+        // place that into velocities message
+        currentTwist.linear.x = outputVel[0];
+        currentTwist.angular.z = outputVel[1];
+        velocities.twists.push_back(currentTwist);
+      }
+      ROS_DEBUG_STREAM("  publishing velocity message");
+      Pub_low_level.publish(velocities);
     }
-    std::cout << "  publishing velocity message" << std::endl;
-    Pub_low_level.publish(velocities);
-  
+    else
+    {
+      ROS_ERROR_STREAM("number of states did not match numRobots, skipping...");
+    }  
   }
 
   void waypointCallback(const geometry_msgs::PoseArray newWaypoints)
@@ -99,14 +102,19 @@ public:
     // the high level control topic
     // It stores the new waypoint in the waypoint array to use later 
     // when a new state estimate comes in.
-    std::cout << "received waypoint message" << std::endl;
-    for (int i = 0; i < numRobots; i++) // loop through the robots
+    ROS_DEBUG_STREAM("received waypoint message");
+    if(int(newWaypoints.poses.size()) == numRobots)
     {
-      waypoints[i]             = newWaypoints.poses[i].position.x;
-      waypoints[numRobots + i] = newWaypoints.poses[i].position.y;
+      for (int i = 0; i < numRobots; i++) // loop through the robots
+      {
+        waypoints[i]             = newWaypoints.poses[i].position.x;
+        waypoints[numRobots + i] = newWaypoints.poses[i].position.y;
+      }
     }
-    std::copy(waypoints.begin(), waypoints.end(), std::ostream_iterator<double>(std::cout, " "));
-    std::cout << std::endl;
+    else
+    {
+      ROS_ERROR_STREAM("number of waypoints did not match numRobots, skipping...");
+    }
   }
 
  void velocityCallback(const geometry_msgs::PoseArray velocityPose)
@@ -115,15 +123,22 @@ public:
     // the high level control topic
     // We move the data from the PoseArray into a TwistArray and publish it
     // (high level control has limitation of not being able to output TwistArray)
-    dcsl_messages::TwistArray velocities;
-    geometry_msgs::Twist currentTwist;
-    for (int m = 0; m < numRobots; m++)
+    if(int(velocityPose.poses.size()) == numRobots)
     {
-      currentTwist.linear.x = velocityPose.poses[m].position.x;
-      currentTwist.angular.z = velocityPose.poses[m].orientation.z;
-      velocities.twists.push_back(currentTwist);
+      dcsl_messages::TwistArray velocities;
+      geometry_msgs::Twist currentTwist;
+      for (int m = 0; m < numRobots; m++)
+      {
+        currentTwist.linear.x = velocityPose.poses[m].position.x;
+        currentTwist.angular.z = velocityPose.poses[m].orientation.z;
+        velocities.twists.push_back(currentTwist);
+      }
+      Pub_low_level.publish(velocities);
     }
-    Pub_low_level.publish(velocities);
+    else
+    {
+      ROS_ERROR_STREAM("number of velocity inputs did not match numRobots, skipping...");
+    }
   }
 };
 
