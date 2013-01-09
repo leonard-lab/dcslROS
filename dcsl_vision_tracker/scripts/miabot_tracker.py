@@ -15,7 +15,8 @@ class miabot_tracker:
     def __init__(self):
         self.image_pub = rospy.Publisher("tracked_image",Image)
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        self.background = cv.LoadImageM("/home/bandrade/dcslROS/dcsl_miabot_main/parameters/background.png",cv.CV_LOAD_IMAGE_GRAYSCALE)
+        location = "/home/bandrade/dcslROS/dcsl_miabot_main/parameters/background.png"
+        self.background = cv.LoadImageM("background.png",cv.CV_LOAD_IMAGE_GRAYSCALE)
         self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.imageCallback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
@@ -63,11 +64,14 @@ class miabot_tracker:
                     centroid = (int(centroidFloat[0]),int(centroidFloat[1]))
                     
                     #Theta is found by drawing line from centroid of blob through center of the robot
-                    theta = m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
+                    theta = -m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
+                    
+                    print "Theta: " + str(theta*180.0/m.pi)
+                    print "Box: " + str(box[2])
                     
                     #Point center and orientation on output_image
                     length = 15.0
-                    end = (int(center[0]+m.cos(theta)*length),int(center[1]+m.sin(theta)*length))
+                    end = (int(center[0]+m.cos(theta)*length),int(center[1]-m.sin(theta)*length))
                     cv.Line(output_image,center,end,blue)                
                     cv.Circle(output_image, center, radius, blue)
                     p = Pose()
