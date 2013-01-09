@@ -28,16 +28,22 @@ private:
   // all x values, then all y values, so the waypoint for robot j
   // would be x = waypoints[j], y = waypoints[numRobots+j]
   std::vector<double> waypoints;
+  const double k1;
+  const double k2;
   
 public:
-  MiabotLowLevelController(const ros::NodeHandle& node_handle, const int numBots) :
-    numRobots(numBots),
-    n(node_handle),
-    Pub_low_level(),
-    Sub_state(),
-    Sub_waypoint(),
-    Sub_velocity(),
-    waypoints(numBots*2)  {}
+  MiabotLowLevelController(const ros::NodeHandle& node_handle, 
+    const int numBots, const double k1, const double k2) :
+      numRobots(numBots),
+      n(node_handle),
+      Pub_low_level(),
+      Sub_state(),
+      Sub_waypoint(),
+      Sub_velocity(),
+      waypoints(numBots*2),
+      k1(k1),
+      k2(k2)  
+  {}
 
   void init()
   {
@@ -75,7 +81,7 @@ public:
       way[1] = waypoints[numRobots + i];
       
       // call function to compute outputVel = [v,omega]
-      miabot_waypoint(outputVel,pos,way);
+      miabot_waypoint(outputVel,pos,way,k1,k2);
 
       // place that into velocities message
       currentTwist.linear.x = outputVel[0];
@@ -124,19 +130,26 @@ public:
 
 int main(int argc, char **argv)
 {
-  // This will be a ROS Parameter eventually
-  const int numRobots = 1;
-
   // initialize the node, with name miabot_waypoint_control
   ros::init(argc, argv, "miabot_waypoint_control");
 
   // create the NodeHandle which tells ROS which node this is
   ros::NodeHandle n;
 
+  // collect number of robots from parameter server (default 1)
+  int numRobots;
+  n.param<int>("/num_robots", numRobots, 1);
+
+  // collect waypoint control gains from parameter server
+  double k1, k2;
+  n.param<double>("waypoint_gain_1", k1, 0.7);
+  n.param<double>("waypoint_gain_2", k2, 0.5);
+
   // create and initialize the controller object
-  MiabotLowLevelController mllc(n, numRobots);
+  MiabotLowLevelController mllc(n, numRobots, k1, k2);
   mllc.init();
 
+  // loop through callback queue until node is closed
   ros::spin();
 
   return 0;
