@@ -12,7 +12,7 @@
     <node name="miabotA" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" />
   </group >    
 
-  <node name="low_level_controller" pkg="dcsl_low_level_control" type="dcsl_miabot_waypoint_control" >
+  <node name="low_level_controller" pkg="dcsl_low_level_control" type="dcsl_miabot_low_level_control" >
     
   </node > 
 

@@ -13,7 +13,7 @@
    This file defines the low_level_control node
    for miabot waypoint control. */
 
-class MiabotWaypointController
+class MiabotLowLevelController
 {
 public:
   int numRobots;
@@ -21,6 +21,7 @@ public:
   ros::Publisher Pub_low_level;
   ros::Subscriber Sub_state;
   ros::Subscriber Sub_waypoint;
+  ros::Subscriber Sub_velocity;
 
 private:
   // store latest waypoint as a vector, ordered with
@@ -29,8 +30,14 @@ private:
   std::vector<double> waypoints;
   
 public:
-  MiabotWaypointController(const ros::NodeHandle& node_handle, const int numBots)
-    : numRobots(numBots),  n(node_handle), Pub_low_level(), Sub_state(), Sub_waypoint(), waypoints(numBots*2)  {}
+  MiabotLowLevelController(const ros::NodeHandle& node_handle, const int numBots) :
+    numRobots(numBots),
+    n(node_handle),
+    Pub_low_level(),
+    Sub_state(),
+    Sub_waypoint(),
+    Sub_velocity(),
+    waypoints(numBots*2)  {}
 
   void init()
   {
@@ -39,8 +46,11 @@ public:
     Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel_array", 1);
 
     // create Subscriber objects to collect states and new waypoint commands
-    Sub_state = n.subscribe("state_estimate",1,&MiabotWaypointController::stateCallback,this);
-    Sub_waypoint = n.subscribe("waypoint_input",1,&MiabotWaypointController::waypointCallback,this);
+    Sub_state    = n.subscribe("state_estimate",1,&MiabotLowLevelController::stateCallback,this);
+    Sub_waypoint = n.subscribe("waypoint_input",1,&MiabotLowLevelController::waypointCallback,this);
+    // create subscriber for velocity inputs
+    Sub_velocity = n.subscribe("velocity_input",1,&MiabotLowLevelController::velocityCallback,this);
+
   }
 
   void stateCallback(const geometry_msgs::PoseArray states)
@@ -92,6 +102,23 @@ public:
     std::copy(waypoints.begin(), waypoints.end(), std::ostream_iterator<double>(std::cout, " "));
     std::cout << std::endl;
   }
+
+ void velocityCallback(const geometry_msgs::PoseArray velocityPose)
+  {
+    // This is called when a new velocity  message comes in from
+    // the high level control topic
+    // We move the data from the PoseArray into a TwistArray and publish it
+    // (high level control has limitation of not being able to output TwistArray)
+    dcsl_messages::TwistArray velocities;
+    geometry_msgs::Twist currentTwist;
+    for (int m = 0; m < numRobots; m++)
+    {
+      currentTwist.linear.x = velocityPose.poses[m].position.x;
+      currentTwist.angular.z = velocityPose.poses[m].orientation.z;
+      velocities.twists.push_back(currentTwist);
+    }
+    Pub_low_level.publish(velocities);
+  }
 };
 
 
@@ -107,8 +134,8 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   // create and initialize the controller object
-  MiabotWaypointController mwc(n, numRobots);
-  mwc.init();
+  MiabotLowLevelController mllc(n, numRobots);
+  mllc.init();
 
   ros::spin();
 
