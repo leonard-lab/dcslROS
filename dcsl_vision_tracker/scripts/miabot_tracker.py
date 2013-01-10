@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import math as m
 
+from munkres import Munkres
+
 import roslib
 roslib.load_manifest('dcsl_vision_tracker')
 import rospy
@@ -104,31 +106,32 @@ class miabot_tracker:
         self.currentStates = data       
 
     def matchRobots(self, readings):
-        scores = []
-        idList = []
+        costMatrix = []
         for reading in readings:
             temp = []
             for state in self.currentStates.poses:
                 difference = pow(reading[0]-state.position.x,2)+pow(reading[1]-state.position.y,2)
                 temp.append(difference)                
-            scores.append(temp)
-            idList.append(temp.index(min(temp)))
-        
-        '''
+            costMatrix.append(temp)
+            
+        mun = Munkres()
+        indexes = mun.compute(costMatrix)
         for i in xrange(0,self.nRobots):
-            if idList.count(i) != 1:
-            '''
-        for i in xrange(0,self.nRobots):
-            for ID in idList:
-                if ID == i:
+            assigned = False
+            for pair in indexes:
+                if pair[1] == i: 
+                    readingsIndex = pair[0]
                     p = Pose()
-                    p.position.x = readings[i][0]
-                    p.position.y = readings[i][1]
-                    p.orientation.z = readings[i][2]
+                    p.position.x = readings[readingsIndex][0]
+                    p.position.y = readings[readingsIndex][1]
+                    p.orientation.z = readings[readingsIndex][2]
                     p.orientation.w = 1
                     self.measurements.poses.append(p)
-
-
+                    assigned = True
+            if not assigned:
+                p = Pose()
+                p.orientation.w = 0
+                self.measurements.poses.append(p)             
 
 
 def main():
