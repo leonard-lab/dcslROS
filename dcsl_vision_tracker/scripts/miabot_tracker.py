@@ -8,7 +8,7 @@ from geometry_msgs.msg import PoseArray,Pose
 import cv
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge,CvBridgeError
-import numpy
+
 
 class miabot_tracker:
 
@@ -42,8 +42,8 @@ class miabot_tracker:
         red = cv.RGB(255,0,0)
         blue = cv.RGB(0,0,255)
 
-        measurements = PoseArray()
-        #measurements = [Pose()]
+        self.measurements = PoseArray()
+        readings = []
 
         if contours:
             _c = contours
@@ -67,26 +67,24 @@ class miabot_tracker:
                     #Theta is found by drawing line from centroid of blob through center of the robot
                     theta = -m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
                     
-                    print "Theta: " + str(theta*180.0/m.pi)
-                    print "Box: " + str(box[2])
+                    #print "Theta: " + str(theta*180.0/m.pi)
+                    #print "Box: " + str(box[2])
                     
                     #Point center and orientation on output_image
                     length = 15.0
                     end = (int(center[0]+m.cos(theta)*length),int(center[1]-m.sin(theta)*length))
                     cv.Line(output_image,center,end,blue)                
                     cv.Circle(output_image, center, radius, blue)
-                    p = Pose()
 
                     #Write sensed pose to message
                     scale = 1.7526/1024.0 #meters/pixel
-                    p.position.x = (center[0]-0.5*float(working_image.width))*scale
-                    p.position.y = -(center[1]-0.5*float(working_image.height))*scale
-                    p.orientation.z = theta
-                    p.orientation.w = 1
-                    measurements.poses.append(p)
+                    x = (center[0]-0.5*float(working_image.width))*scale
+                    y = -(center[1]-0.5*float(working_image.height))*scale
+                    theta = theta
+                    readings.append((x,y,theta))
+                    
                 #Cycle to next contour
                 _c = _c.h_next() 
-                
 
             cv.DrawContours(output_image, contours, red, blue,2)
 
@@ -98,11 +96,40 @@ class miabot_tracker:
         except CvBridgeError, e:
             print e
 
-        self.measurement_pub.publish(measurements)
+        self.matchRobots(readings)
+
+        self.measurement_pub.publish(self.measurements)
 
     def stateCallback(self, data):
-        self.currentState = data                                                
-               
+        self.currentStates = data       
+
+    def matchRobots(self, readings):
+        scores = []
+        idList = []
+        for reading in readings:
+            temp = []
+            for state in self.currentStates.poses:
+                difference = pow(reading[0]-state.position.x,2)+pow(reading[1]-state.position.y,2)
+                temp.append(difference)                
+            scores.append(temp)
+            idList.append(temp.index(min(temp)))
+        
+        '''
+        for i in xrange(0,self.nRobots):
+            if idList.count(i) != 1:
+            '''
+        for i in xrange(0,self.nRobots):
+            for ID in idList:
+                if ID == i:
+                    p = Pose()
+                    p.position.x = readings[i][0]
+                    p.position.y = readings[i][1]
+                    p.orientation.z = readings[i][2]
+                    p.orientation.w = 1
+                    self.measurements.poses.append(p)
+
+
+
 
 def main():
     rospy.init_node('dcsl_miabot_tracker')
