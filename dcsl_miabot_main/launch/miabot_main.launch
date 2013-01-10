@@ -2,8 +2,6 @@
   
   <param name="/n_robots" value="1" />
 
-  <param name="num_robots" value="1" type="int" />
-
   <node name="camera1" pkg="camera1394" type="camera1394_node" >
     <param name="video_mode" value="1024x768_mono8" />
   </node>
