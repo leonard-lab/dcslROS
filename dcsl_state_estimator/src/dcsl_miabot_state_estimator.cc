@@ -82,7 +82,7 @@ public:
     {
       x[m] = Vector3d::Zero();
       u[m] = Vector2d::Zero();
-      p[m] = Matrix3d::Constant(1.0);      
+      p[m] = Matrix3d::Constant(0.1);      
     }
  }
 
@@ -97,6 +97,7 @@ public:
       {
         u[m](0) = newVelocities.twists[m].linear.x;
         u[m](1) = newVelocities.twists[m].angular.z;
+        ROS_DEBUG_STREAM("u[" << m << "] = " << u[m]);
       }
     }
     else
@@ -123,6 +124,7 @@ public:
         // take measurement out of message
         PoseToVector(newMeasurement.poses[m], z[m]);
         // perform propagation steps
+        //x[m] = miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
         miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
         miabot_propagate_covariance(p[m], x[m], u[m], q, r, newMeasureTime - measureTime);
         measureTime = stateTime = newMeasureTime;
@@ -158,7 +160,11 @@ public:
     geometry_msgs::Pose current_pose;
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
+      ROS_DEBUG_STREAM("propagating state ahead by dt = " << dt);
+      ROS_DEBUG_STREAM("x_minus = " << x[m]);
+      //x[m] = miabot_propagate_state(x[m], u[m], dt);
       miabot_propagate_state(x[m], u[m], dt);
+      ROS_DEBUG_STREAM("x_plus  = " << x[m]);
       vectorToPose(x[m], current_pose);
       state_message.poses.push_back(current_pose);
     }
@@ -186,7 +192,7 @@ int main(int argc, char **argv)
 
   // loop continuously, updating state at roughly 20 hz
   // (the loop rate should probably be a param in launch file)
-  ros::Rate looprate(20); // 20 hz
+  ros::Rate looprate(2); // 20 hz
   while(ros::ok())
   {
     ros::spinOnce();
