@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import math as m
 
+from munkres import Munkres
+
 import roslib
 roslib.load_manifest('dcsl_vision_tracker')
 import rospy
@@ -8,17 +10,19 @@ from geometry_msgs.msg import PoseArray,Pose
 import cv
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge,CvBridgeError
-import numpy
+
 
 class miabot_tracker:
 
     def __init__(self):
         self.image_pub = rospy.Publisher("tracked_image",Image)
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        self.background = cv.LoadImageM("/home/bandrade/dcslROS/dcsl_miabot_main/parameters/background.png",cv.CV_LOAD_IMAGE_GRAYSCALE)
+        location = rospy.get_param('/vision_tracker/background_image')
+        self.background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
         self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.imageCallback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
+        self.nRobots = rospy.get_param("/n_robots",1)
 
     def imageCallback(self,data):
         try:
@@ -40,8 +44,8 @@ class miabot_tracker:
         red = cv.RGB(255,0,0)
         blue = cv.RGB(0,0,255)
 
-        measurements = PoseArray()
-        #measurements = [Pose()]
+        self.measurements = PoseArray()
+        readings = []
 
         if contours:
             _c = contours
@@ -63,25 +67,26 @@ class miabot_tracker:
                     centroid = (int(centroidFloat[0]),int(centroidFloat[1]))
                     
                     #Theta is found by drawing line from centroid of blob through center of the robot
-                    theta = m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
+                    theta = -m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
+                    
+                    #print "Theta: " + str(theta*180.0/m.pi)
+                    #print "Box: " + str(box[2])
                     
                     #Point center and orientation on output_image
                     length = 15.0
-                    end = (int(center[0]+m.cos(theta)*length),int(center[1]+m.sin(theta)*length))
+                    end = (int(center[0]+m.cos(theta)*length),int(center[1]-m.sin(theta)*length))
                     cv.Line(output_image,center,end,blue)                
                     cv.Circle(output_image, center, radius, blue)
-                    p = Pose()
 
                     #Write sensed pose to message
                     scale = 1.7526/1024.0 #meters/pixel
-                    p.position.x = (center[0]-0.5*float(working_image.width))*scale
-                    p.position.y = -(center[1]-0.5*float(working_image.height))*scale
-                    p.orientation.z = theta
-                    p.orientation.w = 1
-                    measurements.poses.append(p)
+                    x = (center[0]-0.5*float(working_image.width))*scale
+                    y = -(center[1]-0.5*float(working_image.height))*scale
+                    theta = theta
+                    readings.append((x,y,theta))
+                    
                 #Cycle to next contour
                 _c = _c.h_next() 
-                
 
             cv.DrawContours(output_image, contours, red, blue,2)
 
@@ -93,11 +98,41 @@ class miabot_tracker:
         except CvBridgeError, e:
             print e
 
-        self.measurement_pub.publish(measurements)
+        self.matchRobots(readings)
+
+        self.measurement_pub.publish(self.measurements)
 
     def stateCallback(self, data):
-        self.currentState = data                                                
-               
+        self.currentStates = data       
+
+    def matchRobots(self, readings):
+        costMatrix = []
+        for reading in readings:
+            temp = []
+            for state in self.currentStates.poses:
+                difference = pow(reading[0]-state.position.x,2)+pow(reading[1]-state.position.y,2)
+                temp.append(difference)                
+            costMatrix.append(temp)
+            
+        mun = Munkres()
+        indexes = mun.compute(costMatrix)
+        for i in xrange(0,self.nRobots):
+            assigned = False
+            for pair in indexes:
+                if pair[1] == i: 
+                    readingsIndex = pair[0]
+                    p = Pose()
+                    p.position.x = readings[readingsIndex][0]
+                    p.position.y = readings[readingsIndex][1]
+                    p.orientation.z = readings[readingsIndex][2]
+                    p.orientation.w = 1
+                    self.measurements.poses.append(p)
+                    assigned = True
+            if not assigned:
+                p = Pose()
+                p.orientation.w = 0
+                self.measurements.poses.append(p)             
+
 
 def main():
     rospy.init_node('dcsl_miabot_tracker')

@@ -1,7 +1,7 @@
-#include <iostream>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include "ros/ros.h"
+#include "ros/console.h"
 #include "dcsl_miabot_estimator_math.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseArray.h"
@@ -81,7 +81,7 @@ public:
     {
       x[m] = Vector3d::Zero();
       u[m] = Vector2d::Zero();
-      p[m] = Matrix3d::Constant(1.0);      
+      p[m] = Matrix3d::Constant(0.1);      
     }
  }
 
@@ -89,11 +89,19 @@ public:
   {
     // This is called when a new control  message comes in from
     // the low level control topic, updating the stored info in this node
-    std::cout << "received new control message" << std::endl;
-    for (int m = 0; m < numRobots; m++) // loop through robots
+    if(int(newVelocities.twists.size()) == numRobots)
     {
-      u[m](0) = newVelocities.twists[m].linear.x;
-      u[m](1) = newVelocities.twists[m].angular.z;
+      ROS_DEBUG_STREAM("received new control message");
+      for (int m = 0; m < numRobots; m++) // loop through robots
+      {
+        u[m](0) = newVelocities.twists[m].linear.x;
+        u[m](1) = newVelocities.twists[m].angular.z;
+        ROS_DEBUG_STREAM("u[" << m << "] = " << u[m]);
+      }
+    }
+    else
+    {
+      ROS_ERROR_STREAM("number of velocities did not match numRobots, skipping...");
     }
   }
 
@@ -102,29 +110,44 @@ public:
     // This is called when a new measurement message comes in from
     // the vision tracking node, updating the stored info in this node
     // and calling the kalman filter function to update our estimate
-    ros::Time rosMeasureTime = ros::Time::now();
-    double newMeasureTime = rosMeasureTime.toSec();
-    
-    geometry_msgs::PoseArray state_message;
-    state_message.header.stamp = rosMeasureTime;
-    geometry_msgs::Pose current_pose;
-    for (int m = 0; m < numRobots; m++) // loop through robots
+    if(int(newMeasurement.poses.size()) == numRobots)
     {
-      // take measurement out of message
-      PoseToVector(newMeasurement.poses[m], z[m]);
-      // perform propagation steps
-      miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
-      miabot_propagate_covariance(p[m], x[m], u[m], q, r, newMeasureTime - measureTime);
+      ros::Time rosMeasureTime = ros::Time::now();
+      double newMeasureTime = rosMeasureTime.toSec();
+      
+      geometry_msgs::PoseArray state_message;
+      state_message.header.stamp = rosMeasureTime;
+      geometry_msgs::Pose current_pose;
+      for (int m = 0; m < numRobots; m++) // loop through robots
+      {
+        // perform propagation steps
+        miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
+        miabot_propagate_covariance(p[m], x[m], u[m], q, r, newMeasureTime - measureTime);
+
+        // perform update steps, only if this robot was tracked
+        if (newMeasurement.poses[m].orientation.w == 1)
+        {
+          miabot_calculate_filter_gain(k[m],p[m],r);
+          // take measurement out of message
+          PoseToVector(newMeasurement.poses[m], z[m]);
+          miabot_update_state(x[m],k[m],z[m]);
+          miabot_update_covariance(p[m],k[m]);          
+        }
+        else // robot was not tracked in this measurement
+        {
+          ROS_ERROR_STREAM("no measurement for robot " << m << ", skipping state update");
+        }
+        // place the updated state into the message to be published
+        vectorToPose(x[m], current_pose);
+        state_message.poses.push_back(current_pose);
+      }
       measureTime = stateTime = newMeasureTime;
-      // perform update steps
-      miabot_calculate_filter_gain(k[m],p[m],r);
-      miabot_update_state(x[m],k[m],z[m]);
-      miabot_update_covariance(p[m],k[m]);
-      // place the updated state into the message to be published
-      vectorToPose(x[m], current_pose);
-      state_message.poses.push_back(current_pose);
+      Pub_state.publish(state_message);
     }
-    Pub_state.publish(state_message);
+    else
+    {
+      ROS_ERROR_STREAM("number of measurements did not match numRobots, skipping...");
+    }
   }
 
   void propagateState()
@@ -133,9 +156,7 @@ public:
     // propagates state forward, and publishes the result
     ros::Time newRosTime = ros::Time::now();
     double newTime = newRosTime.toSec();
-    //std::cout << "time is now " << std::setprecision(15) << newTime << std::endl;
     double dt = newTime - stateTime;
-    //std::cout << "  " << dt << "seconds from previous" << std::endl;
     stateTime = newTime;
 
     geometry_msgs::PoseArray state_message;
@@ -143,11 +164,14 @@ public:
     geometry_msgs::Pose current_pose;
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
+      ROS_DEBUG_STREAM("propagating state ahead by dt = " << dt);
+      ROS_DEBUG_STREAM("x_minus = " << x[m]);
+      //x[m] = miabot_propagate_state(x[m], u[m], dt);
       miabot_propagate_state(x[m], u[m], dt);
+      ROS_DEBUG_STREAM("x_plus  = " << x[m]);
       vectorToPose(x[m], current_pose);
       state_message.poses.push_back(current_pose);
     }
-    //std::cout << "publishing state at time " << stateTime << std::endl;
     Pub_state.publish(state_message);
   }
 };
@@ -155,20 +179,23 @@ public:
 
 int main(int argc, char **argv)
 {
-  // This will be a ROS Parameter eventually
-  const int numRobots = 1;
-
   // initialize the node, with name miabot_waypoint_control
   ros::init(argc, argv, "dcsl_miabot_state_estimator");
 
   // create the NodeHandle which tells ROS which node this is
   ros::NodeHandle n;
 
+  // collect number of robots from parameter server (default 1)
+  int numRobots;
+  n.param<int>("/n_robots", numRobots, 1);
+
   // create and initialize the controller object
   MiabotStateEstimator mse(n, numRobots);
   mse.init();
 
-  ros::Rate looprate(20); // 20 hz
+  // loop continuously, updating state at roughly 20 hz
+  // (the loop rate should probably be a param in launch file)
+  ros::Rate looprate(2); // 20 hz
   while(ros::ok())
   {
     ros::spinOnce();

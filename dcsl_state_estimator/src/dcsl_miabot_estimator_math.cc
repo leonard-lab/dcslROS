@@ -8,25 +8,26 @@ void miabot_propagate_state(Vector3d& state, const Vector2d& u, double dt)
 	// propagate the miabot's state forward in time for dt seconds
 	// based on initial position state = [x, y, theta], and constant 
 	// applied control u = [v, omega]
-	double eps = 0.001;
-	Vector3d state_plus;
+	double eps = 0.01;
+	double x_plus, y_plus, theta_plus;
+	//Vector3d state_plus;
 	
 	if (abs(u(1)) < eps) // check if moving in straight line
 	{
-		double theta_plus = state(2);
-                double x_plus = u(0)*dt*cos(theta_plus);
-		double y_plus = u(0)*dt*sin(theta_plus);
-		state << x_plus, y_plus, theta_plus;
+		theta_plus = state(2); // theta remains constant
+        x_plus = state(0) + u(0)*dt*cos(theta_plus);
+		y_plus = state(0) + u(0)*dt*sin(theta_plus);
 	}
 	else
 	{
 		// Otherwise the miabot will go on a circular path with radius v/omega
-		double theta_plus = state(2) + u(1)*dt;
+		theta_plus = state(2) + u(1)*dt;
 		double radius = u(0)/u(1);
-		double x_plus = state(0) + radius*(sin(theta_plus) - sin(state(2)));
-		double y_plus = state(1) + radius*(cos(state(2)) - cos(theta_plus));
-		state << x_plus, y_plus, theta_plus;
+		x_plus = state(0) + radius*(sin(theta_plus) - sin(state(2)));
+		y_plus = state(1) + radius*(cos(state(2)) - cos(theta_plus));
 	}
+	state << x_plus, y_plus, theta_plus;
+	//return state_plus;
 }
 
 void miabot_propagate_covariance(Matrix3d& p, const Vector3d& x, const Vector2d& u, 
