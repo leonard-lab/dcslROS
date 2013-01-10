@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include "ros/ros.h"
+#include "ros/console.h"
 #include "dcsl_miabot_estimator_math.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseArray.h"
@@ -89,11 +90,18 @@ public:
   {
     // This is called when a new control  message comes in from
     // the low level control topic, updating the stored info in this node
-    std::cout << "received new control message" << std::endl;
-    for (int m = 0; m < numRobots; m++) // loop through robots
+    if(int(newVelocities.twists.size()) == numRobots)
     {
-      u[m](0) = newVelocities.twists[m].linear.x;
-      u[m](1) = newVelocities.twists[m].angular.z;
+      ROS_DEBUG_STREAM("received new control message");
+      for (int m = 0; m < numRobots; m++) // loop through robots
+      {
+        u[m](0) = newVelocities.twists[m].linear.x;
+        u[m](1) = newVelocities.twists[m].angular.z;
+      }
+    }
+    else
+    {
+      ROS_ERROR_STREAM("number of velocities did not match numRobots, skipping...");
     }
   }
 
@@ -102,29 +110,36 @@ public:
     // This is called when a new measurement message comes in from
     // the vision tracking node, updating the stored info in this node
     // and calling the kalman filter function to update our estimate
-    ros::Time rosMeasureTime = ros::Time::now();
-    double newMeasureTime = rosMeasureTime.toSec();
-    
-    geometry_msgs::PoseArray state_message;
-    state_message.header.stamp = rosMeasureTime;
-    geometry_msgs::Pose current_pose;
-    for (int m = 0; m < numRobots; m++) // loop through robots
+    if(int(newMeasurement.poses.size()) == numRobots)
     {
-      // take measurement out of message
-      PoseToVector(newMeasurement.poses[m], z[m]);
-      // perform propagation steps
-      miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
-      miabot_propagate_covariance(p[m], x[m], u[m], q, r, newMeasureTime - measureTime);
-      measureTime = stateTime = newMeasureTime;
-      // perform update steps
-      miabot_calculate_filter_gain(k[m],p[m],r);
-      miabot_update_state(x[m],k[m],z[m]);
-      miabot_update_covariance(p[m],k[m]);
-      // place the updated state into the message to be published
-      vectorToPose(x[m], current_pose);
-      state_message.poses.push_back(current_pose);
+      ros::Time rosMeasureTime = ros::Time::now();
+      double newMeasureTime = rosMeasureTime.toSec();
+      
+      geometry_msgs::PoseArray state_message;
+      state_message.header.stamp = rosMeasureTime;
+      geometry_msgs::Pose current_pose;
+      for (int m = 0; m < numRobots; m++) // loop through robots
+      {
+        // take measurement out of message
+        PoseToVector(newMeasurement.poses[m], z[m]);
+        // perform propagation steps
+        miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
+        miabot_propagate_covariance(p[m], x[m], u[m], q, r, newMeasureTime - measureTime);
+        measureTime = stateTime = newMeasureTime;
+        // perform update steps
+        miabot_calculate_filter_gain(k[m],p[m],r);
+        miabot_update_state(x[m],k[m],z[m]);
+        miabot_update_covariance(p[m],k[m]);
+        // place the updated state into the message to be published
+        vectorToPose(x[m], current_pose);
+        state_message.poses.push_back(current_pose);
+      }
+      Pub_state.publish(state_message);
     }
-    Pub_state.publish(state_message);
+    else
+    {
+      ROS_ERROR_STREAM("number of measurements did not match numRobots, skipping...");
+    }
   }
 
   void propagateState()
