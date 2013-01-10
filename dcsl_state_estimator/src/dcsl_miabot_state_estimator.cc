@@ -1,4 +1,3 @@
-#include <iostream>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include "ros/ros.h"
@@ -121,21 +120,28 @@ public:
       geometry_msgs::Pose current_pose;
       for (int m = 0; m < numRobots; m++) // loop through robots
       {
-        // take measurement out of message
-        PoseToVector(newMeasurement.poses[m], z[m]);
         // perform propagation steps
-        //x[m] = miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
         miabot_propagate_state(x[m], u[m], newMeasureTime - stateTime);
         miabot_propagate_covariance(p[m], x[m], u[m], q, r, newMeasureTime - measureTime);
-        measureTime = stateTime = newMeasureTime;
-        // perform update steps
-        miabot_calculate_filter_gain(k[m],p[m],r);
-        miabot_update_state(x[m],k[m],z[m]);
-        miabot_update_covariance(p[m],k[m]);
+
+        // perform update steps, only if this robot was tracked
+        if (newMeasurement.poses[m].orientation.w == 1)
+        {
+          miabot_calculate_filter_gain(k[m],p[m],r);
+          // take measurement out of message
+          PoseToVector(newMeasurement.poses[m], z[m]);
+          miabot_update_state(x[m],k[m],z[m]);
+          miabot_update_covariance(p[m],k[m]);          
+        }
+        else // robot was not tracked in this measurement
+        {
+          ROS_ERROR_STREAM("no measurement for robot " << m << ", skipping state update");
+        }
         // place the updated state into the message to be published
         vectorToPose(x[m], current_pose);
         state_message.poses.push_back(current_pose);
       }
+      measureTime = stateTime = newMeasureTime;
       Pub_state.publish(state_message);
     }
     else
@@ -150,9 +156,7 @@ public:
     // propagates state forward, and publishes the result
     ros::Time newRosTime = ros::Time::now();
     double newTime = newRosTime.toSec();
-    //std::cout << "time is now " << std::setprecision(15) << newTime << std::endl;
     double dt = newTime - stateTime;
-    //std::cout << "  " << dt << "seconds from previous" << std::endl;
     stateTime = newTime;
 
     geometry_msgs::PoseArray state_message;
@@ -168,7 +172,6 @@ public:
       vectorToPose(x[m], current_pose);
       state_message.poses.push_back(current_pose);
     }
-    //std::cout << "publishing state at time " << stateTime << std::endl;
     Pub_state.publish(state_message);
   }
 };
