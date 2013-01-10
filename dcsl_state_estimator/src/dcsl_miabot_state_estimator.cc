@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 
   // collect number of robots from parameter server (default 1)
   int numRobots;
-  n.param<int>("/num_robots", numRobots, 1);
+  n.param<int>("/n_robots", numRobots, 1);
 
   // create and initialize the controller object
   MiabotStateEstimator mse(n, numRobots);
