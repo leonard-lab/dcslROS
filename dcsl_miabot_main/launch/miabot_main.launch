@@ -11,17 +11,18 @@
   </node >
   
   <group ns="robot" >
-    <node name="miabotA" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" />
+    <node name="miabotA" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" >
+      <remap from="/robot/cmd_vel" to="/cmd_vel0" />
+    </node > 
   </group >    
 
   <node name="low_level_controller" pkg="dcsl_low_level_control" 
     type="dcsl_miabot_low_level_control" args="--way">
-    <param name="waypoint_gain_1" value="0.7" type="double" />
-    <param name="waypoint_gain_2" value="0.5" type="double" />
+    <param name="waypoint_gain_1" value="0.3" type="double" />
+    <param name="waypoint_gain_2" value="0.1" type="double" />
   </node > 
 
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
-    <remap from="cmd_vel0" to="/robot/cmd_vel" />
   </node >
 
   <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" />
