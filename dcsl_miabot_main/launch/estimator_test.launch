@@ -1,0 +1,24 @@
+<launch>
+  
+  <param name="/n_robots" value="1" />
+
+  <node name="camera1" pkg="camera1394" type="camera1394_node" >
+    <param name="video_mode" value="1024x768_mono8" />
+  </node>
+
+  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="miabot_tracker.py" >
+    <param name="background_image" value="$(find dcsl_miabot_main)/parameters/background.png" />
+  </node >
+  
+  <group ns="robot" >
+    <node name="miabotA" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" />
+  </group >    
+
+  
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
+    <remap from="cmd_vel0" to="/robot/cmd_vel" />
+  </node >
+
+  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" />
+
+</launch>
