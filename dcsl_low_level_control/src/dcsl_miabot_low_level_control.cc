@@ -23,8 +23,9 @@ public:
 
 private:
   // store latest waypoint as a vector, ordered with
-  // all x values, then all y values, so the waypoint for robot j
-  // would be x = waypoints[j], y = waypoints[numRobots+j]
+  // all x values, all y values, then all theta values, 
+  // so the waypoint for robot j would be x = waypoints[j], 
+  // y = waypoints[numRobots+j], and theta = waypoints[numRobots*2 + j]
   std::vector<double> waypoints;
   const double k1;
   const double k2;
@@ -38,7 +39,7 @@ public:
       Sub_state(),
       Sub_waypoint(),
       Sub_velocity(),
-      waypoints(numBots*2),
+      waypoints(numBots*3),
       k1(k1),
       k2(k2)  
   {}
@@ -83,6 +84,7 @@ public:
         pos[2] = states.poses[i].orientation.z;
         way[0] = waypoints[i];
         way[1] = waypoints[numRobots + i];
+        way[2] = waypoints[numRobots*2 + i];
         
         // call function to compute outputVel = [v,omega]
         miabot_waypoint(outputVel,pos,way,k1,k2);
@@ -112,8 +114,9 @@ public:
     {
       for (int i = 0; i < numRobots; i++) // loop through the robots
       {
-        waypoints[i]             = newWaypoints.poses[i].position.x;
-        waypoints[numRobots + i] = newWaypoints.poses[i].position.y;
+        waypoints[i]               = newWaypoints.poses[i].position.x;
+        waypoints[numRobots + i]   = newWaypoints.poses[i].position.y;
+        waypoints[2*numRobots + i] = newWaypoints.poses[i].orientation.z;
       }
     }
     else
