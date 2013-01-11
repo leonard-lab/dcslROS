@@ -35,3 +35,8 @@ include_directories(${Eigen_INCLUDE_DIRS})
 rosbuild_add_library(dcsl_miabot_estimator_math src/dcsl_miabot_estimator_math.cc)
 rosbuild_add_executable(dcsl_miabot_state_estimator src/dcsl_miabot_state_estimator.cc)
 target_link_libraries(dcsl_miabot_state_estimator dcsl_miabot_estimator_math)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+rosbuild_add_gtest(miabot_estimator_math_test test/miabot_estimator_math_test.cc)
+target_link_libraries(miabot_estimator_math_test dcsl_miabot_estimator_math)
+target_link_libraries(miabot_estimator_math_test gtest)
