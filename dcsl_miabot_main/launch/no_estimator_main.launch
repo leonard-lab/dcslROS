@@ -8,6 +8,7 @@
 
   <node name="vision_tracker" pkg="dcsl_vision_tracker" type="miabot_tracker.py" >
     <param name="background_image" value="$(find dcsl_miabot_main)/parameters/background.png" />
+    <remap from="/planar_measurements" to="state_estimate" />
   </node >
   
   <group ns="robot" >
@@ -24,5 +25,7 @@
 
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
   </node >
+<!--
   <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" />
+-->
 </launch>
