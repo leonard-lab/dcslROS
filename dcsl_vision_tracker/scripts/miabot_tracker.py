@@ -66,11 +66,22 @@ class miabot_tracker:
                     centroidFloat = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
                     centroid = (int(centroidFloat[0]),int(centroidFloat[1]))
                     
-                    #Theta is found by drawing line from centroid of blob through center of the robot
-                    theta = -m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
-                    
-                    #print "Theta: " + str(theta*180.0/m.pi)
-                    #print "Box: " + str(box[2])
+                    #An estimate of theta is found by drawing line from centroid of blob through center of the robot
+                    thetaEstimate = -m.atan2(centerFloat[1]-centroidFloat[1],centerFloat[0]-centroidFloat[0])
+       
+                    #Theta is found using the minimum area box used to find the position above
+                    thetaBox = -m.pi/180.0*box[2] #Angle of the minimum area box with the x-axis in the first quadrant
+                    previousError = -1.0
+                    theta = None
+                    stepList = [-m.pi,-m.pi*0.5,0,m.pi*0.5]
+                    for step in stepList:
+                        thetaTest = thetaBox+step
+                        error = pow(thetaEstimate-thetaTest,2)
+                        if previousError < 0:
+                            theta = thetaTest
+                        elif error < previousError:
+                            theta = thetaTest
+                        previousError = error
                     
                     #Point center and orientation on output_image
                     length = 15.0
