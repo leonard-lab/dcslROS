@@ -79,9 +79,9 @@ public:
     r = Matrix3d::Identity();
 
     // put weights into weight matrices
-    r(0,0) = 0.001;
-    r(1,1) = 0.001;
-    r(2,2) = 0.005;
+    r(0,0) = 0.0001;
+    r(1,1) = 0.0001;
+    r(2,2) = 0.0005;
     
     q(0,0) = 1.0;
     q(1,1) = 1.0;
@@ -204,9 +204,9 @@ int main(int argc, char **argv)
   MiabotStateEstimator mse(n, numRobots);
   mse.init();
 
-  // loop continuously, updating state at roughly 20 hz
+  // loop continuously, updating state at roughly 25 hz
   // (the loop rate should probably be a param in launch file)
-  ros::Rate looprate(50); // 20 hz
+  ros::Rate looprate(25); // 25 hz
   while(ros::ok())
   {
     ros::spinOnce();
