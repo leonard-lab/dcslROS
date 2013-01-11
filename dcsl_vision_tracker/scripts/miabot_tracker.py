@@ -113,25 +113,30 @@ class miabot_tracker:
                 difference = pow(reading[0]-state.position.x,2)+pow(reading[1]-state.position.y,2)
                 temp.append(difference)                
             costMatrix.append(temp)
-            
-        mun = Munkres()
-        indexes = mun.compute(costMatrix)
-        for i in xrange(0,self.nRobots):
-            assigned = False
-            for pair in indexes:
-                if pair[1] == i: 
-                    readingsIndex = pair[0]
+        if len(costMatrix) != 0:
+            mun = Munkres()
+            indexes = mun.compute(costMatrix)
+            for i in xrange(0,self.nRobots):
+                assigned = False
+                for pair in indexes:
+                    if pair[1] == i: 
+                        readingsIndex = pair[0]
+                        p = Pose()
+                        p.position.x = readings[readingsIndex][0]
+                        p.position.y = readings[readingsIndex][1]
+                        p.orientation.z = readings[readingsIndex][2]
+                        p.orientation.w = 1
+                        self.measurements.poses.append(p)
+                        assigned = True
+                if not assigned:
                     p = Pose()
-                    p.position.x = readings[readingsIndex][0]
-                    p.position.y = readings[readingsIndex][1]
-                    p.orientation.z = readings[readingsIndex][2]
-                    p.orientation.w = 1
+                    p.orientation.w = 0
                     self.measurements.poses.append(p)
-                    assigned = True
-            if not assigned:
+        else:
+            for i in xrange(0,self.nRobots):
                 p = Pose()
                 p.orientation.w = 0
-                self.measurements.poses.append(p)             
+                self.measurements.poses.append(p)
 
 
 def main():
