@@ -8,26 +8,32 @@ void miabot_propagate_state(Vector3d& state, const Vector2d& u, double dt)
 	// propagate the miabot's state forward in time for dt seconds
 	// based on initial position state = [x, y, theta], and constant 
 	// applied control u = [v, omega]
-	double eps = 0.01;
+	double eps = 0.001;
 	double x_plus, y_plus, theta_plus;
+	// name incoming variables to make code readable
+	double x = state(0);
+	double y = state(1);
+	double theta = state(2);
+	double v = u(0);
+	double omega = u(1);
+
 	//Vector3d state_plus;
 	
-	if (abs(u(1)) < eps) // check if moving in straight line
+	if (abs(omega) < eps) // check if moving in straight line
 	{
-		theta_plus = state(2); // theta remains constant
-        x_plus = state(0) + u(0)*dt*cos(theta_plus);
-		y_plus = state(0) + u(0)*dt*sin(theta_plus);
+		theta_plus = theta; // theta remains constant
+        x_plus = x + v*dt*cos(theta);
+		y_plus = y + v*dt*sin(theta);
 	}
 	else
 	{
 		// Otherwise the miabot will go on a circular path with radius v/omega
-		theta_plus = state(2) + u(1)*dt;
-		double radius = u(0)/u(1);
-		x_plus = state(0) + radius*(sin(theta_plus) - sin(state(2)));
-		y_plus = state(1) + radius*(cos(state(2)) - cos(theta_plus));
+		theta_plus = theta + omega*dt;
+		double radius = v/omega;
+		x_plus = x + radius*(sin(theta_plus) - sin(theta));
+		y_plus = y + radius*(cos(theta) - cos(theta_plus));
 	}
 	state << x_plus, y_plus, theta_plus;
-	//return state_plus;
 }
 
 void miabot_propagate_covariance(Matrix3d& p, const Vector3d& x, const Vector2d& u, 
@@ -38,8 +44,12 @@ void miabot_propagate_covariance(Matrix3d& p, const Vector3d& x, const Vector2d&
 	// described in Stengel's "Optimal Control and Estimation" pg 388
 
 	// First calculate f, the jacobian matrix of system dynamics at current state x
-	Matrix3d f;
-	f << 0, 0, -u(0)*sin(x(2)), 0, 0, u(0)*cos(x(2)), 0, 0, 0;
+	Matrix3d f = Matrix3d::Zero();
+	f(0,2) = -u(0)*sin(x(2));
+	f(1,2) =  u(0)*cos(x(2));
+	//f << 0, 0, -u(0)*sin(x(2)), 
+	//     0, 0,  u(0)*cos(x(2)), 
+	//     0, 0,  0;
 	// now step forward one iteration of Euler forward method, over time dt
 	p = p + dt*(f*p + p*f.transpose() + q);
 }

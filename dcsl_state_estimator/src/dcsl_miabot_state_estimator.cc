@@ -130,6 +130,7 @@ public:
           miabot_calculate_filter_gain(k[m],p[m],r);
           // take measurement out of message
           PoseToVector(newMeasurement.poses[m], z[m]);
+          ROS_DEBUG_STREAM("new measurement in z[" << m << "] = " << std::endl << z[m]);
           miabot_update_state(x[m],k[m],z[m]);
           miabot_update_covariance(p[m],k[m]);          
         }
@@ -195,7 +196,7 @@ int main(int argc, char **argv)
 
   // loop continuously, updating state at roughly 20 hz
   // (the loop rate should probably be a param in launch file)
-  ros::Rate looprate(2); // 20 hz
+  ros::Rate looprate(50); // 20 hz
   while(ros::ok())
   {
     ros::spinOnce();
