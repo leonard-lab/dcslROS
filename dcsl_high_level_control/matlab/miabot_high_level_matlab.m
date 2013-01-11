@@ -6,9 +6,9 @@ clear all;
 % add the ipc_bridge_matlab binaries to your path
 % for some reason rospack is not working here (possibly matlab doesn't look at .bashrc or something)
 % so just put the absolute path to the ipc-bridge install directory for now
-%[a, p] = system('rospack find ipc_geometry_msgs');
-%addpath(strcat(p, '/bin')); 
-addpath('/home/illscott/ROS_workspace/ipc-bridge-32bit-3.29.2011/ipc_msgs/ipc_geometry_msgs/bin');
+[a, p] = system('rospack find ipc_geometry_msgs');
+addpath(strcat(p, '/bin')); 
+%addpath('/home/illscott/ROS_workspace/ipc-bridge-32bit-3.29.2011/ipc_msgs/ipc_geometry_msgs/bin');
 
 %% create a subscriber that subscribes to the state estimate
 pid_state = geometry_msgs_PoseArray('connect','subscriber','state_module','state_message')
@@ -28,9 +28,10 @@ pose = geometry_msgs_Pose('empty');
 %% THE BIG LOOP WHERE EVERYTHING HAPPENS
 % create this stoploop button to allow the user to stop the program
 % without pressing CTRL-C, allowing us to close connections gracefully
-FS = stoploop('Press this to stop control loop') ;
-while ~FS.Stop()
-	% try to read the latest state estimate from its topic
+%FS = stoploop('Press this to stop control loop') ;
+%while ~FS.Stop()
+while (1)
+    % try to read the latest state estimate from its topic
 	state_msg = geometry_msgs_PoseArray('read',pid_state,1);
 	% if the read was unsuccessful, state_msg will be a 1x0 cell
 	while ~strcmp(class(state_msg),'struct')
