@@ -77,6 +77,16 @@ public:
     // this will change later once ros parameter server is set up
     q = Matrix3d::Identity();
     r = Matrix3d::Identity();
+
+    // put weights into weight matrices
+    r(0,0) = 0.001;
+    r(1,1) = 0.001;
+    r(2,2) = 0.005;
+    
+    q(0,0) = 1.0;
+    q(1,1) = 1.0;
+    q(2,2) = 1.0; 
+
     for (int m = 0; m < numRobots; m++) // loop through robots
     {
       x[m] = Vector3d::Zero();
