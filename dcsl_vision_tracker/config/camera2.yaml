@@ -1,0 +1,4 @@
+guid: 000a47010f094079
+video_mode: 640x480_mono8
+frame_id: frame2
+camera_info_url: package://dcsl_vision_tracker/config/000a47010f094079.yaml

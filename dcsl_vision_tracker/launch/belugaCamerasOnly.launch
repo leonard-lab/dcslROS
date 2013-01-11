@@ -1,0 +1,23 @@
+<launch>
+
+  <node name="camera1" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/camera1.yaml" />
+    <remap from="/camera" to="/camera1" />
+  </node >
+
+  <node name="camera2" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/camera2.yaml" />
+    <remap from="/camera" to="/camera2" />
+  </node >
+
+  <node name="camera3" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/camera3.yaml" />
+    <remap from="/camera" to="/camera3" />
+  </node >
+
+  <node name="camera4" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/camera4.yaml" />
+    <remap from="/camera" to="/camera4" />
+  </node >
+
+</launch>

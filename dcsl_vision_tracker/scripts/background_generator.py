@@ -29,7 +29,8 @@ class background_generator:
         if self.count == self.n:
             
             cv.ConvertScale(self.background_image,self.background_image,1.0/float(self.n));
-            cv.SaveImage("background.png",self.background_image)  
+            image_name = rospy.get_param('/background_generator/image_name')
+            cv.SaveImage(image_name,self.background_image)  
             print "Background image generated...node shutting down"
             rospy.signal_shutdown("Background image generated...node shutting down")
 
