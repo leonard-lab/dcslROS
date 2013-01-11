@@ -15,6 +15,8 @@
   <depend package="rosserial_arduino"/>
   <depend package="rosserial_client"/>
   <depend package="dcsl_messages"/>
+  <depend package="joy"/>
+  <depend package="turtlebot_teleop"/>
 
 </package>
 

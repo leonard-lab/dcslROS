@@ -12,17 +12,23 @@
 #include <Servo.h>
 
 #include <ros.h>
+#include <ros/console.h>
 #include <std_msgs/Int16.h>
 #include <dcsl_messages/belugaInput.h> //For adding custom messages see http://www.ros.org/wiki/rosserial_arduino/Tutorials/Adding%20Custom%20Messages
 
 
-int sensorPin = 1; //Analog pin to which the depth sensor is attached
+int sensorPin = 5; //Analog pin to which the depth sensor is attached
 int servoPin = 9; //PWM pin for to which servo is attached
+
+//Motor 1 is the horizontal thruster
+//Motor 2 in the vertical thruster
 
 int en1Pin = 3; //Enable (PWM) pin for motor 1
 int en2Pin = 11; //Enable (PWM) pin for motor 2
 int dir1Pin = 12; //Direction pin for motor 1
 int dir2Pin = 13; //Direction pin for motor 2
+//int current1Pin = 1; //Current sense for motor 1
+//int current2Pin = 0; //Current sense for motor 2
 
 //Create servo object
 Servo servo;
@@ -54,7 +60,6 @@ void command( const dcsl_messages::belugaInput& input){
   
   int pos = input.servo + 90;
   servo.write(pos);
-  
 }
 
 //Declare Subscriber object
@@ -88,5 +93,8 @@ void loop() {
   RA.add(analogRead(sensorPin)); //Add depth sensor reading to the running average
   rawDepth.data = RA.avg(); //Output current average reading to message
   depth.publish( &rawDepth); //Publish current running average depth reading  
+  
+  //ROS_DEBUG_STREAM_THROTTLE_NAMED(5, "beluga", "Thruster Current = " << analogRead(current1Pin) << "; Vertical Current = " << analogRead(current2Pin));
+  
   nh.spinOnce();
 }
