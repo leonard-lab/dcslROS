@@ -26,7 +26,9 @@ private:
   // all x values, all y values, then all theta values, 
   // so the waypoint for robot j would be x = waypoints[j], 
   // y = waypoints[numRobots+j], and theta = waypoints[numRobots*2 + j]
-  std::vector<double> waypoints;
+  std::vector<double> waypoints_x;
+  std::vector<double> waypoints_y;
+  std::vector<double> waypoints_theta;
   const double k1;
   const double k2;
   
@@ -39,7 +41,9 @@ public:
       Sub_state(),
       Sub_waypoint(),
       Sub_velocity(),
-      waypoints(numBots*3),
+      waypoints_x(numBots),
+      waypoints_y(numBots),
+      waypoints_theta(numBots),
       k1(k1),
       k2(k2)  
   {}
@@ -73,7 +77,7 @@ public:
       dcsl_messages::TwistArray velocities;
       geometry_msgs::Twist currentTwist;
       double pos[3];
-      double way[2];
+      double way[3];
       double outputVel[2];
 
 
@@ -82,9 +86,9 @@ public:
       	pos[0] = states.poses[i].position.x;
         pos[1] = states.poses[i].position.y; 
         pos[2] = states.poses[i].orientation.z;
-        way[0] = waypoints[i];
-        way[1] = waypoints[numRobots + i];
-        way[2] = waypoints[numRobots*2 + i];
+        way[0] = waypoints_x[i];
+        way[1] = waypoints_y[i];
+        way[2] = waypoints_theta[i];
         
         // call function to compute outputVel = [v,omega]
         miabot_waypoint(outputVel,pos,way,k1,k2);
@@ -114,9 +118,9 @@ public:
     {
       for (int i = 0; i < numRobots; i++) // loop through the robots
       {
-        waypoints[i]               = newWaypoints.poses[i].position.x;
-        waypoints[numRobots + i]   = newWaypoints.poses[i].position.y;
-        waypoints[2*numRobots + i] = newWaypoints.poses[i].orientation.z;
+        waypoints_x[i]     = newWaypoints.poses[i].position.x;
+        waypoints_y[i]     = newWaypoints.poses[i].position.y;
+        waypoints_theta[i] = newWaypoints.poses[i].orientation.z;
       }
     }
     else
