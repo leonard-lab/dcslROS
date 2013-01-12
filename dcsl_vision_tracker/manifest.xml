@@ -13,7 +13,8 @@
   <depend package="cv_bridge"/>
   <depend package="rospy"/>
   <depend package="std_msgs"/>
-  <rosdep name="python-munkres" />
+  <depend package="rosunit"/>
+  <rosdep name="python-munkres" /> <!-- is not recognized by rosdep -->
 
 </package>
 
