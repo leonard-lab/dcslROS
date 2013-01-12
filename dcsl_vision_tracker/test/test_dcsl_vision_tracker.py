@@ -8,7 +8,7 @@ import unittest
 class TestVisionTracker(unittest.TestCase):
     # Description
     def test_foo(self):
-        self.assertEquals(1,1, "Oh no!")
+        self.assertEquals(1,2, "Oh no!")
 
 if __name__ == '__main__':
     import rosunit
