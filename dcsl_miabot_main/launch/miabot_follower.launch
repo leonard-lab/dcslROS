@@ -1,0 +1,53 @@
+<launch>
+<!--
+  Launchfile for miabot "follower control"
+  Robot 0 will be controlled by Joystick
+  Robot 1 will be controlled through waypoints calculated in follower control node
+-->  
+  <param name="/n_robots" value="2" />
+
+  <node name="camera1" pkg="camera1394" type="camera1394_node" >
+    <param name="video_mode" value="1024x768_mono8" />
+  </node>
+
+  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="miabot_tracker.py" >
+    <param name="background_image" value="$(find dcsl_miabot_main)/parameters/background.png" />
+  </node >
+  
+  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" />
+
+  <node name="high_level_controller" pkg="dcsl_high_level_control"
+    type="dcsl_miabot_follower_control" />
+  </node>
+
+  <node name="low_level_controller" pkg="dcsl_low_level_control" 
+    type="dcsl_miabot_low_level_control" args="--way">
+    <param name="waypoint_gain_1" value="0.3" type="double" />
+    <param name="waypoint_gain_2" value="0.1" type="double" />
+  </node > 
+
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
+    <remap from="cmd_vel0" to="/robot/cmd_vel" />
+  </node >
+
+  <group ns="robot" >
+    <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" />
+    <node name="miabot1" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" />
+  </group >    
+
+  <node respawn="true" pkg="joy"
+        type="joy" name="turtle_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+ <!-- Axes -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="scale_linear" value="0.5" type="double"/>
+  <param name="scale_angular" value="1.5" type="double"/>
+
+  <node pkg="dcsl_miabot_driver" type="dcsl_miabot_joy" name="teleop"/>
+
+
+</launch>

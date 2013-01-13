@@ -1,0 +1,18 @@
+<launch>
+<!-- not sure what this is, and it's not working anyway -->
+  <node pkg="ipc"
+    name="central"
+    type="central"
+    output="screen"
+    args="-su">
+  </node>
+
+  <node pkg="ipc_geometry_msgs"
+    name="state_ipc_node"
+    type="geometry_msgs_PoseArray_publisher"
+    output="screen">
+    <remap from="~topic" to="/state_estimate"/>
+    <param name="message" value="state_message"/>
+  </node>
+
+</launch>

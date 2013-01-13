@@ -13,7 +13,7 @@ pid=geometry_msgs_PoseArray('connect','subscriber','state_module','state_message
 % create an empty geometry_msgs/Twist message structure
 msg=geometry_msgs_PoseArray('empty');
 
-% read a message and print to screen
+%% read a message and print to screen
 while (1)
     msg = geometry_msgs_PoseArray('read',pid,100);
     if strcmp(class(msg),'struct')

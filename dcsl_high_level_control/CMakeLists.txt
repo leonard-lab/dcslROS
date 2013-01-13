@@ -28,3 +28,8 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
+
+
+rosbuild_add_library(dcsl_miabot_high_level_math src/dcsl_miabot_high_level_math.cc)
+rosbuild_add_executable(dcsl_miabot_follower_control src/dcsl_miabot_follower_control.cc)
+target_link_libraries(dcsl_miabot_follower_control dcsl_miabot_high_level_math)

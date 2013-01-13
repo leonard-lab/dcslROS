@@ -1,0 +1,32 @@
+steps taken to try to install ipc-bridge on auvlab imac:
+
+latest attempt is stored in ~/ros_user_stacks
+previous versions were moved to ~/unused\ ros\ stacks
+
+First attempt, followed the guide on 
+https://alliance.seas.upenn.edu/~meam620/wiki/index.php?n=Roslab.IpcBridge
+
+To get this to work, had to use technique from
+http://answers.ros.org/question/45838/error-when-installing-ipc-bridge-for-ros-and-matlab/
+where you change last line in ipc_bridge_ros.mk to
+
+$(CXX) -I./include $(ROS_CXXFLAGS) $(IPC_BRIDGE_CXXFLAGS) -lstdc++ $(IPC_LFLAGS) -lipc $(ROS_LFLAGS) $(ROS_LIBS) $^ -o bin/$@ -lroscpp -lrosconsole -lroscpp_serialization -lipc
+
+With that, the example programs run fine, but trying to replicate that with PoseArray message leads to segfault in matlab.
+
+
+
+Next, tried to follow this guide to install ipc-bridge from github
+http://bolt-haptics.seas.upenn.edu/index.php/Software/Matlab-ROS-IPC-Bridge
+
+It involved installing IPC library manually, (and in the process needed to apt-get install "bison" and "flex" commands). Once all was compiled, nodes crashed upon launch, so I reverted to the previous ipc-bridge installation procedure.
+
+Then there was a message about not being able to find libipc.so, so I followed this guide:
+cutler.mit.edu/2011/10/ros-matlab-bridge-installation
+
+Somewhere along the way, I followed these instructions to change matlab's symlinks for libstdc++.so.6 to point to the system versions:
+http://answers.ros.org/question/33326/matlab-engine-and-ros-library-incompatible/
+
+Next step should probably be recompiling ROS with different boost headers compatible with matlab, as described here:
+http://answers.ros.org/question/12542/rosmatlab-simulink-communication/
+
