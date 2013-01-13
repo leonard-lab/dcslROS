@@ -36,7 +36,8 @@ def closePort():
 
 if __name__ == "__main__":
     ser = serial.Serial()
-    ser.port = '/dev/rfcomm0' #ROSparam
+    port = rospy.get_param('~serial_port','/dev/rfcomm0')
+    ser.port = port
     ser.baudrate = 19200
     ser.timeout = 600
     ser.bytesize = serial.EIGHTBITS
