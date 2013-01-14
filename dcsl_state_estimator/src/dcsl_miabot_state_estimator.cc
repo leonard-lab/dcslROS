@@ -63,7 +63,7 @@ public:
   {
   }
 
-  void init()
+  void init(double* pose_list)
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
@@ -73,23 +73,20 @@ public:
     Sub_control = n.subscribe("cmd_vel_array",      1,&MiabotStateEstimator::controlCallback,this);
     Sub_measure = n.subscribe("planar_measurements",1,&MiabotStateEstimator::measureCallback,this);
 
-    // put initial conditions into state arrays
-    // this will change later once ros parameter server is set up
+    // put initial conditions into weight arrays
     q = Matrix3d::Identity();
     r = Matrix3d::Identity();
-
-    // put weights into weight matrices
     r(0,0) = 0.0001;
     r(1,1) = 0.0001;
     r(2,2) = 0.0005;
-    
     q(0,0) = 1.0;
     q(1,1) = 1.0;
     q(2,2) = 1.0; 
 
-    for (int m = 0; m < numRobots; m++) // loop through robots
+    // put initial conditions into state, control, covariance for each robot
+    for (int m = 0; m < numRobots; m++)
     {
-      x[m] = Vector3d::Zero();
+      x[m] << pose_list[numRobots*m], pose_list[numRobots*m+1], pose_list[numRobots*m+2];
       u[m] = Vector2d::Zero();
       p[m] = Matrix3d::Constant(0.1);      
     }
@@ -200,9 +197,31 @@ int main(int argc, char **argv)
   int numRobots;
   n.param<int>("/n_robots", numRobots, 1);
 
-  // create and initialize the controller object
+  // create the controller object
   MiabotStateEstimator mse(n, numRobots);
-  mse.init();
+
+  // collect initial positions from parameter server (default all at (0,0))
+  double initial_poses[numRobots*3];
+  XmlRpc::XmlRpcValue pose_list;
+  if (n.hasParam("initial_poses"))
+  {
+    n.getParam("initial_poses", pose_list);
+    ROS_ASSERT(pose_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    for (int32_t i = 0; i < pose_list.size(); ++i) 
+    {
+      ROS_ASSERT(pose_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+      initial_poses[i] = static_cast<double>(pose_list[i]);
+    }    
+  }
+  else
+  {
+    for (int i = 0; i < numRobots*3; i++)
+    {
+      initial_poses[i] = 0.0;
+    }
+  }
+  // initialize the controller object
+  mse.init(initial_poses);
 
   // loop continuously, updating state at roughly 25 hz
   // (the loop rate should probably be a param in launch file)
