@@ -7,7 +7,7 @@
  This code uses the RunningAverages library available at
  http://playground.arduino.cc//Main/RunningAverage
  */
-#include "RunningAverage.h"
+#include <RunningAverage.h>
 
 #include <Servo.h>
 
@@ -75,7 +75,7 @@ void setup()
   nh.advertise(depth); //Advertise the topic
   nh.subscribe(sub);
   
-  RA.clr(); //Clear the running average
+  RA.clear(); //Clear the running average
   
   servo.attach(servoPin);
   
@@ -90,8 +90,8 @@ void setup()
 }
 
 void loop() {
-  RA.add(analogRead(sensorPin)); //Add depth sensor reading to the running average
-  rawDepth.data = RA.avg(); //Output current average reading to message
+  RA.addValue(analogRead(sensorPin)); //Add depth sensor reading to the running average
+  rawDepth.data = RA.getAverage(); //Output current average reading to message
   depth.publish( &rawDepth); //Publish current running average depth reading  
   
   //ROS_DEBUG_STREAM_THROTTLE_NAMED(5, "beluga", "Thruster Current = " << analogRead(current1Pin) << "; Vertical Current = " << analogRead(current2Pin));
