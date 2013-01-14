@@ -90,7 +90,7 @@ int main(int argc, char **argv)
   mfc.init();
 
   // loop through callback queue until node is closed
-  ros::Rate looprate(1); // 1 hz
+  ros::Rate looprate(5); // 5 hz
   while(ros::ok())
   {
     ros::spinOnce();
