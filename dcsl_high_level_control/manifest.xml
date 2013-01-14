@@ -8,9 +8,12 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_high_level_control</url>
+  <depend package="roscpp" />
+  <!--
   <depend package="ipc_bridge_ros"/>
   <depend package="ipc_bridge_matlab"/>
-  
+  -->
+
 </package>
 
 

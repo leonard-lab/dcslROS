@@ -11,9 +11,7 @@
   <depend package="std_msgs" />
   <depend package="rospy" />
   <depend package="roscpp" />
-  <!--
   <depend package="dcsl_high_level_control" />
-  -->
   <depend package="dcsl_low_level_control" />
   <depend package="dcsl_miabot_driver" />
   <depend package="dcsl_state_estimator" />
