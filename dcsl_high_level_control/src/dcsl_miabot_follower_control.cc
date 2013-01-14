@@ -86,11 +86,17 @@ int main(int argc, char **argv)
   n.param<int>("/n_robots", numRobots, 1);
 
   // create and initialize the controller object
-  MiabotFollowerController mhlc(n, numRobots);
-  mhlc.init();
+  MiabotFollowerController mfc(n, numRobots);
+  mfc.init();
 
   // loop through callback queue until node is closed
-  ros::spin();
+  ros::Rate looprate(1); // 1 hz
+  while(ros::ok())
+  {
+    ros::spinOnce();
+    looprate.sleep();
+  }
+
 
   return 0;
 }
