@@ -59,7 +59,7 @@
  <!-- Axes -->
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="0" type="int"/>
-  <param name="scale_linear" value="0.5" type="double"/>
-  <param name="scale_angular" value="1.5" type="double"/>
+  <param name="scale_linear" value="0.1" type="double"/>
+  <param name="scale_angular" value="0.2" type="double"/>
 
 </launch>
