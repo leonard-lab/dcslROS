@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import math, serial
+import math, serial, sys
 
 import roslib; roslib.load_manifest('dcsl_miabot_driver')
 import rospy
@@ -35,9 +35,10 @@ def closePort():
     ser.close()
 
 if __name__ == "__main__":
+    args = rospy.myargv(argv=sys.argv)
     ser = serial.Serial()
-    port = rospy.get_param('~serial_port','/dev/rfcomm0')
-    rospy.loginfo("connecting to serial port at %s", port)
+    port = args[1]
+    rospy.loginfo("Connecting to serial port at %s", port)
     ser.port = port
     ser.baudrate = 19200
     ser.timeout = 600

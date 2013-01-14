@@ -17,7 +17,7 @@
   <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" >
     <!-- order of initial condition list is [x_1, y_1, theta_1, x_2, y_2, theta_2, etc] -->
     <!-- so as it is, place the rfcomm0 miabot to the right of rfcomm1 miabot, both facing right -->
-    <param name="initial_poses" value="[0.0, 0.2, 0.0, -0.2, 0.0, 0.0]" />
+    <param name="initial_poses" value="[0.2, 0.0, 0.0, -0.2, 0.0, 0.0]" />
   </node>
 
   <node name="high_level_controller" pkg="dcsl_high_level_control"
@@ -34,13 +34,13 @@
   </node>
 
   <group ns="robot" >
-    <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen">
-      <param name="~serial_port" value="/dev/rfcomm0" />
+    <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" args="/dev/rfcomm0" >
+      <param name="serial_port" value="/dev/rfcomm0" />
       <remap from="cmd_vel" to="cmd_vel0" />
       <!-- miabot0 will take in "cmd_vel0" from miabot_joy -->
     </node>
-    <node name="miabot1" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen">
-      <param name="~serial_port" value="/dev/rfcomm1" />
+    <node name="miabot1" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" args="/dev/rfcomm1">
+      <param name="serial_port" value="/dev/rfcomm1" />
       <remap from="cmd_vel" to="cmd_vel1" />
       <!-- miabot1 will take in "cmd_vel1" from swarm_director -->
     </node>

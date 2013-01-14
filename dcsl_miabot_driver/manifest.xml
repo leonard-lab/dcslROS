@@ -15,6 +15,7 @@
   <depend package="joy"/>
   <depend package="turtlebot_teleop"/>
   <rosdep name="python-serial"/>
+  <rosdep name="python-sys" />
   
   
 </package>
