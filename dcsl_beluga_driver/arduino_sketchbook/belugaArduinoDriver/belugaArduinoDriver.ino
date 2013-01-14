@@ -84,6 +84,8 @@ void setup()
   pinMode(dir1Pin, OUTPUT); digitalWrite(dir1Pin, LOW);
   pinMode(dir2Pin, OUTPUT); digitalWrite(dir2Pin, LOW);
   
+  pinMode(2,OUTPUT); digitalWrite(2,HIGH);
+  
   //Start motors off
   analogWrite(en1Pin, 0);
   analogWrite(en2Pin, 0);
