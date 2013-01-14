@@ -37,6 +37,7 @@ def closePort():
 if __name__ == "__main__":
     ser = serial.Serial()
     port = rospy.get_param('~serial_port','/dev/rfcomm0')
+    rospy.loginfo("connecting to serial port at %s", port)
     ser.port = port
     ser.baudrate = 19200
     ser.timeout = 600
