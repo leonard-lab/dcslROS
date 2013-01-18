@@ -17,6 +17,7 @@ from dcsl_messages.msg import TwistArray
 class SwarmDirector:
     
     ## Sets up publishers and subscribers
+    #
     # @param nRobots is the number of entries in the TwistArray
     def __init__(self,nRobots):
         self.n = nRobots
@@ -28,6 +29,7 @@ class SwarmDirector:
         self.cmdArray_sub = rospy.Subscriber("cmd_vel_array",TwistArray, self.callback)
         
     ## Callback function for the TwistArray 
+    #
     # Routes each Twist in the TwistArray to the appropriate topic
     def callback(self,data):
         for i in range(0,self.n):

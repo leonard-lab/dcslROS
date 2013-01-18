@@ -23,7 +23,7 @@ $ dcsl_swarm_director [standard ROS args]
 \subsubsection topics ROS topics
 
 Subscribes to (name / type):
-- \b "cmd_vel_array/TwistArray" : An array of Twist messages.
+- \b "cmd_vel_array/TwistArray" : An array of Twist messages. TwistArray is defined in the dcsl_messages package.
 
 Publishes to (name / type):
 - \b "cmd_vel0/Twist" : The Twist messsage contained in the 0th entry of the subscribed TwistArray
