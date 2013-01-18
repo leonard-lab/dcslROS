@@ -7,24 +7,32 @@
 #include "geometry_msgs/PoseArray.h"
 #include "dcsl_messages/TwistArray.h"
 
-/* dcsl_miabot_state_estimator.cc
-   This file defines the state estimation node
-   for miabots. */
+/// \file dcsl_miabot_state_estimator.cc
+/// This file defines the dcsl_state_estimator node for state estimation of miabots.
 
+// \author Will Scott
+
+/// Function vectorToPose takes values from a Eigen::Vector3d object and places them
+/// into a geometry::msgs::Pose object.
+/// \param[in] vec          Vector3d of [x, y, theta]
+/// \param[out] pose        Pose with position.x, position.y, and orientation.z filled
 void vectorToPose(const Eigen::Vector3d& vec, geometry_msgs::Pose& pose)
 {
-  // helper function to convert between Eigen::vector and Pose message
   pose.position.x = vec(0);
   pose.position.y = vec(1);
   pose.orientation.z = vec(2);
 }
 
+/// Function PoseToVector takes values from a geometry::msgs::Pose object and places them
+/// into a Eigen::Vector3d object.
+/// \param[in] pose        Pose with position.x, position.y, and orientation.z filled
+/// \param[out] vec        Vector3d of [x, y, theta]
 void PoseToVector(const geometry_msgs::Pose& pose, Eigen::Vector3d& vec)
 {
-  // helper function to convert between Pose message and Eigen::Vector3d
   vec << pose.position.x, pose.position.y, pose.orientation.z;
 }
 
+/// MiabotStateEstimator class handles callbacks for miabot_state_estimator node
 class MiabotStateEstimator
 {
 public:
@@ -45,6 +53,9 @@ private:
   Eigen::Matrix3d r;
   
 public:
+  /// Constructor for MiabotStateEstimator.
+  /// \param[in] node_handle         identifies which node we are running, used to create subscribers/publishers
+  /// \param[in] numBots             number of robots to be controlled
   MiabotStateEstimator(const ros::NodeHandle& node_handle, const int numBots) :
       numRobots(numBots),
       n(node_handle), 
@@ -63,6 +74,10 @@ public:
   {
   }
 
+  /// Initialization for MiabotStateEstimator, to be called directly after object creation.
+  /// Here we initialize subscriber and publisher objects which connect this node to roscore
+  /// \param[in] pose_list      array of doubles holding initial poses for the robots in 
+  ///                           the form [x_0, y_0, theta_0, x_1, y_1, theta_1, ...]
   void init(double* pose_list)
   {
     // create Publisher object where output will be advertised
@@ -92,10 +107,13 @@ public:
     }
  }
 
+  /// Callback function for topic "cmd_vel_array".
+  /// This function is called whenever a new message is posted to the "cmd_vel_array" topic.
+  /// Control inputs [v,omega] for each robot are taken out of the incoming TwistArray message
+  /// and stored in the member variable u, an array of Vector2d objects. 
+  /// \param[in] newVelocities         TwistArray of the robots' velocity inputs
   void controlCallback(const dcsl_messages::TwistArray newVelocities)
   {
-    // This is called when a new control  message comes in from
-    // the low level control topic, updating the stored info in this node
     if(int(newVelocities.twists.size()) == numRobots)
     {
       ROS_DEBUG_STREAM("received new control message");
@@ -112,11 +130,14 @@ public:
     }
   }
 
+  /// Callback function for topic "planar_measurements".
+  /// This is called when a new measurement message comes in from
+  /// the vision tracking node, updating the stored info in this node
+  /// and calling the kalman filter functions to update our estimate,
+  /// which is published as a PoseArray on topic "state_estimate".
+  /// \param[in] newMeasurement   PoseArray of measured robot poses.
   void measureCallback(const geometry_msgs::PoseArray newMeasurement)
   {
-    // This is called when a new measurement message comes in from
-    // the vision tracking node, updating the stored info in this node
-    // and calling the kalman filter function to update our estimate
     if(int(newMeasurement.poses.size()) == numRobots)
     {
       ros::Time rosMeasureTime = ros::Time::now();
@@ -158,6 +179,11 @@ public:
     }
   }
 
+  /// State propagation function
+  /// This function compares current time with time of most recent state estimate,
+  /// and calls library function miabot_propagate_state to integrate the equations
+  /// of motion of the robots forward in time. The new estimates are published in a 
+  /// PoseArray on topic "state_estimate"
   void propagateState()
   {
     // calculate time elapsed since last estimate was published, 
@@ -184,7 +210,9 @@ public:
   }
 };
 
-
+/// main function called when the node is launched. Creates a MiabotStateEstimator object
+/// and initializes it based on initial position parameters. Callbacks are checked with 
+/// ros::spinOnce() and state is propagated at a rate of around 25 Hz until program is interupted.
 int main(int argc, char **argv)
 {
   // initialize the node, with name miabot_waypoint_control
