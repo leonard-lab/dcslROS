@@ -1,0 +1,37 @@
+
+
+{\bfseries dcsl\-\_\-swarm\-\_\-director} 
+
+\-This node subscribes to a \-Twist\-Array message and publishes each \-Twist in the \-Twist\-Array as a \-Twist messsage on new topics. \-It can be used to unpack commands send to multi-\/agent systems.\section{\-R\-O\-S A\-P\-I}\label{index_rosapi}
+\-List of nodes\-:
+\begin{DoxyItemize}
+\item {\bfseries dcsl\-\_\-swarm\-\_\-director} 
+\end{DoxyItemize}
+
+
+
+\subsection{dcsl\-\_\-swarm\-\_\-director}\label{index_dcsl_swarm_director}
+\subsubsection{\-Usage}\label{index_usage}
+\begin{DoxyVerb}
+$ dcsl_swarm_director [standard ROS args]
+\end{DoxyVerb}
+\subsubsection{\-R\-O\-S topics}\label{index_topics}
+\-Subscribes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}cmd\-\_\-vel\-\_\-array/\-Twist\-Array\char`\"{}} \-: \-An array of \-Twist messages. \-Twist\-Array is defined in the dcsl\-\_\-messages package.
+\end{DoxyItemize}
+
+\-Publishes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}cmd\-\_\-vel0/\-Twist\char`\"{}} \-: \-The \-Twist messsage contained in the 0th entry of the subscribed \-Twist\-Array
+\item {\bfseries \char`\"{}cmd\-\_\-vel1/\-Twist\char`\"{}} \-: \-The \-Twist message contained in the 1st entry of the subscribed \-Twist\-Array ...
+\item {\bfseries \char`\"{}cmd\-\_\-vel\-N/\-Twist\char`\"{}} \-: \-The \-Twist message contained in the \-Nth entry of the subscibed \-Twist \-Array
+\end{DoxyItemize}\subsubsection{\-R\-O\-S parameters}\label{index_parameters}
+
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}/n\-\_\-robots\char`\"{}} \-: \-The number of \-Twist messages to expect in the \-Twist\-Array. \-This defines how many topics to publish \-Twist messages to.
+\end{DoxyItemize}
+
+
+
+ 
