@@ -4,8 +4,8 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
 
-//\file
-//\brief A node that subscribes to the joy topic, converts the joystick inputs to velocity and angular velocity commands and publishes them on cmd_vel as a Twist.
+/// \file
+/// \brief A node that subscribes to the joy topic, converts the joystick inputs to velocity and angular velocity commands and publishes them on cmd_vel as a Twist.
 
 //\author: Brendan Andrade
 
@@ -27,7 +27,7 @@ private:
 
 };
 
-///\brief Initializer. Advertises and subscribes to topics and gathers ROS parameter values
+/// \brief Initializer. Advertises and subscribes to topics and gathers ROS parameter values
 TeleopMiabot::TeleopMiabot():
   linear_(1),
   angular_(2)
@@ -46,7 +46,7 @@ TeleopMiabot::TeleopMiabot():
 
 }
 
-///\brief Triggered on joy callback. Converts joy values to velocity and angular velocity and publishes Twist on cmd_vel
+/// \brief Triggered on joy callback. Converts joy values to velocity and angular velocity and publishes Twist on cmd_vel
 void TeleopMiabot::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   geometry_msgs::Twist cmd_vel;
