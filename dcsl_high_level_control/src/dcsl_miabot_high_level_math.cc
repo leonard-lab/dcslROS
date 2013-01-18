@@ -1,6 +1,18 @@
+/// \file dcsl_miabot_high_level_math.cc
+/// Implements functions for calculating high level miabot control independent of ROS library.
+// \author Will Scott
 #include "dcsl_miabot_high_level_math.h"
 #include <math.h>
 
+/// Control law to calculate waypoints to cause (i+1)th robot to follow ith robot.
+/// Robot (i+1)'s waypoint is placed on the line connecting it with robot i's, set
+/// at min_dist = 0.2 from robot i. If the two robots are withing min_dist, then
+/// waypoint is set to current position, with orientation facing ith robot.
+/// It is assumed that robot 0 is being controlled by joystick, so its waypoint
+/// is set to its current position.
+/// \param[out] way          waypoint output = [x_0, y_0, theta_0, x_1, y_1, theta_1, ...]
+/// \param[in]  pos          pose input      = [x_0, y_0, theta_0, x_1, y_1, theta_1, ...]
+/// \param[in]  numRobots    number of robots (length of arrays above are both 3*numRobots)
 void miabot_follower_control(double* way, double* pos, int numRobots)
 {
 	// calculate waypoints to cause (i+1)th robot to follow ith robot

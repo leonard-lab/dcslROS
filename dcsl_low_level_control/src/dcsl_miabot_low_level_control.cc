@@ -7,11 +7,11 @@
 #include "dcsl_miabot_control_math.h"
 
 /// \file dcsl_miabot_low_level_control.cc
-/// \author Will Scott
-
 /// This file defines the low_level_control node for miabot waypoint control.
 
+// \author Will Scott
 
+/// MiabotLowLevelController class handles callbacks for miabot_low_level_control node
 class MiabotLowLevelController
 {
 public:

@@ -1,6 +1,6 @@
 /// \file dcsl_miabot_control_math.cc
-/// \author Will Scott
 /// Implements functions for calculating low level miabot control independent of ROS library.
+// \author Will Scott
 #include "dcsl_miabot_control_math.h"
 #include <math.h>
 

@@ -4,11 +4,12 @@
 #include "geometry_msgs/PoseArray.h"
 #include "dcsl_miabot_high_level_math.h"
 
+/// \file dcsl_miabot_follower_control.cc
+/// This file defines the miabot_follower_control "high level" control node.
 
-/* dcsl_miabot_follower_control.cc
-   This file defines the low_level_control node
-   for miabot waypoint control. */
+// \author Will Scott
 
+/// MiabotFollowerController class handles callbacks for miabot_follower_control node
 class MiabotFollowerController
 {
 public:
@@ -18,6 +19,9 @@ public:
   ros::Subscriber Sub_state;
   
 public:
+  /// Constructor for MiabotFollowerController.
+  /// \param[in] node_handle         identifies which node we are running, used to create subscribers/publishers
+  /// \param[in] numBots             number of robots to be controlled
   MiabotFollowerController(const ros::NodeHandle& node_handle, const int numBots) :
       numRobots(numBots),
       n(node_handle),
@@ -25,6 +29,8 @@ public:
       Sub_state()
   {}
 
+  /// Initialization for MiabotFollowerController, to be called directly after object creation.
+  /// Here we initialize subscriber and publisher objects which connect this node to roscore
   void init()
   {
     // create Subscriber and Publisher objects
@@ -32,6 +38,12 @@ public:
     Pub_waypoint =  n.advertise<geometry_msgs::PoseArray>("waypoint_input", 1);
   }
 
+  /// Callback function for topic "state_estimate".
+  /// This function is called whenever a new message is posted to the "state_estimate" topic.
+  /// The new message is used in computing new waypoints based on current positions, using the 
+  /// "miabot_follower_control" function in the dcsl_miabot_high_level_math library.
+  /// The computed waypoints are published to the topic "waypoint_input" as a PoseArray.
+  /// \param[in] states          PoseArray of robot states containing position and heading of each robot.
   void stateCallback(const geometry_msgs::PoseArray states)
   {
     // when new state estimate is made, compute desired velocity from
@@ -73,6 +85,8 @@ public:
 };
 
 
+/// main function called when node is launched. Creates a MiabotFollowerController object
+/// and loops through callbacks at a rate of 5 Hz until program is interupted.
 int main(int argc, char **argv)
 {
   // initialize the node, with name miabot_follower_control
