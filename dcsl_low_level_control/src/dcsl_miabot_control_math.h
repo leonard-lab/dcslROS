@@ -1,5 +1,5 @@
-// dcsl_miabot_control_math.h
-// functions for calculating low level miabot control independent of ROS
+/// \file dcsl_miabot_control_math.h
+/// Functions for calculating low level miabot control independent of ROS library.
 #ifndef DCSL_MIABOT_CONTROL_MATH
 #define DCSL_MIABOT_CONTROL_MATH
 

@@ -4,11 +4,47 @@
 
 \b dcsl_low_level_control 
 
-<!-- 
-Provide an overview of your package.
--->
+This package provides "low level control" for Miabot PRO robots from Merlin System Corp. Ltd. It forms an intermediate step between a "high level control" node and the actual Miabot driver node.
 
--->
+\section rosapi ROS API
 
+List of nodes:
+- \b dcsl_miabot_low_level_control
+
+List of libraries:
+- \b dcsl_miabot_control_math
+
+<hr>
+
+\subsection dcsl_low_level_control dcsl_miabot_low_level_control
+
+This node subscribes to control inputs of waypoints or desired velocities in PoseArray form, and converts them to velocities in TwistArray form to send to swarm director node.
+
+\subsection usage Usage
+\verbatim
+$ dcsl_miabot_low_level_control [options] [standard ROS args]
+    options:        --way  listen for waypoint inputs (default)
+                    --vel  listen for velocity inputs
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "waypoint_input/PoseArray" : (waypoint mode) array "poses" holds desired pose waypoint for each robot.
+- \b "state_estimate/PoseArray" : (waypoint mode) array "poses" holds estimate of current pose for each robot.
+- \b "velocity_input/PoseArray" : (velocity mode) array "poses" holds desired velocity for each robot, with desired linear speed in m/s stored as position.x, and desired angular velocity in rad/s stored as orientation.z
+
+Publishes to (name / type):
+- \b "cmd_vel_array/TwistArray" : array "twists" holds a Twist for each robot, linear.x is the desired linear speed in m/s; angular.z is the desired angular rotation rate in rad/s.
+
+<hr>
+
+
+\subsubsection parameters ROS parameters
+- \b "/n_robots" : Number of robots to be controlled.
+- \b "waypoint_gain_1" : Forward velocity gain for waypoint controller (default 0.7).
+- \b "waypoint_gain_2" : Angular velocity gain for waypoint controller (default 0.5).
+
+<hr>
 
 */

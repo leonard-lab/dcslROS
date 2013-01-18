@@ -6,10 +6,11 @@
 #include "dcsl_messages/TwistArray.h"
 #include "dcsl_miabot_control_math.h"
 
+/// \file dcsl_miabot_low_level_control.cc
+/// \author Will Scott
 
-/* dcsl_miabot_waypoint_control.cc
-   This file defines the low_level_control node
-   for miabot waypoint control. */
+/// This file defines the low_level_control node for miabot waypoint control.
+
 
 class MiabotLowLevelController
 {
@@ -33,6 +34,11 @@ private:
   const double k2;
   
 public:
+  /// Constructor for MiabotLowLevelController.
+  /// \param[in] node_handle         identifies which node we are running, used to create subscribers/publishers
+  /// \param[in] numBots             number of robots to be controlled
+  /// \param[in] k1                  forward velocity gain for waypoint control
+  /// \param[in] k2                  angular velocity gain for waypoint control
   MiabotLowLevelController(const ros::NodeHandle& node_handle, 
     const int numBots, const double k1, const double k2) :
       numRobots(numBots),
@@ -48,6 +54,11 @@ public:
       k2(k2)  
   {}
 
+  /// Initialization for MiabotLowLevelController, to be called directly after object creation.
+  /// Here we initialize subscriber and publisher objects which connect this node to roscore
+  /// \param[in] use_waypoint        When true, subscribers are created to listen on "waypoint_input" 
+  ///                                and "state_estimate" topics. When false, subscriber is created
+  ///                                for "velocity_input"
   void init(bool use_waypoint)
   {
     // create Publisher object where output will be advertised
@@ -67,6 +78,11 @@ public:
     }
   }
 
+  /// Callback function for topic "state_estimate".
+  /// This function is called whenever a new message is posted to the "state_estimate" topic.
+  /// The new message is used in computing velocities towards the latest waypoints, which are
+  /// published to the topic "cmd_vel_array" as a TwistArray
+  /// \param[in] states          PoseArray of robot states containing position and heading of each robot.
   void stateCallback(const geometry_msgs::PoseArray states)
   {
     // when new state estimate is made, compute desired velocity from
@@ -107,6 +123,10 @@ public:
     }  
   }
 
+  /// Callback function for topic "waypoint_input".
+  /// This function is called whenever a new message is posted to the "waypoint_input" topic.
+  /// The new message is stored for later use in computing velocities when a new state arrives.
+  /// \param[in] newWaypoints          PoseArray of desired robot states.
   void waypointCallback(const geometry_msgs::PoseArray newWaypoints)
   {
     // This is called when a new waypoint message comes in from
@@ -129,6 +149,14 @@ public:
     }
   }
 
+  /// Callback function for topic "velocity_input".
+  /// This function is called whenever a new message is posted to the "velocity_input" topic.
+  /// The incoming message is converted from a PoseArray to a TwistArray and published on topic 
+  /// "cmd_vel_array." The conversion is needed due to incompatibility of matlab ipc-bridge with
+  /// the custom TwistArray message type.
+  /// \param[in] velocityPose          PoseArray of desired robot velocities. Linear velocity is 
+  ///                                  stored in position.x of each pose, and angular velocity is
+  ///                                  stored in orientation.z of each pose.
  void velocityCallback(const geometry_msgs::PoseArray velocityPose)
   {
     // This is called when a new velocity  message comes in from
@@ -154,7 +182,10 @@ public:
   }
 };
 
-
+/// main function called when node is launched. Creates a MiabotLowLevelController object
+/// and calls ros::spin() to loop through callbacks until program is interupted
+/// Command line options: "--way" (default) for waypoint control
+///                       "--vel" for velocity control
 int main(int argc, char **argv)
 {
   // initialize the node, with name miabot_waypoint_control
