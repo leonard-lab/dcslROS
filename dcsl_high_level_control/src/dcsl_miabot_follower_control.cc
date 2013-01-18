@@ -46,8 +46,6 @@ public:
   /// \param[in] states          PoseArray of robot states containing position and heading of each robot.
   void stateCallback(const geometry_msgs::PoseArray states)
   {
-    // when new state estimate is made, compute desired velocity from
-    // the most recent waypoint info for each robot
     ROS_DEBUG_STREAM("received state message");
     if(int(states.poses.size()) == numRobots)
     {

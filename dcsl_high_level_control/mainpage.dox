@@ -11,10 +11,10 @@ Launchfiles are also included to create ipc-bridge nodes that allow control algo
 \section rosapi ROS API
 
 List of nodes:
-- \b dcsl_miabot_follower_control
+- \b dcsl_miabot_follower_control.cc
 
 List of libraries:
-- \b dcsl_miabot_high_level_math
+- \b dcsl_miabot_high_level_math.h
 
 List of launchfiles
 - \b miabot_high_level
@@ -39,11 +39,15 @@ Subscribes to (name / type):
 Publishes to (name / type):
 - \b "waypoint_input/PoseArray" : array "poses" holds desired pose waypoint for each robot.
 
-<hr>
 
 \subsubsection parameters ROS parameters
 - \b "/n_robots" : Number of robots to be controlled.
 
 <hr>
+
+\subsection dcsl_miabot_high_level_math
+
+This is a C++ shared-object library that includes the math functions used in the dcsl_miabot_high_level_control package.
+
 
 */

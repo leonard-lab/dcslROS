@@ -15,10 +15,6 @@
 /// \param[in]  numRobots    number of robots (length of arrays above are both 3*numRobots)
 void miabot_follower_control(double* way, double* pos, int numRobots)
 {
-	// calculate waypoints to cause (i+1)th robot to follow ith robot
-	// robot 0 will be controlled by joystick (handled in launch file)
-	// so we'll just set it's waypoint to its current position,
-	// so the estimator doesn't get too confused (hopefully)
 	way[0] = pos[0];
 	way[1] = pos[1];
 	way[2] = pos[2];
