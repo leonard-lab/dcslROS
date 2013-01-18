@@ -1,0 +1,17 @@
+*~
+*#*#
+*.pyc
+.rosinstall*
+setup.bash
+setup.sh
+setup.zsh
+cmake_install.cmake
+build/
+bin/
+msg_gen/
+srv_gen/
+lib/
+*.png*
+*.jpeg*
+*.bag*
+.git-rewrite
