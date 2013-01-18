@@ -4,6 +4,9 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
 
+//\author: Brendan Andrade
+
+///\brief Reads joystick commands from joy topic and publishes corresponding commands for Miabot as Twist on cmd_vel topic
 class TeleopMiabot
 {
 public:
@@ -21,22 +24,26 @@ private:
 
 };
 
+///\brief Initializer. Advertises and subscribes to topics and gathers ROS parameter values
 TeleopMiabot::TeleopMiabot():
   linear_(1),
   angular_(2)
 {
-
+  //Read parameters
   nh_.param("axis_linear", linear_, linear_);
   nh_.param("axis_angular", angular_, angular_);
   nh_.param("scale_angular", a_scale_, a_scale_);
   nh_.param("scale_linear", l_scale_, l_scale_);
 
+  //Advertise topic
   vel_pub_ = nh_.advertise<geometry_msgs::Twist>("cmd_vel",1);
 
+  //Subscribe to joy
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &TeleopMiabot::joyCallback, this);
 
 }
 
+///\brief Triggered on joy callback. Converts joy values to velocity and angular velocity and publishes Twist on cmd_vel
 void TeleopMiabot::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   geometry_msgs::Twist cmd_vel;
