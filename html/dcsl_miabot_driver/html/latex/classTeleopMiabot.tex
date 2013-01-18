@@ -1,0 +1,134 @@
+\section{\-Teleop\-Miabot \-Class \-Reference}
+\label{classTeleopMiabot}\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}}
+
+
+\-Reads joystick commands from joy topic and publishes corresponding commands for \-Miabot as \-Twist on cmd\-\_\-vel topic.  
+
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\bf \-Teleop\-Miabot} ()
+\begin{DoxyCompactList}\small\item\em \-Initializer. \-Advertises and subscribes to topics and gathers \-R\-O\-S parameter values. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Private \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf joy\-Callback} (const sensor\-\_\-msgs\-::\-Joy\-::\-Const\-Ptr \&joy)
+\begin{DoxyCompactList}\small\item\em \-Triggered on joy callback. \-Converts joy values to velocity and angular velocity and publishes \-Twist on cmd\-\_\-vel. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Private \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double {\bf a\-\_\-scale\-\_\-}
+\item 
+int {\bf angular\-\_\-}
+\item 
+ros\-::\-Subscriber {\bf joy\-\_\-sub\-\_\-}
+\item 
+double {\bf l\-\_\-scale\-\_\-}
+\item 
+int {\bf linear\-\_\-}
+\item 
+ros\-::\-Node\-Handle {\bf nh\-\_\-}
+\item 
+ros\-::\-Publisher {\bf vel\-\_\-pub\-\_\-}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Reads joystick commands from joy topic and publishes corresponding commands for \-Miabot as \-Twist on cmd\-\_\-vel topic. 
+
+\-Definition at line 10 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!\-Teleop\-Miabot@{\-Teleop\-Miabot}}
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{\-Teleop\-Miabot}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Teleop\-Miabot\-::\-Teleop\-Miabot} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{classTeleopMiabot_a7b30998ffdc75b5cfdedc155f478520c}
+
+
+\-Initializer. \-Advertises and subscribes to topics and gathers \-R\-O\-S parameter values. 
+
+
+
+\-Definition at line 28 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!joy\-Callback@{joy\-Callback}}
+\index{joy\-Callback@{joy\-Callback}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{joy\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Teleop\-Miabot\-::joy\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const sensor\-\_\-msgs\-::\-Joy\-::\-Const\-Ptr \&}]{joy}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_a26bc1f6817cb6087ac6f987eeb759b1c}
+
+
+\-Triggered on joy callback. \-Converts joy values to velocity and angular velocity and publishes \-Twist on cmd\-\_\-vel. 
+
+
+
+\-Definition at line 47 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+
+
+\subsection{\-Member \-Data \-Documentation}
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!a\-\_\-scale\-\_\-@{a\-\_\-scale\-\_\-}}
+\index{a\-\_\-scale\-\_\-@{a\-\_\-scale\-\_\-}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{a\-\_\-scale\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Teleop\-Miabot\-::a\-\_\-scale\-\_\-}\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_a1fb244f8b0194a89c95410472c3cfcd8}
+
+
+\-Definition at line 21 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!angular\-\_\-@{angular\-\_\-}}
+\index{angular\-\_\-@{angular\-\_\-}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{angular\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Teleop\-Miabot\-::angular\-\_\-}\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_a91ecc1e3007d3675b1ff7a5047b1a53d}
+
+
+\-Definition at line 20 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!joy\-\_\-sub\-\_\-@{joy\-\_\-sub\-\_\-}}
+\index{joy\-\_\-sub\-\_\-@{joy\-\_\-sub\-\_\-}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{joy\-\_\-sub\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Subscriber {\bf \-Teleop\-Miabot\-::joy\-\_\-sub\-\_\-}\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_ab94f106a0adc2381ebfdebb428682457}
+
+
+\-Definition at line 23 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!l\-\_\-scale\-\_\-@{l\-\_\-scale\-\_\-}}
+\index{l\-\_\-scale\-\_\-@{l\-\_\-scale\-\_\-}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{l\-\_\-scale\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Teleop\-Miabot\-::l\-\_\-scale\-\_\-}\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_abb2794c3238426aa421e25ca4d0b67e8}
+
+
+\-Definition at line 21 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!linear\-\_\-@{linear\-\_\-}}
+\index{linear\-\_\-@{linear\-\_\-}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{linear\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Teleop\-Miabot\-::linear\-\_\-}\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_a6d56438d8a98fde9616d7a037e3c8acb}
+
+
+\-Definition at line 20 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!nh\-\_\-@{nh\-\_\-}}
+\index{nh\-\_\-@{nh\-\_\-}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{nh\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Node\-Handle {\bf \-Teleop\-Miabot\-::nh\-\_\-}\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_ad4260ca36437e55ce6ddc61c4396f05e}
+
+
+\-Definition at line 18 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+\index{\-Teleop\-Miabot@{\-Teleop\-Miabot}!vel\-\_\-pub\-\_\-@{vel\-\_\-pub\-\_\-}}
+\index{vel\-\_\-pub\-\_\-@{vel\-\_\-pub\-\_\-}!TeleopMiabot@{\-Teleop\-Miabot}}
+\subsubsection[{vel\-\_\-pub\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Publisher {\bf \-Teleop\-Miabot\-::vel\-\_\-pub\-\_\-}\hspace{0.3cm}{\ttfamily  [private]}}\label{classTeleopMiabot_adb7abb9d4c221e4ca527c0aec131fd34}
+
+
+\-Definition at line 22 of file dcsl\-\_\-miabot\-\_\-joy.\-cpp.
+
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+{\bf dcsl\-\_\-miabot\-\_\-joy.\-cpp}\end{DoxyCompactItemize}

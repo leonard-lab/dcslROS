@@ -1,0 +1,102 @@
+\section{dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director \-Class \-Reference}
+\label{classdcsl__swarm__director__node_1_1SwarmDirector}\index{dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director@{dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director}}
+
+
+\-Splits a \-Twist\-Array message on one topic into \-Twist messages on multiple topics.  
+
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+def {\bf \-\_\-\-\_\-init\-\_\-\-\_\-}
+\begin{DoxyCompactList}\small\item\em \-Sets up publishers and subscribers. \end{DoxyCompactList}\item 
+def {\bf callback}
+\begin{DoxyCompactList}\small\item\em \-Callback function for the \-Twist\-Array. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Public \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+{\bf cmd\-Array\-\_\-sub}
+\item 
+{\bf n}
+\item 
+{\bf publisher\-Array}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Splits a \-Twist\-Array message on one topic into \-Twist messages on multiple topics. 
+
+\-Definition at line 17 of file dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-py.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\index{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}!\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}}
+\index{\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}!dcsl_swarm_director_node::SwarmDirector@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}}
+\subsubsection[{\-\_\-\-\_\-init\-\_\-\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director.\-\_\-\-\_\-init\-\_\-\-\_\-} (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{n\-Robots}
+\end{DoxyParamCaption}
+)}\label{classdcsl__swarm__director__node_1_1SwarmDirector_a8fefa59e9e241313b21014614b0e7635}
+
+
+\-Sets up publishers and subscribers. 
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em n\-Robots} & is the number of entries in the \-Twist\-Array \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 22 of file dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-py.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\index{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}!callback@{callback}}
+\index{callback@{callback}!dcsl_swarm_director_node::SwarmDirector@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}}
+\subsubsection[{callback}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director.\-callback} (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{data}
+\end{DoxyParamCaption}
+)}\label{classdcsl__swarm__director__node_1_1SwarmDirector_a29b66e989057832f20bd57a11a9993c6}
+
+
+\-Callback function for the \-Twist\-Array. 
+
+\-Routes each \-Twist in the \-Twist\-Array to the appropriate topic 
+
+\-Definition at line 34 of file dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-py.
+
+
+
+\subsection{\-Member \-Data \-Documentation}
+\index{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}!cmd\-Array\-\_\-sub@{cmd\-Array\-\_\-sub}}
+\index{cmd\-Array\-\_\-sub@{cmd\-Array\-\_\-sub}!dcsl_swarm_director_node::SwarmDirector@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}}
+\subsubsection[{cmd\-Array\-\_\-sub}]{\setlength{\rightskip}{0pt plus 5cm}{\bf dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director\-::cmd\-Array\-\_\-sub}}\label{classdcsl__swarm__director__node_1_1SwarmDirector_af0b8146d40ff38dfa371384cf9fd3e11}
+
+
+\-Definition at line 22 of file dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-py.
+
+\index{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}!n@{n}}
+\index{n@{n}!dcsl_swarm_director_node::SwarmDirector@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}}
+\subsubsection[{n}]{\setlength{\rightskip}{0pt plus 5cm}{\bf dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director\-::n}}\label{classdcsl__swarm__director__node_1_1SwarmDirector_af5ca55a53560fbd802bea73d2c9a9e90}
+
+
+\-Definition at line 22 of file dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-py.
+
+\index{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}!publisher\-Array@{publisher\-Array}}
+\index{publisher\-Array@{publisher\-Array}!dcsl_swarm_director_node::SwarmDirector@{dcsl\-\_\-swarm\-\_\-director\-\_\-node\-::\-Swarm\-Director}}
+\subsubsection[{publisher\-Array}]{\setlength{\rightskip}{0pt plus 5cm}{\bf dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-Swarm\-Director\-::publisher\-Array}}\label{classdcsl__swarm__director__node_1_1SwarmDirector_aa55a13412c4e935f4cd93bd019f3c0d6}
+
+
+\-Definition at line 22 of file dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-py.
+
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+{\bf dcsl\-\_\-swarm\-\_\-director\-\_\-node.\-py}\end{DoxyCompactItemize}
