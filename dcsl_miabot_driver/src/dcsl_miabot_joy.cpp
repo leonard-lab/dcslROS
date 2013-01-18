@@ -4,6 +4,9 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
 
+//\file
+//\brief A node that subscribes to the joy topic, converts the joystick inputs to velocity and angular velocity commands and publishes them on cmd_vel as a Twist.
+
 //\author: Brendan Andrade
 
 ///\brief Reads joystick commands from joy topic and publishes corresponding commands for Miabot as Twist on cmd_vel topic
