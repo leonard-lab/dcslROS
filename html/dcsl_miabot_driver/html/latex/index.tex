@@ -1,0 +1,54 @@
+
+
+{\bfseries \doxyref{dcsl\-\_\-miabot\-\_\-driver}{p.}{namespacedcsl__miabot__driver}} 
+
+\-This package provides an interface to control \-Miabot \-P\-R\-O robots from \-Merlin \-System \-Corp. \-Ltd over a serial port connection. \-It also has a node for controlling the \-Miabot \-P\-R\-O directly with a joystick.\section{\-R\-O\-S A\-P\-I}\label{index_rosapi}
+\-List of nodes\-:
+\begin{DoxyItemize}
+\item {\bfseries \doxyref{dcsl\-\_\-miabot\-\_\-driver.\-py}{p.}{dcsl__miabot__driver_8py}} 
+\item {\bfseries dcsl\-\_\-miabot\-\_\-joy} 
+\end{DoxyItemize}
+
+
+
+\subsection{dcsl\-\_\-miabot\-\_\-driver.\-py}\label{index_dcsl_miabot_driver}
+\-This node subscribes to control inputs of velocity and angular velocity, converts these into the corresponding wheel speeds, and sends the wheel speed commands to the \-Miabot \-P\-R\-O over a serial connection.\subsection{\-Usage}\label{index_usage}
+\begin{DoxyVerb}
+$ dcsl_miabot_driver.py <path to serial port> [standard ROS args]
+\end{DoxyVerb}
+\subsubsection{\-R\-O\-S topics}\label{index_topics}
+\-Subscribes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}cmd\-\_\-vel/\-Twist\char`\"{}} \-: linear.\-x is the desired linear speed in m/s; angular.\-z is the desired angular rotation rate in rad/s.
+\end{DoxyItemize}
+
+\-Publishes to (name / type)\-: \-None
+
+
+
+\subsection{dcsl\-\_\-miabot\-\_\-joy}\label{index_dcsl_miabot_joy}
+\-This node subscribes to joystick commands, translates these commands into a velocity and an angular velocity command and publishes them on cmd\-\_\-vel.\subsubsection{\-Usage}\label{index_usage}
+\begin{DoxyVerb}
+$ dcsl_miabot_joy [standard ROS args]
+\end{DoxyVerb}
+\subsubsection{\-R\-O\-S topics}\label{index_topics}
+\-Subscribes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}joy / Joy\char`\"{}} \-: \-Joy message containing inputs from a joystick.
+\end{DoxyItemize}
+
+\-Publishes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}cmd\-\_\-vel / Twist\char`\"{}} \-: linear.\-x is the desired linear speed in m/s; angular.\-z is the desired angular rotation rate in rad/s.
+\end{DoxyItemize}\subsubsection{\-R\-O\-S parameters}\label{index_parameters}
+
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}axis\-\_\-linear\char`\"{}} \-: \-Number of the axis of the joystick that should control velocity.
+\item {\bfseries \char`\"{}axis\-\_\-angular\char`\"{}} \-: \-Number of the axis of the joystick that should control angular velocity.
+\item {\bfseries \char`\"{}scale\-\_\-linear\char`\"{}} \-: \-The scaling factor used to translate from the [-\/1,1] range of the axis to the velocity of the robot in m/s.
+\item {\bfseries \char`\"{}scale\-\_\-angular\char`\"{}} \-: \-The scaling factor used to translate from the [-\/1,1] range of the axis to the angular velocity of the robot in rad/s.
+\end{DoxyItemize}
+
+
+
+ 

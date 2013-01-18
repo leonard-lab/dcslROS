@@ -1,0 +1,37 @@
+\section{dcsl\-\_\-miabot\-\_\-driver.\-py \-File \-Reference}
+\label{dcsl__miabot__driver_8py}\index{dcsl\-\_\-miabot\-\_\-driver.\-py@{dcsl\-\_\-miabot\-\_\-driver.\-py}}
+
+
+\-A node that subscribes to the cmd\-\_\-vel topic with \-Twist messages.  
+
+
+\subsection*{\-Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace {\bf dcsl\-\_\-miabot\-\_\-driver}
+\end{DoxyCompactItemize}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+def {\bf dcsl\-\_\-miabot\-\_\-driver.\-callback}
+\begin{DoxyCompactList}\small\item\em \-The callback function for when a \-Twist message is published on the cmd\-\_\-vel topic. \end{DoxyCompactList}\item 
+def {\bf dcsl\-\_\-miabot\-\_\-driver.\-close\-Port}
+\begin{DoxyCompactList}\small\item\em \-This function is triggered when the node shuts down. \end{DoxyCompactList}\item 
+def {\bf dcsl\-\_\-miabot\-\_\-driver.\-main}
+\begin{DoxyCompactList}\small\item\em \-Main function which is called when the node begins. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Variables}
+\begin{DoxyCompactItemize}
+\item 
+tuple {\bf dcsl\-\_\-miabot\-\_\-driver.\-args} = rospy.\-myargv(argv=sys.\-argv)
+\item 
+list {\bf dcsl\-\_\-miabot\-\_\-driver.\-port} = args[1]
+\item 
+tuple {\bf dcsl\-\_\-miabot\-\_\-driver.\-ser} = serial.\-Serial()
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-A node that subscribes to the cmd\-\_\-vel topic with \-Twist messages. \-It converts the velocity and angular velocity in the message to wheel speed commands and sends them to the robot over a serial connection. 
+
+\-Definition in file {\bf dcsl\-\_\-miabot\-\_\-driver.\-py}.
+
