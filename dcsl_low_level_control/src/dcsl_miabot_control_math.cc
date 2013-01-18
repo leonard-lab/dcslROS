@@ -6,7 +6,7 @@
 
 
 /// Control law to calculate desired velocity based on current position and desired position.
-/// This is a simple controller for differential-drive robots, as described by Brendan Andrade
+/// This is a simple controller for differential-drive robots, as described by Brendan Andrade.
 /// \param[out] output        [v, omega] 
 /// \param[in]  pose          [x, y, theta]
 /// \param[in]  waypoint      [x, y, theta]

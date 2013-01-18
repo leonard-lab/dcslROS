@@ -9,14 +9,14 @@ This package provides "low level control" for Miabot PRO robots from Merlin Syst
 \section rosapi ROS API
 
 List of nodes:
-- \b dcsl_miabot_low_level_control
+- \b dcsl_miabot_low_level_control.cc
 
 List of libraries:
-- \b dcsl_miabot_control_math
+- \b dcsl_miabot_control_math.h
 
 <hr>
 
-\subsection dcsl_low_level_control dcsl_miabot_low_level_control
+\subsection dcsl_miabot_low_level_control
 
 This node subscribes to control inputs of waypoints or desired velocities in PoseArray form, and converts them to velocities in TwistArray form to send to swarm director node.
 
@@ -37,14 +37,17 @@ Subscribes to (name / type):
 Publishes to (name / type):
 - \b "cmd_vel_array/TwistArray" : array "twists" holds a Twist for each robot, linear.x is the desired linear speed in m/s; angular.z is the desired angular rotation rate in rad/s.
 
-<hr>
-
 
 \subsubsection parameters ROS parameters
+
 - \b "/n_robots" : Number of robots to be controlled.
 - \b "waypoint_gain_1" : Forward velocity gain for waypoint controller (default 0.7).
 - \b "waypoint_gain_2" : Angular velocity gain for waypoint controller (default 0.5).
 
 <hr>
+
+\subsection dcsl_miabot_control_math
+
+This is a C++ shared-object library that includes the math functions used in the dcsl_miabot_low_level_control package.
 
 */

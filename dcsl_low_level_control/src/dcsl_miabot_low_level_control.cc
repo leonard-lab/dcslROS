@@ -96,7 +96,6 @@ public:
       double way[3];
       double outputVel[2];
 
-
       for (int i = 0; i < numRobots; i++) // loop through the robots
       {
       	pos[0] = states.poses[i].position.x;
@@ -129,10 +128,6 @@ public:
   /// \param[in] newWaypoints          PoseArray of desired robot states.
   void waypointCallback(const geometry_msgs::PoseArray newWaypoints)
   {
-    // This is called when a new waypoint message comes in from
-    // the high level control topic
-    // It stores the new waypoint in the waypoint array to use later 
-    // when a new state estimate comes in.
     ROS_DEBUG_STREAM("received waypoint message");
     if(int(newWaypoints.poses.size()) == numRobots)
     {
@@ -159,10 +154,6 @@ public:
   ///                                  stored in orientation.z of each pose.
  void velocityCallback(const geometry_msgs::PoseArray velocityPose)
   {
-    // This is called when a new velocity  message comes in from
-    // the high level control topic
-    // We move the data from the PoseArray into a TwistArray and publish it
-    // (high level control has limitation of not being able to output TwistArray)
     if(int(velocityPose.poses.size()) == numRobots)
     {
       dcsl_messages::TwistArray velocities;
