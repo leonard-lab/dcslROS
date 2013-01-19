@@ -17,7 +17,7 @@ List of nodes:
 
 \subsubsection usage Usage
 \verbatim
-$ dcsl_swarm_director [standard ROS args]
+$ dcsl_swarm_director.py [standard ROS args]
 \endverbatim
 
 \subsubsection topics ROS topics
