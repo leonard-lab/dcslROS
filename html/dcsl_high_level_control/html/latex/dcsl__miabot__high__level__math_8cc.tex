@@ -1,0 +1,49 @@
+\section{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc \-File \-Reference}
+\label{dcsl__miabot__high__level__math_8cc}\index{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc@{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc}}
+{\ttfamily \#include \char`\"{}dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-h\char`\"{}}\*
+{\ttfamily \#include $<$math.\-h$>$}\*
+\-Include dependency graph for dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=260pt]{dcsl__miabot__high__level__math_8cc__incl}
+\end{center}
+\end{figure}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf miabot\-\_\-follower\-\_\-control} (double $\ast$way, double $\ast$pos, int num\-Robots)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Implements functions for calculating high level miabot control independent of \-R\-O\-S library. 
+
+\-Definition in file {\bf dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc}.
+
+
+
+\subsection{\-Function \-Documentation}
+\index{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc@{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc}!miabot\-\_\-follower\-\_\-control@{miabot\-\_\-follower\-\_\-control}}
+\index{miabot\-\_\-follower\-\_\-control@{miabot\-\_\-follower\-\_\-control}!dcsl_miabot_high_level_math.cc@{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc}}
+\subsubsection[{miabot\-\_\-follower\-\_\-control}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-follower\-\_\-control} (
+\begin{DoxyParamCaption}
+\item[{double $\ast$}]{way, }
+\item[{double $\ast$}]{pos, }
+\item[{int}]{num\-Robots}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__high__level__math_8cc_ae9ce0339ab9ff053d8e2314bc35dbb45}
+\-Control law to calculate waypoints to cause (i+1)th robot to follow ith robot. \-Robot (i+1)'s waypoint is placed on the line connecting it with robot i's, set at min\-\_\-dist = 0.\-2 from robot i. \-If the two robots are withing min\-\_\-dist, then waypoint is set to current position, with orientation facing ith robot. \-It is assumed that robot 0 is being controlled by joystick, so its waypoint is set to its current position. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt out}  & {\em way} & waypoint output = [x\-\_\-0, y\-\_\-0, theta\-\_\-0, x\-\_\-1, y\-\_\-1, theta\-\_\-1, ...] \\
+\hline
+\mbox{\tt in}  & {\em pos} & pose input = [x\-\_\-0, y\-\_\-0, theta\-\_\-0, x\-\_\-1, y\-\_\-1, theta\-\_\-1, ...] \\
+\hline
+\mbox{\tt in}  & {\em num\-Robots} & number of robots (length of arrays above are both 3$\ast$num\-Robots) \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 16 of file dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-cc.
+

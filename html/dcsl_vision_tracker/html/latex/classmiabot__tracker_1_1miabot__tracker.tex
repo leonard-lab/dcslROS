@@ -1,0 +1,207 @@
+\section{miabot\-\_\-tracker.\-miabot\-\_\-tracker \-Class \-Reference}
+\label{classmiabot__tracker_1_1miabot__tracker}\index{miabot\-\_\-tracker.\-miabot\-\_\-tracker@{miabot\-\_\-tracker.\-miabot\-\_\-tracker}}
+
+
+\-This class allows detection of robots in an image, orders these readings based on state estimates, and publishes them as a \-Pose\-Array.  
+
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+def {\bf \-\_\-\-\_\-init\-\_\-\-\_\-}
+\begin{DoxyCompactList}\small\item\em \-Creates publishers and subscribers, loads background image and n\-Robots parameter, and creates \-Cv\-Bridge object. \end{DoxyCompactList}\item 
+def {\bf image\-Callback}
+\begin{DoxyCompactList}\small\item\em \-Callback function for when new images are received. \end{DoxyCompactList}\item 
+def {\bf match\-Robots}
+\begin{DoxyCompactList}\small\item\em \-Matchings readings with the robots in the current state estimate and stores the sorted measurements in a \-Pose\-Array called self.\-measurements. \end{DoxyCompactList}\item 
+def {\bf state\-Callback}
+\begin{DoxyCompactList}\small\item\em \-Callback function for state estimates. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Public \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+{\bf background}
+\item 
+{\bf bridge}
+\item 
+{\bf current\-States}
+\item 
+{\bf image\-\_\-pub}
+\item 
+{\bf image\-\_\-sub}
+\item 
+{\bf measurement\-\_\-pub}
+\item 
+{\bf measurements}
+\item 
+{\bf n\-Robots}
+\item 
+{\bf state\-\_\-sub}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-This class allows detection of robots in an image, orders these readings based on state estimates, and publishes them as a \-Pose\-Array. 
+
+
+
+\-Definition at line 22 of file miabot\-\_\-tracker.\-py.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}}
+\index{\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{\-\_\-\-\_\-init\-\_\-\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker.\-\_\-\-\_\-init\-\_\-\-\_\-} (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\label{classmiabot__tracker_1_1miabot__tracker_a79dbf66bff9bc0349afda122962dcaab}
+
+
+\-Creates publishers and subscribers, loads background image and n\-Robots parameter, and creates \-Cv\-Bridge object. 
+
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!image\-Callback@{image\-Callback}}
+\index{image\-Callback@{image\-Callback}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{image\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker.\-image\-Callback} (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{data}
+\end{DoxyParamCaption}
+)}\label{classmiabot__tracker_1_1miabot__tracker_a52279a73a529515ba5f91306b27b9309}
+
+
+\-Callback function for when new images are received. 
+
+\-Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em data} & is the image data received from the /camera/image\-\_\-raw topic \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 38 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!match\-Robots@{match\-Robots}}
+\index{match\-Robots@{match\-Robots}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{match\-Robots}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker.\-match\-Robots} (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{readings}
+\end{DoxyParamCaption}
+)}\label{classmiabot__tracker_1_1miabot__tracker_a4f523b66b9a2b170c723806b10daf720}
+
+
+\-Matchings readings with the robots in the current state estimate and stores the sorted measurements in a \-Pose\-Array called self.\-measurements. 
+
+\-To match the readings with the robots. \-A cost matrix is construsted of the square of the distance between each state estimate and each reading found in the image. \-The \-Hungarian algorithm is used to find the lowest cost set of matches between the readings and state\-\_\-estimates. \-It also rejects false positive readings if they are far from the estimated positions of the robots and can handle the case when fewer robots are detected in the image than are known to exist in the system. 
+\begin{DoxyParams}{\-Parameters}
+{\em readings} & is an unsorted list of tuples represented detected poses of robots. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 142 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!state\-Callback@{state\-Callback}}
+\index{state\-Callback@{state\-Callback}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{state\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker.\-state\-Callback} (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{data}
+\end{DoxyParamCaption}
+)}\label{classmiabot__tracker_1_1miabot__tracker_ab730a96e79b469f9087904e86bcdc7bd}
+
+
+\-Callback function for state estimates. 
+
+\-Stores state estimates as self.\-current\-States.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em data} & is the message received from the subscriber. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 135 of file miabot\-\_\-tracker.\-py.
+
+
+
+\subsection{\-Member \-Data \-Documentation}
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!background@{background}}
+\index{background@{background}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{background}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::background}}\label{classmiabot__tracker_1_1miabot__tracker_a681a9a98b8c188f0820f018f2ce70691}
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!bridge@{bridge}}
+\index{bridge@{bridge}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{bridge}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::bridge}}\label{classmiabot__tracker_1_1miabot__tracker_a8391e3dd31abb4d1b20a016c8b74141b}
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!current\-States@{current\-States}}
+\index{current\-States@{current\-States}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{current\-States}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::current\-States}}\label{classmiabot__tracker_1_1miabot__tracker_a3dae4aa67056fff274a6877ec36a512b}
+
+
+\-Definition at line 135 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!image\-\_\-pub@{image\-\_\-pub}}
+\index{image\-\_\-pub@{image\-\_\-pub}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{image\-\_\-pub}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::image\-\_\-pub}}\label{classmiabot__tracker_1_1miabot__tracker_a3941b27cb2b3b514e84b6bd18ccdd4e4}
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!image\-\_\-sub@{image\-\_\-sub}}
+\index{image\-\_\-sub@{image\-\_\-sub}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{image\-\_\-sub}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::image\-\_\-sub}}\label{classmiabot__tracker_1_1miabot__tracker_a56ec4002631c6fc7ca7781d0089db942}
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!measurement\-\_\-pub@{measurement\-\_\-pub}}
+\index{measurement\-\_\-pub@{measurement\-\_\-pub}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{measurement\-\_\-pub}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::measurement\-\_\-pub}}\label{classmiabot__tracker_1_1miabot__tracker_ab4322e0467c0810f46f80737dbe71cfc}
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!measurements@{measurements}}
+\index{measurements@{measurements}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{measurements}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::measurements}}\label{classmiabot__tracker_1_1miabot__tracker_ab88fc0349678620294250c014d25ea08}
+
+
+\-Definition at line 38 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!n\-Robots@{n\-Robots}}
+\index{n\-Robots@{n\-Robots}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{n\-Robots}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::n\-Robots}}\label{classmiabot__tracker_1_1miabot__tracker_a32d99de901934e356c1b49c740c2f80b}
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+\index{miabot\-\_\-tracker\-::miabot\-\_\-tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}!state\-\_\-sub@{state\-\_\-sub}}
+\index{state\-\_\-sub@{state\-\_\-sub}!miabot_tracker::miabot_tracker@{miabot\-\_\-tracker\-::miabot\-\_\-tracker}}
+\subsubsection[{state\-\_\-sub}]{\setlength{\rightskip}{0pt plus 5cm}{\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker\-::state\-\_\-sub}}\label{classmiabot__tracker_1_1miabot__tracker_a92728bf9f5398b74b4644239d3fe6381}
+
+
+\-Definition at line 25 of file miabot\-\_\-tracker.\-py.
+
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+{\bf miabot\-\_\-tracker.\-py}\end{DoxyCompactItemize}

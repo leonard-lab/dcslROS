@@ -1,0 +1,158 @@
+\section{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h \-File \-Reference}
+\label{dcsl__miabot__estimator__math_8h}\index{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}}
+{\ttfamily \#include $<$\-Eigen/\-Dense$>$}\*
+\-Include dependency graph for dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=194pt]{dcsl__miabot__estimator__math_8h__incl}
+\end{center}
+\end{figure}
+\-This graph shows which files directly or indirectly include this file\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{dcsl__miabot__estimator__math_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf miabot\-\_\-calculate\-\_\-filter\-\_\-gain} (\-Matrix3d \&k, const \-Matrix3d \&p, const \-Matrix3d \&r)
+\item 
+void {\bf miabot\-\_\-propagate\-\_\-covariance} (\-Matrix3d \&p, const \-Vector3d \&x, const \-Vector2d \&u, const \-Matrix3d \&q, const \-Matrix3d \&r, double dt)
+\item 
+void {\bf miabot\-\_\-propagate\-\_\-state} (\-Vector3d \&x, const \-Vector2d \&u, double dt)
+\item 
+void {\bf miabot\-\_\-update\-\_\-covariance} (\-Matrix3d \&p, const \-Matrix3d \&k)
+\item 
+void {\bf miabot\-\_\-update\-\_\-state} (\-Vector3d \&x, const \-Matrix3d \&k, const \-Vector3d \&z)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Functions for calculating low level miabot control independent of \-R\-O\-S library. 
+
+\-Definition in file {\bf dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}.
+
+
+
+\subsection{\-Function \-Documentation}
+\index{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}!miabot\-\_\-calculate\-\_\-filter\-\_\-gain@{miabot\-\_\-calculate\-\_\-filter\-\_\-gain}}
+\index{miabot\-\_\-calculate\-\_\-filter\-\_\-gain@{miabot\-\_\-calculate\-\_\-filter\-\_\-gain}!dcsl_miabot_estimator_math.h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}}
+\subsubsection[{miabot\-\_\-calculate\-\_\-filter\-\_\-gain}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-calculate\-\_\-filter\-\_\-gain} (
+\begin{DoxyParamCaption}
+\item[{\-Matrix3d \&}]{k, }
+\item[{const \-Matrix3d \&}]{p, }
+\item[{const \-Matrix3d \&}]{r}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__estimator__math_8h_a6398aab6a1e5f3955dd1f10c799932a8}
+\-Calculate filter gain according to \-Extended \-Kalman-\/\-Bucy \-Filter. \-Described in \-Stengel's \char`\"{}\-Optimal Control and Estimation\char`\"{} pg 388 as k = p $\ast$ h $\ast$ inverse(h$\ast$p$\ast$h' + r), where for miabot system h = identity. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt out}  & {\em k} & 3x3 matrix of filter gain \\
+\hline
+\mbox{\tt in}  & {\em p} & 3x3 matrix of covariance estimates \\
+\hline
+\mbox{\tt in}  & {\em r} & 3x3 matrix of sensor noise weights \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 69 of file dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-cc.
+
+\index{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}!miabot\-\_\-propagate\-\_\-covariance@{miabot\-\_\-propagate\-\_\-covariance}}
+\index{miabot\-\_\-propagate\-\_\-covariance@{miabot\-\_\-propagate\-\_\-covariance}!dcsl_miabot_estimator_math.h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}}
+\subsubsection[{miabot\-\_\-propagate\-\_\-covariance}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-propagate\-\_\-covariance} (
+\begin{DoxyParamCaption}
+\item[{\-Matrix3d \&}]{p, }
+\item[{const \-Vector3d \&}]{x, }
+\item[{const \-Vector2d \&}]{u, }
+\item[{const \-Matrix3d \&}]{q, }
+\item[{const \-Matrix3d \&}]{r, }
+\item[{double}]{dt}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__estimator__math_8h_afbd30740e1f341a74baf470a588ed469}
+\-Integrate the covariance matrix p forward in time using \-Euler forward method. \-This functin is based on covariance dynamics for \-Extended \-Kalman-\/\-Bucy \-Filter as described in \-Stengel's \char`\"{}\-Optimal Control and Estimation\char`\"{} pg 388 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in,out}  & {\em p} & 3x3 matrix of covariance estimates \\
+\hline
+\mbox{\tt in}  & {\em x} & pose of robot [x, y, theta] \\
+\hline
+\mbox{\tt in}  & {\em u} & applied control [v, omega] \\
+\hline
+\mbox{\tt in}  & {\em q} & 3x3 matrix of plant disturbance weights \\
+\hline
+\mbox{\tt in}  & {\em r} & 3x3 matrix of sensor noise weights \\
+\hline
+\mbox{\tt in}  & {\em dt} & how far in time to propagate (sec) \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 49 of file dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-cc.
+
+\index{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}!miabot\-\_\-propagate\-\_\-state@{miabot\-\_\-propagate\-\_\-state}}
+\index{miabot\-\_\-propagate\-\_\-state@{miabot\-\_\-propagate\-\_\-state}!dcsl_miabot_estimator_math.h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}}
+\subsubsection[{miabot\-\_\-propagate\-\_\-state}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-propagate\-\_\-state} (
+\begin{DoxyParamCaption}
+\item[{\-Vector3d \&}]{state, }
+\item[{const \-Vector2d \&}]{u, }
+\item[{double}]{dt}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__estimator__math_8h_a77f083fdfb844b1ca076c6bc867efaae}
+\-Function to propagate a robot's state forward in time. \-Equations are based on the first-\/order dynamics of a differential drive robot (such as the \-Miabot \-P\-R\-O). 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in,out}  & {\em state} & pose of robot [x, y, theta] \\
+\hline
+\mbox{\tt in}  & {\em u} & applied control [v, omega] \\
+\hline
+\mbox{\tt in}  & {\em dt} & how far in time to propagate (sec) \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 12 of file dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-cc.
+
+\index{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}!miabot\-\_\-update\-\_\-covariance@{miabot\-\_\-update\-\_\-covariance}}
+\index{miabot\-\_\-update\-\_\-covariance@{miabot\-\_\-update\-\_\-covariance}!dcsl_miabot_estimator_math.h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}}
+\subsubsection[{miabot\-\_\-update\-\_\-covariance}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-update\-\_\-covariance} (
+\begin{DoxyParamCaption}
+\item[{\-Matrix3d \&}]{p, }
+\item[{const \-Matrix3d \&}]{k}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__estimator__math_8h_a2a287d547032394e05aff9d781e88c3a}
+\-Update the covariance estimate based on filter gain 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in,out}  & {\em p} & 3x3 matrix of covariance estimates \\
+\hline
+\mbox{\tt in}  & {\em k} & 3x3 matrix of filter gain \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 87 of file dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-cc.
+
+\index{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}!miabot\-\_\-update\-\_\-state@{miabot\-\_\-update\-\_\-state}}
+\index{miabot\-\_\-update\-\_\-state@{miabot\-\_\-update\-\_\-state}!dcsl_miabot_estimator_math.h@{dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h}}
+\subsubsection[{miabot\-\_\-update\-\_\-state}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-update\-\_\-state} (
+\begin{DoxyParamCaption}
+\item[{\-Vector3d \&}]{x, }
+\item[{const \-Matrix3d \&}]{k, }
+\item[{const \-Vector3d \&}]{z}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__estimator__math_8h_a3fae7ad5ec4850af2757e610a3172e0e}
+\-Update the state estimate using the optimal filter gain. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in,out}  & {\em x} & estimated pose of robot [x, y, theta] \\
+\hline
+\mbox{\tt in}  & {\em k} & 3x3 matrix of filter gain \\
+\hline
+\mbox{\tt in}  & {\em z} & measured pose of robot [x, y, theta] \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 79 of file dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-cc.
+

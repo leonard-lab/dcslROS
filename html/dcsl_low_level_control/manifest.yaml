@@ -1,0 +1,15 @@
+authors: Will Scott
+brief: dcsl_low_level_control
+depends:
+- dcsl_messages
+- geometry_msgs
+- roscpp
+description: "\n\n     The dcsl_low_level_control package contains dcsl_miabot_low_level_control\
+  \ node and dcsl_miabot_control_math library. This purpose of this package is to\
+  \ link output from high level control to low level velocity inputs for the swarm\
+  \ controller.\n\n  "
+license: BSD
+msgs: []
+package_type: package
+srvs: []
+url: http://ros.org/wiki/dcsl_low_level_control

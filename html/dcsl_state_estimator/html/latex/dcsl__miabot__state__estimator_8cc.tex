@@ -1,0 +1,92 @@
+\section{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc \-File \-Reference}
+\label{dcsl__miabot__state__estimator_8cc}\index{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc@{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}}
+{\ttfamily \#include $<$\-Eigen/\-Dense$>$}\*
+{\ttfamily \#include $<$\-Eigen/\-Std\-Vector$>$}\*
+{\ttfamily \#include \char`\"{}ros/ros.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}ros/console.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}dcsl\-\_\-miabot\-\_\-estimator\-\_\-math.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}geometry\-\_\-msgs/\-Twist.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}geometry\-\_\-msgs/\-Pose\-Array.\-h\char`\"{}}\*
+{\ttfamily \#include \char`\"{}dcsl\-\_\-messages/\-Twist\-Array.\-h\char`\"{}}\*
+\-Include dependency graph for dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{dcsl__miabot__state__estimator_8cc__incl}
+\end{center}
+\end{figure}
+\subsection*{\-Classes}
+\begin{DoxyCompactItemize}
+\item 
+class {\bf \-Miabot\-State\-Estimator}
+\begin{DoxyCompactList}\small\item\em \doxyref{\-Miabot\-State\-Estimator}{p.}{classMiabotStateEstimator} class handles callbacks for miabot\-\_\-state\-\_\-estimator node. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+int {\bf main} (int argc, char $\ast$$\ast$argv)
+\item 
+void {\bf \-Pose\-To\-Vector} (const geometry\-\_\-msgs\-::\-Pose \&pose, \-Eigen\-::\-Vector3d \&vec)
+\item 
+void {\bf vector\-To\-Pose} (const \-Eigen\-::\-Vector3d \&vec, geometry\-\_\-msgs\-::\-Pose \&pose)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-This file defines the dcsl\-\_\-state\-\_\-estimator node for state estimation of miabots. 
+
+\-Definition in file {\bf dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}.
+
+
+
+\subsection{\-Function \-Documentation}
+\index{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc@{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}!main@{main}}
+\index{main@{main}!dcsl_miabot_state_estimator.cc@{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}}
+\subsubsection[{main}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf main} (
+\begin{DoxyParamCaption}
+\item[{int}]{argc, }
+\item[{char $\ast$$\ast$}]{argv}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__state__estimator_8cc_a3c04138a5bfe5d72780bb7e82a18e627}
+main function called when the node is launched. \-Creates a \doxyref{\-Miabot\-State\-Estimator}{p.}{classMiabotStateEstimator} object and initializes it based on initial position parameters. \-Callbacks are checked with ros\-::spin\-Once() and state is propagated at a rate of around 25 \-Hz until program is interupted. 
+
+\-Definition at line 216 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc@{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}!\-Pose\-To\-Vector@{\-Pose\-To\-Vector}}
+\index{\-Pose\-To\-Vector@{\-Pose\-To\-Vector}!dcsl_miabot_state_estimator.cc@{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}}
+\subsubsection[{\-Pose\-To\-Vector}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Pose\-To\-Vector} (
+\begin{DoxyParamCaption}
+\item[{const geometry\-\_\-msgs\-::\-Pose \&}]{pose, }
+\item[{\-Eigen\-::\-Vector3d \&}]{vec}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__state__estimator_8cc_ab8e1e90f57abb0708f2837b22305f3f6}
+\-Function \-Pose\-To\-Vector takes values from a geometry\-::msgs\-::\-Pose object and places them into a \-Eigen\-::\-Vector3d object. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em pose} & \-Pose with position.\-x, position.\-y, and orientation.\-z filled \\
+\hline
+\mbox{\tt out}  & {\em vec} & \-Vector3d of [x, y, theta] \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 30 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc@{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}!vector\-To\-Pose@{vector\-To\-Pose}}
+\index{vector\-To\-Pose@{vector\-To\-Pose}!dcsl_miabot_state_estimator.cc@{dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}}
+\subsubsection[{vector\-To\-Pose}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf vector\-To\-Pose} (
+\begin{DoxyParamCaption}
+\item[{const \-Eigen\-::\-Vector3d \&}]{vec, }
+\item[{geometry\-\_\-msgs\-::\-Pose \&}]{pose}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__state__estimator_8cc_a41f33c3e4386ce43fc359ef21123473e}
+\-Function vector\-To\-Pose takes values from a \-Eigen\-::\-Vector3d object and places them into a geometry\-::msgs\-::\-Pose object. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em vec} & \-Vector3d of [x, y, theta] \\
+\hline
+\mbox{\tt out}  & {\em pose} & \-Pose with position.\-x, position.\-y, and orientation.\-z filled \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 19 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+

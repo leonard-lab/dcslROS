@@ -1,0 +1,49 @@
+
+
+{\bfseries dcsl\-\_\-high\-\_\-level\-\_\-control} 
+
+\-This package provides \char`\"{}high level control\char`\"{} for planar robots. \-The dcsl\-\_\-miabot\-\_\-follower\-\_\-control node implements an algorithm to cause robots to follow or 'chase' one another. \-The \-C++ library dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math provides the control law for that node.
+
+\-Launchfiles are also included to create ipc-\/bridge nodes that allow control algorithms written in \-Matlab to be called from \-R\-O\-S. \-Sample \-Matlab node and control law files are included within the matlab folder. \-Issues with installation of ipc-\/bridge have kept us from testing that functionality.\section{\-R\-O\-S A\-P\-I}\label{index_rosapi}
+\-List of nodes\-:
+\begin{DoxyItemize}
+\item {\bfseries \doxyref{dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc}{p.}{dcsl__miabot__follower__control_8cc}} 
+\end{DoxyItemize}
+
+\-List of libraries\-:
+\begin{DoxyItemize}
+\item {\bfseries \doxyref{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math.\-h}{p.}{dcsl__miabot__high__level__math_8h}} 
+\end{DoxyItemize}
+
+\-List of launchfiles
+\begin{DoxyItemize}
+\item {\bfseries miabot\-\_\-high\-\_\-level} 
+\item {\bfseries test\-\_\-pose\-\_\-array\-\_\-subsciber} 
+\end{DoxyItemize}
+
+
+
+\subsection{dcsl\-\_\-miabot\-\_\-follower\-\_\-control}\label{index_dcsl_high_level_control}
+\-This node subscribes to robot state estimates in \-Pose\-Array form, and calculates and publishes waypoints in \-Pose\-Array form such that the robots will follow each other.\subsection{\-Usage}\label{index_usage}
+\begin{DoxyVerb}
+$ dcsl_miabot_follower_control [standard ROS args]
+\end{DoxyVerb}
+\subsubsection{\-R\-O\-S topics}\label{index_topics}
+\-Subscribes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}state\-\_\-estimate/\-Pose\-Array\char`\"{}} \-: array \char`\"{}poses\char`\"{} holds estimate of current pose for each robot.
+\end{DoxyItemize}
+
+\-Publishes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}waypoint\-\_\-input/\-Pose\-Array\char`\"{}} \-: array \char`\"{}poses\char`\"{} holds desired pose waypoint for each robot.
+\end{DoxyItemize}\subsubsection{\-R\-O\-S parameters}\label{index_parameters}
+
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}/n\-\_\-robots\char`\"{}} \-: \-Number of robots to be controlled.
+\end{DoxyItemize}
+
+
+
+\subsection{dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math}\label{index_dcsl_miabot_high_level_math}
+\-This is a \-C++ shared-\/object library that includes the math functions used in the dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-control package. 

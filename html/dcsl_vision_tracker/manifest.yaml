@@ -1,0 +1,15 @@
+authors: Brendan Andrade
+brief: dcsl_vision_tracker
+depends:
+- python-munkres
+- std_msgs
+- sensor_msgs
+- opencv2
+- rospy
+- cv_bridge
+description: "\n\n     dcsl_vision_tracker\n\n  "
+license: BSD
+msgs: []
+package_type: package
+srvs: []
+url: http://ros.org/wiki/dcsl_vision_tracker

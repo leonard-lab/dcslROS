@@ -1,0 +1,17 @@
+authors: Will Scott
+brief: dcsl_state_estimator
+depends:
+- dcsl_messages
+- geometry_msgs
+- roscpp
+- eigen
+description: "\n\n     The dcsl_state_estimator package contains dcsl_miabot_state_estimator\
+  \ node and dcsl_miabot_estimator_math library. The purpose of this package is to\
+  \ provide an extended Kalman-Bucy filter that takes in state measurements and control\
+  \ inputs to estimate the current poses of the differential-drive Miabots in the\
+  \ system.\n\n  "
+license: BSD
+msgs: []
+package_type: package
+srvs: []
+url: http://ros.org/wiki/dcsl_state_estimator

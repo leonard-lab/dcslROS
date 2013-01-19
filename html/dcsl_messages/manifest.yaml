@@ -1,0 +1,12 @@
+authors: Will Scott
+brief: dcsl_messages
+depends:
+- geometry_msgs
+description: "\n\n     dcsl_messages\n\n  "
+license: BSD
+msgs:
+- TwistArray
+- belugaInput
+package_type: package
+srvs: []
+url: http://ros.org/wiki/dcsl_messages

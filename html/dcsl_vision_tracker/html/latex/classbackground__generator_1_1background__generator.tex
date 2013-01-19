@@ -1,0 +1,121 @@
+\section{background\-\_\-generator.\-background\-\_\-generator \-Class \-Reference}
+\label{classbackground__generator_1_1background__generator}\index{background\-\_\-generator.\-background\-\_\-generator@{background\-\_\-generator.\-background\-\_\-generator}}
+
+
+\-This class allows the generator of a background image for use with \doxyref{miabot\-\_\-tracker.\-py}{p.}{miabot__tracker_8py}.  
+
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+def {\bf \-\_\-\-\_\-init\-\_\-\-\_\-}
+\begin{DoxyCompactList}\small\item\em \-Creates the subscriber, sets properties defining how many images to average, and creates teh \-Cv\-Bridge object. \end{DoxyCompactList}\item 
+def {\bf callback}
+\begin{DoxyCompactList}\small\item\em \-Callback function for the image subscriber. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Public \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+{\bf background\-\_\-image}
+\item 
+{\bf bridge}
+\item 
+{\bf count}
+\item 
+{\bf image\-\_\-sub}
+\item 
+{\bf n}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-This class allows the generator of a background image for use with \doxyref{miabot\-\_\-tracker.\-py}{p.}{miabot__tracker_8py}. 
+
+\-Definition at line 15 of file background\-\_\-generator.\-py.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\index{background\-\_\-generator\-::background\-\_\-generator@{background\-\_\-generator\-::background\-\_\-generator}!\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}}
+\index{\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}!background_generator::background_generator@{background\-\_\-generator\-::background\-\_\-generator}}
+\subsubsection[{\-\_\-\-\_\-init\-\_\-\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf background\-\_\-generator.\-background\-\_\-generator.\-\_\-\-\_\-init\-\_\-\-\_\-} (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}\label{classbackground__generator_1_1background__generator_a1e60e64b5cb97e6ed927e0bf6e860789}
+
+
+\-Creates the subscriber, sets properties defining how many images to average, and creates teh \-Cv\-Bridge object. 
+
+
+
+\-Definition at line 17 of file background\-\_\-generator.\-py.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\index{background\-\_\-generator\-::background\-\_\-generator@{background\-\_\-generator\-::background\-\_\-generator}!callback@{callback}}
+\index{callback@{callback}!background_generator::background_generator@{background\-\_\-generator\-::background\-\_\-generator}}
+\subsubsection[{callback}]{\setlength{\rightskip}{0pt plus 5cm}def {\bf background\-\_\-generator.\-background\-\_\-generator.\-callback} (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{data}
+\end{DoxyParamCaption}
+)}\label{classbackground__generator_1_1background__generator_ac827d2f33a050519615cdfd4f7ac4f20}
+
+
+\-Callback function for the image subscriber. 
+
+\-It adds the received image to the average image and outputs the background image once self.\-n images have been added.
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em data} & is the iamge data from the image subscriber. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 26 of file background\-\_\-generator.\-py.
+
+
+
+\subsection{\-Member \-Data \-Documentation}
+\index{background\-\_\-generator\-::background\-\_\-generator@{background\-\_\-generator\-::background\-\_\-generator}!background\-\_\-image@{background\-\_\-image}}
+\index{background\-\_\-image@{background\-\_\-image}!background_generator::background_generator@{background\-\_\-generator\-::background\-\_\-generator}}
+\subsubsection[{background\-\_\-image}]{\setlength{\rightskip}{0pt plus 5cm}{\bf background\-\_\-generator.\-background\-\_\-generator\-::background\-\_\-image}}\label{classbackground__generator_1_1background__generator_aed8576dd781bf74e7fe1d6f5f28ec398}
+
+
+\-Definition at line 26 of file background\-\_\-generator.\-py.
+
+\index{background\-\_\-generator\-::background\-\_\-generator@{background\-\_\-generator\-::background\-\_\-generator}!bridge@{bridge}}
+\index{bridge@{bridge}!background_generator::background_generator@{background\-\_\-generator\-::background\-\_\-generator}}
+\subsubsection[{bridge}]{\setlength{\rightskip}{0pt plus 5cm}{\bf background\-\_\-generator.\-background\-\_\-generator\-::bridge}}\label{classbackground__generator_1_1background__generator_a4bcb8d1f7f88d061b0634fea033cacd0}
+
+
+\-Definition at line 17 of file background\-\_\-generator.\-py.
+
+\index{background\-\_\-generator\-::background\-\_\-generator@{background\-\_\-generator\-::background\-\_\-generator}!count@{count}}
+\index{count@{count}!background_generator::background_generator@{background\-\_\-generator\-::background\-\_\-generator}}
+\subsubsection[{count}]{\setlength{\rightskip}{0pt plus 5cm}{\bf background\-\_\-generator.\-background\-\_\-generator\-::count}}\label{classbackground__generator_1_1background__generator_ad240c6e2f478747f33e423dedba76fa9}
+
+
+\-Definition at line 17 of file background\-\_\-generator.\-py.
+
+\index{background\-\_\-generator\-::background\-\_\-generator@{background\-\_\-generator\-::background\-\_\-generator}!image\-\_\-sub@{image\-\_\-sub}}
+\index{image\-\_\-sub@{image\-\_\-sub}!background_generator::background_generator@{background\-\_\-generator\-::background\-\_\-generator}}
+\subsubsection[{image\-\_\-sub}]{\setlength{\rightskip}{0pt plus 5cm}{\bf background\-\_\-generator.\-background\-\_\-generator\-::image\-\_\-sub}}\label{classbackground__generator_1_1background__generator_a1cd044b58400e4742cd64b4ff558e0bf}
+
+
+\-Definition at line 17 of file background\-\_\-generator.\-py.
+
+\index{background\-\_\-generator\-::background\-\_\-generator@{background\-\_\-generator\-::background\-\_\-generator}!n@{n}}
+\index{n@{n}!background_generator::background_generator@{background\-\_\-generator\-::background\-\_\-generator}}
+\subsubsection[{n}]{\setlength{\rightskip}{0pt plus 5cm}{\bf background\-\_\-generator.\-background\-\_\-generator\-::n}}\label{classbackground__generator_1_1background__generator_a569090c21bfc02baa497c530711813fd}
+
+
+\-Definition at line 17 of file background\-\_\-generator.\-py.
+
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+{\bf background\-\_\-generator.\-py}\end{DoxyCompactItemize}

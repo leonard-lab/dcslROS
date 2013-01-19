@@ -1,0 +1,53 @@
+\section{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h \-File \-Reference}
+\label{dcsl__miabot__control__math_8h}\index{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h}}
+\-This graph shows which files directly or indirectly include this file\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{dcsl__miabot__control__math_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf miabot\-\_\-waypoint} (double $\ast$output, double $\ast$pos, double $\ast$waypoint, double k1, double k2)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Functions for calculating low level miabot control independent of \-R\-O\-S library. 
+
+\-Definition in file {\bf dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h}.
+
+
+
+\subsection{\-Function \-Documentation}
+\index{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h@{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h}!miabot\-\_\-waypoint@{miabot\-\_\-waypoint}}
+\index{miabot\-\_\-waypoint@{miabot\-\_\-waypoint}!dcsl_miabot_control_math.h@{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h}}
+\subsubsection[{miabot\-\_\-waypoint}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-waypoint} (
+\begin{DoxyParamCaption}
+\item[{double $\ast$}]{output, }
+\item[{double $\ast$}]{pose, }
+\item[{double $\ast$}]{waypoint, }
+\item[{double}]{k1, }
+\item[{double}]{k2}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__control__math_8h_a6688a43013c256882a533cfd961d0323}
+\-Control law to calculate desired velocity based on current position and desired position. \-This is a simple controller for differential-\/drive robots, as described by \-Brendan \-Andrade. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt out}  & {\em output} & [v, omega] \\
+\hline
+\mbox{\tt in}  & {\em pose} & [x, y, theta] \\
+\hline
+\mbox{\tt in}  & {\em waypoint} & [x, y, theta] \\
+\hline
+\mbox{\tt in}  & {\em k1} & forward gain \\
+\hline
+\mbox{\tt in}  & {\em k2} & angular gain \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 15 of file dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc.
+

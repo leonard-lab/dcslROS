@@ -1,0 +1,253 @@
+\section{\-Miabot\-State\-Estimator \-Class \-Reference}
+\label{classMiabotStateEstimator}\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}}
+
+
+\doxyref{\-Miabot\-State\-Estimator}{p.}{classMiabotStateEstimator} class handles callbacks for miabot\-\_\-state\-\_\-estimator node.  
+
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf control\-Callback} (const dcsl\-\_\-messages\-::\-Twist\-Array new\-Velocities)
+\item 
+void {\bf init} (double $\ast$pose\-\_\-list)
+\item 
+void {\bf measure\-Callback} (const geometry\-\_\-msgs\-::\-Pose\-Array new\-Measurement)
+\item 
+{\bf \-Miabot\-State\-Estimator} (const ros\-::\-Node\-Handle \&node\-\_\-handle, const int num\-Bots)
+\item 
+void {\bf propagate\-State} ()
+\end{DoxyCompactItemize}
+\subsection*{\-Public \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+ros\-::\-Node\-Handle {\bf n}
+\item 
+int {\bf num\-Robots}
+\item 
+ros\-::\-Publisher {\bf \-Pub\-\_\-state}
+\item 
+ros\-::\-Subscriber {\bf \-Sub\-\_\-control}
+\item 
+ros\-::\-Subscriber {\bf \-Sub\-\_\-measure}
+\end{DoxyCompactItemize}
+\subsection*{\-Private \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\-::vector$<$ \-Eigen\-::\-Matrix3d $>$ {\bf k}
+\item 
+double {\bf measure\-Time}
+\item 
+std\-::vector$<$ \-Eigen\-::\-Matrix3d $>$ {\bf p}
+\item 
+\-Eigen\-::\-Matrix3d {\bf q}
+\item 
+\-Eigen\-::\-Matrix3d {\bf r}
+\item 
+double {\bf state\-Time}
+\item 
+std\-::vector$<$ \-Eigen\-::\-Vector2d, \*
+\-Eigen\-::aligned\-\_\-allocator\*
+$<$ \-Eigen\-::\-Vector2d $>$ $>$ {\bf u}
+\item 
+std\-::vector$<$ \-Eigen\-::\-Vector3d $>$ {\bf x}
+\item 
+std\-::vector$<$ \-Eigen\-::\-Vector3d $>$ {\bf z}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\doxyref{\-Miabot\-State\-Estimator}{p.}{classMiabotStateEstimator} class handles callbacks for miabot\-\_\-state\-\_\-estimator node. 
+
+\-Definition at line 36 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}}
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{\-Miabot\-State\-Estimator}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Miabot\-State\-Estimator\-::\-Miabot\-State\-Estimator} (
+\begin{DoxyParamCaption}
+\item[{const ros\-::\-Node\-Handle \&}]{node\-\_\-handle, }
+\item[{const int}]{num\-Bots}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotStateEstimator_ae197f8582407d1536a16aa81d97087a5}
+\-Constructor for \doxyref{\-Miabot\-State\-Estimator}{p.}{classMiabotStateEstimator}. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em node\-\_\-handle} & identifies which node we are running, used to create subscribers/publishers \\
+\hline
+\mbox{\tt in}  & {\em num\-Bots} & number of robots to be controlled \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 59 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!control\-Callback@{control\-Callback}}
+\index{control\-Callback@{control\-Callback}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{control\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-State\-Estimator\-::control\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const dcsl\-\_\-messages\-::\-Twist\-Array}]{new\-Velocities}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotStateEstimator_a23a12b32e9b68938aa6995347f87d141}
+\-Callback function for topic \char`\"{}cmd\-\_\-vel\-\_\-array\char`\"{}. \-This function is called whenever a new message is posted to the \char`\"{}cmd\-\_\-vel\-\_\-array\char`\"{} topic. \-Control inputs [v,omega] for each robot are taken out of the incoming \-Twist\-Array message and stored in the member variable u, an array of \-Vector2d objects. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em new\-Velocities} & \-Twist\-Array of the robots' velocity inputs \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 115 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!init@{init}}
+\index{init@{init}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-State\-Estimator\-::init} (
+\begin{DoxyParamCaption}
+\item[{double $\ast$}]{pose\-\_\-list}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotStateEstimator_a594cdea983ace9ac1962b01e10ad8a0e}
+\-Initialization for \doxyref{\-Miabot\-State\-Estimator}{p.}{classMiabotStateEstimator}, to be called directly after object creation. \-Here we initialize subscriber and publisher objects which connect this node to roscore 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em pose\-\_\-list} & array of doubles holding initial poses for the robots in the form [x\-\_\-0, y\-\_\-0, theta\-\_\-0, x\-\_\-1, y\-\_\-1, theta\-\_\-1, ...] \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 81 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!measure\-Callback@{measure\-Callback}}
+\index{measure\-Callback@{measure\-Callback}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{measure\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-State\-Estimator\-::measure\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const geometry\-\_\-msgs\-::\-Pose\-Array}]{new\-Measurement}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotStateEstimator_ab17a8a48eca13786a3cbee6f80fce6ca}
+\-Callback function for topic \char`\"{}planar\-\_\-measurements\char`\"{}. \-This is called when a new measurement message comes in from the vision tracking node, updating the stored info in this node and calling the kalman filter functions to update our estimate, which is published as a \-Pose\-Array on topic \char`\"{}state\-\_\-estimate\char`\"{}. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em new\-Measurement} & \-Pose\-Array of measured robot poses. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 139 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!propagate\-State@{propagate\-State}}
+\index{propagate\-State@{propagate\-State}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{propagate\-State}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-State\-Estimator\-::propagate\-State} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotStateEstimator_a6bae1d9bf815883ba72f82de9c1b206d}
+\-State propagation function \-This function compares current time with time of most recent state estimate, and calls library function miabot\-\_\-propagate\-\_\-state to integrate the equations of motion of the robots forward in time. \-The new estimates are published in a \-Pose\-Array on topic \char`\"{}state\-\_\-estimate\char`\"{} 
+
+\-Definition at line 187 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+
+
+\subsection{\-Member \-Data \-Documentation}
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!k@{k}}
+\index{k@{k}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{k}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$\-Eigen\-::\-Matrix3d$>$ {\bf \-Miabot\-State\-Estimator\-::k}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_ad76da0edb4d8c43a3d76d345ac8d7068}
+
+
+\-Definition at line 51 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!measure\-Time@{measure\-Time}}
+\index{measure\-Time@{measure\-Time}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{measure\-Time}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Miabot\-State\-Estimator\-::measure\-Time}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_a0a6dcef1fe33416ee1a9f1131d4e75a5}
+
+
+\-Definition at line 45 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!n@{n}}
+\index{n@{n}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{n}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Node\-Handle {\bf \-Miabot\-State\-Estimator\-::n}}\label{classMiabotStateEstimator_a6904cbcf3c5b9ac079d3bd6cc2b71005}
+
+
+\-Definition at line 40 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!num\-Robots@{num\-Robots}}
+\index{num\-Robots@{num\-Robots}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{num\-Robots}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Miabot\-State\-Estimator\-::num\-Robots}}\label{classMiabotStateEstimator_ab52d753a7a83040973a38c7285f58fda}
+
+
+\-Definition at line 39 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!p@{p}}
+\index{p@{p}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{p}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$\-Eigen\-::\-Matrix3d$>$ {\bf \-Miabot\-State\-Estimator\-::p}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_aa276a71b51eaa7d46d12af8ab1aef502}
+
+
+\-Definition at line 50 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!\-Pub\-\_\-state@{\-Pub\-\_\-state}}
+\index{\-Pub\-\_\-state@{\-Pub\-\_\-state}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{\-Pub\-\_\-state}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Publisher {\bf \-Miabot\-State\-Estimator\-::\-Pub\-\_\-state}}\label{classMiabotStateEstimator_a9e31ead03e712c52070a24b5973d042d}
+
+
+\-Definition at line 41 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!q@{q}}
+\index{q@{q}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{q}]{\setlength{\rightskip}{0pt plus 5cm}\-Eigen\-::\-Matrix3d {\bf \-Miabot\-State\-Estimator\-::q}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_a023ab7d63ac6a606af2088be0440ab6a}
+
+
+\-Definition at line 52 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!r@{r}}
+\index{r@{r}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{r}]{\setlength{\rightskip}{0pt plus 5cm}\-Eigen\-::\-Matrix3d {\bf \-Miabot\-State\-Estimator\-::r}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_a94dfd991c2d4f03b05880dadd2263c19}
+
+
+\-Definition at line 53 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!state\-Time@{state\-Time}}
+\index{state\-Time@{state\-Time}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{state\-Time}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Miabot\-State\-Estimator\-::state\-Time}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_a01d38da7f5356c2d037219ef1121c6ec}
+
+
+\-Definition at line 46 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!\-Sub\-\_\-control@{\-Sub\-\_\-control}}
+\index{\-Sub\-\_\-control@{\-Sub\-\_\-control}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{\-Sub\-\_\-control}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Subscriber {\bf \-Miabot\-State\-Estimator\-::\-Sub\-\_\-control}}\label{classMiabotStateEstimator_ad7bfc7cb8b520c0ab90e42ab0871f1b8}
+
+
+\-Definition at line 43 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!\-Sub\-\_\-measure@{\-Sub\-\_\-measure}}
+\index{\-Sub\-\_\-measure@{\-Sub\-\_\-measure}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{\-Sub\-\_\-measure}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Subscriber {\bf \-Miabot\-State\-Estimator\-::\-Sub\-\_\-measure}}\label{classMiabotStateEstimator_a5f40e793deef24298df1740f785db3cf}
+
+
+\-Definition at line 42 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!u@{u}}
+\index{u@{u}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{u}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$\-Eigen\-::\-Vector2d,\-Eigen\-::aligned\-\_\-allocator$<$\-Eigen\-::\-Vector2d$>$ $>$ {\bf \-Miabot\-State\-Estimator\-::u}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_a17c39db767a0cb70c08144abde3c6252}
+
+
+\-Definition at line 48 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!x@{x}}
+\index{x@{x}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{x}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$\-Eigen\-::\-Vector3d$>$ {\bf \-Miabot\-State\-Estimator\-::x}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_a660f35926031131e17d65148683a8ef8}
+
+
+\-Definition at line 47 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+\index{\-Miabot\-State\-Estimator@{\-Miabot\-State\-Estimator}!z@{z}}
+\index{z@{z}!MiabotStateEstimator@{\-Miabot\-State\-Estimator}}
+\subsubsection[{z}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$\-Eigen\-::\-Vector3d$>$ {\bf \-Miabot\-State\-Estimator\-::z}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotStateEstimator_a1069798d81f43e3d227c621cda30ed25}
+
+
+\-Definition at line 49 of file dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc.
+
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+{\bf dcsl\-\_\-miabot\-\_\-state\-\_\-estimator.\-cc}\end{DoxyCompactItemize}

@@ -1,0 +1,50 @@
+
+
+{\bfseries dcsl\-\_\-vision\-\_\-tracker} 
+
+\-This package provides a node called \doxyref{miabot\-\_\-tracker.\-py}{p.}{miabot__tracker_8py} that subscribes to the /camera/image\-\_\-raw topic, detects robots in the images using \-Open\-C\-V, matches the detected robots to the estimates of the positions of the robots, and outputs the robot poses on topic /planar\-\_\-measurements as a \-Pose\-Array. \-It also provides a node to create the background image used in the tracking.\section{\-R\-O\-S A\-P\-I}\label{index_rosapi}
+\-List of nodes\-:
+\begin{DoxyItemize}
+\item {\bfseries \doxyref{miabot\-\_\-tracker.\-py}{p.}{miabot__tracker_8py}} 
+\item {\bfseries \doxyref{background\-\_\-generator.\-py}{p.}{background__generator_8py}} 
+\end{DoxyItemize}
+
+
+
+\subsection{miabot\-\_\-tracker.\-py}\label{index_miabot_tracker}
+\subsection{\-Usage}\label{index_usage}
+\begin{DoxyVerb}
+$ miabot_tracker.py [standard ROS args]
+\end{DoxyVerb}
+\subsubsection{\-R\-O\-S topics}\label{index_topics}
+\-Subscribes to (name / type)\-: -\/{\bfseries \char`\"{}state\-\_\-estimate / Pose\-Array\char`\"{}} \-: \-An array of \-Pose messages containing the estimated positions of the robots. -\/{\bfseries \char`\"{}camera/image\-\_\-raw\char`\"{}} / \-Image" \-: \-The latest image from the overhead camera.
+
+\-Publishes (name / type)\-: -\/{\bfseries \char`\"{}tracked\-\_\-image / Image\char`\"{}} \-: \-The latest image from the camera overlayed with tracking indicators. -\/{\bfseries \char`\"{}/planar\-\_\-measurements / Pose\-Array\char`\"{}} \-: \-The poses of the robots in the same order as the state\-\_\-estimate.\subsubsection{\-R\-O\-S parameters}\label{index_parameters}
+
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}/n\-\_\-robots\char`\"{}} \-: \-The number of robots to expect in the image.
+\item {\bfseries \char`\"{}/vision\-\_\-tracker/background\-\_\-image\char`\"{}} \-: \-File path for the background image. \-Background image is the view from the camera with no robots present.
+\end{DoxyItemize}
+
+
+
+\subsection{background\-\_\-generator.\-py}\label{index_background_generator}
+\-This node generates a background image by outputing to a file an image that is the average of the first five images from the subscribed image\-\_\-raw topic.\subsection{\-Usage}\label{index_usage}
+\begin{DoxyVerb}
+$ background_generator.py [standard ROS args]
+\end{DoxyVerb}
+\subsubsection{\-R\-O\-S topics}\label{index_topics}
+\-Subscribes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}camera/image\-\_\-raw / Image\char`\"{}} \-: \-The latest image from the overhead camera.
+\end{DoxyItemize}
+
+\-Publishes to (name / type)\-: \-None\subsubsection{\-R\-O\-S parameters}\label{index_parameters}
+
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}/background\-\_\-generator/image\-\_\-name\char`\"{}} \-: \-Path and name for outputing the background image. \-Must be a .png file.
+\end{DoxyItemize}
+
+
+
+ 

@@ -1,0 +1,29 @@
+\section{miabot\-\_\-tracker.\-py \-File \-Reference}
+\label{miabot__tracker_8py}\index{miabot\-\_\-tracker.\-py@{miabot\-\_\-tracker.\-py}}
+
+
+\-A node that subscribes to the /camera/image\-\_\-raw topic with \-Image messages, uses \-Open\-C\-V to find the poses of the robots in the images, and publishes the poses of the robots as a \-Pose\-Array.  
+
+
+\subsection*{\-Classes}
+\begin{DoxyCompactItemize}
+\item 
+class {\bf miabot\-\_\-tracker.\-miabot\-\_\-tracker}
+\begin{DoxyCompactList}\small\item\em \-This class allows detection of robots in an image, orders these readings based on state estimates, and publishes them as a \-Pose\-Array. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{\-Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace {\bf miabot\-\_\-tracker}
+\end{DoxyCompactItemize}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+def {\bf miabot\-\_\-tracker.\-main}
+\begin{DoxyCompactList}\small\item\em \-Runs on the startup of the node. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-A node that subscribes to the /camera/image\-\_\-raw topic with \-Image messages, uses \-Open\-C\-V to find the poses of the robots in the images, and publishes the poses of the robots as a \-Pose\-Array. \-It also subscribes to the state\-\_\-estimate topic (\-Pose\-Array messages) so that the published \-Pose\-Array maintains the same order as the state\-\_\-estimate. \-It matches the detected robots with the estimated poses using the \-Hungarian algorithm via the munkres library. \-This node will soon be depricated in favor of a node based on the dcsl\-\_\-vision\-\_\-tracker\-\_\-\-A\-P\-I which is under development. 
+
+\-Definition in file {\bf miabot\-\_\-tracker.\-py}.
+

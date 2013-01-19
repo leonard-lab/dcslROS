@@ -1,0 +1,47 @@
+
+
+{\bfseries dcsl\-\_\-low\-\_\-level\-\_\-control} 
+
+\-This package provides \char`\"{}low level control\char`\"{} for \-Miabot \-P\-R\-O robots from \-Merlin \-System \-Corp. \-Ltd. \-It forms an intermediate step between a \char`\"{}high level control\char`\"{} node and the actual \-Miabot driver node.\section{\-R\-O\-S A\-P\-I}\label{index_rosapi}
+\-List of nodes\-:
+\begin{DoxyItemize}
+\item {\bfseries \doxyref{dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc}{p.}{dcsl__miabot__low__level__control_8cc}} 
+\end{DoxyItemize}
+
+\-List of libraries\-:
+\begin{DoxyItemize}
+\item {\bfseries \doxyref{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h}{p.}{dcsl__miabot__control__math_8h}} 
+\end{DoxyItemize}
+
+
+
+\subsection{dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control}\label{index_dcsl_miabot_low_level_control}
+\-This node subscribes to control inputs of waypoints or desired velocities in \-Pose\-Array form, and converts them to velocities in \-Twist\-Array form to send to swarm director node.\subsection{\-Usage}\label{index_usage}
+\begin{DoxyVerb}
+$ dcsl_miabot_low_level_control [options] [standard ROS args]
+    options:        --way  listen for waypoint inputs (default)
+                    --vel  listen for velocity inputs
+\end{DoxyVerb}
+\subsubsection{\-R\-O\-S topics}\label{index_topics}
+\-Subscribes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}waypoint\-\_\-input/\-Pose\-Array\char`\"{}} \-: (waypoint mode) array \char`\"{}poses\char`\"{} holds desired pose waypoint for each robot.
+\item {\bfseries \char`\"{}state\-\_\-estimate/\-Pose\-Array\char`\"{}} \-: (waypoint mode) array \char`\"{}poses\char`\"{} holds estimate of current pose for each robot.
+\item {\bfseries \char`\"{}velocity\-\_\-input/\-Pose\-Array\char`\"{}} \-: (velocity mode) array \char`\"{}poses\char`\"{} holds desired velocity for each robot, with desired linear speed in m/s stored as position.\-x, and desired angular velocity in rad/s stored as orientation.\-z
+\end{DoxyItemize}
+
+\-Publishes to (name / type)\-:
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}cmd\-\_\-vel\-\_\-array/\-Twist\-Array\char`\"{}} \-: array \char`\"{}twists\char`\"{} holds a \-Twist for each robot, linear.\-x is the desired linear speed in m/s; angular.\-z is the desired angular rotation rate in rad/s.
+\end{DoxyItemize}\subsubsection{\-R\-O\-S parameters}\label{index_parameters}
+
+\begin{DoxyItemize}
+\item {\bfseries \char`\"{}/n\-\_\-robots\char`\"{}} \-: \-Number of robots to be controlled.
+\item {\bfseries \char`\"{}waypoint\-\_\-gain\-\_\-1\char`\"{}} \-: \-Forward velocity gain for waypoint controller (default 0.\-7).
+\item {\bfseries \char`\"{}waypoint\-\_\-gain\-\_\-2\char`\"{}} \-: \-Angular velocity gain for waypoint controller (default 0.\-5).
+\end{DoxyItemize}
+
+
+
+\subsection{dcsl\-\_\-miabot\-\_\-control\-\_\-math}\label{index_dcsl_miabot_control_math}
+\-This is a \-C++ shared-\/object library that includes the math functions used in the dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control package. 

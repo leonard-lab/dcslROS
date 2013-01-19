@@ -1,0 +1,235 @@
+\section{\-Miabot\-Low\-Level\-Controller \-Class \-Reference}
+\label{classMiabotLowLevelController}\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}}
+
+
+\doxyref{\-Miabot\-Low\-Level\-Controller}{p.}{classMiabotLowLevelController} class handles callbacks for miabot\-\_\-low\-\_\-level\-\_\-control node.  
+
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf init} (bool use\-\_\-waypoint)
+\item 
+{\bf \-Miabot\-Low\-Level\-Controller} (const ros\-::\-Node\-Handle \&node\-\_\-handle, const int num\-Bots, const double {\bf k1}, const double {\bf k2})
+\item 
+void {\bf state\-Callback} (const geometry\-\_\-msgs\-::\-Pose\-Array states)
+\item 
+void {\bf velocity\-Callback} (const geometry\-\_\-msgs\-::\-Pose\-Array velocity\-Pose)
+\item 
+void {\bf waypoint\-Callback} (const geometry\-\_\-msgs\-::\-Pose\-Array new\-Waypoints)
+\end{DoxyCompactItemize}
+\subsection*{\-Public \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+ros\-::\-Node\-Handle {\bf n}
+\item 
+int {\bf num\-Robots}
+\item 
+ros\-::\-Publisher {\bf \-Pub\-\_\-low\-\_\-level}
+\item 
+ros\-::\-Subscriber {\bf \-Sub\-\_\-state}
+\item 
+ros\-::\-Subscriber {\bf \-Sub\-\_\-velocity}
+\item 
+ros\-::\-Subscriber {\bf \-Sub\-\_\-waypoint}
+\end{DoxyCompactItemize}
+\subsection*{\-Private \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const double {\bf k1}
+\item 
+const double {\bf k2}
+\item 
+std\-::vector$<$ double $>$ {\bf waypoints\-\_\-theta}
+\item 
+std\-::vector$<$ double $>$ {\bf waypoints\-\_\-x}
+\item 
+std\-::vector$<$ double $>$ {\bf waypoints\-\_\-y}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\doxyref{\-Miabot\-Low\-Level\-Controller}{p.}{classMiabotLowLevelController} class handles callbacks for miabot\-\_\-low\-\_\-level\-\_\-control node. 
+
+\-Definition at line 15 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}}
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{\-Miabot\-Low\-Level\-Controller}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Miabot\-Low\-Level\-Controller\-::\-Miabot\-Low\-Level\-Controller} (
+\begin{DoxyParamCaption}
+\item[{const ros\-::\-Node\-Handle \&}]{node\-\_\-handle, }
+\item[{const int}]{num\-Bots, }
+\item[{const double}]{k1, }
+\item[{const double}]{k2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotLowLevelController_a0f874a097f6ebb6ad2025f4f5e99ac32}
+\-Constructor for \doxyref{\-Miabot\-Low\-Level\-Controller}{p.}{classMiabotLowLevelController}. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em node\-\_\-handle} & identifies which node we are running, used to create subscribers/publishers \\
+\hline
+\mbox{\tt in}  & {\em num\-Bots} & number of robots to be controlled \\
+\hline
+\mbox{\tt in}  & {\em k1} & forward velocity gain for waypoint control \\
+\hline
+\mbox{\tt in}  & {\em k2} & angular velocity gain for waypoint control \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 42 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!init@{init}}
+\index{init@{init}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-Low\-Level\-Controller\-::init} (
+\begin{DoxyParamCaption}
+\item[{bool}]{use\-\_\-waypoint}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotLowLevelController_a3c498fcd038f2d7ee873e39812c61fd8}
+\-Initialization for \doxyref{\-Miabot\-Low\-Level\-Controller}{p.}{classMiabotLowLevelController}, to be called directly after object creation. \-Here we initialize subscriber and publisher objects which connect this node to roscore 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em use\-\_\-waypoint} & \-When true, subscribers are created to listen on \char`\"{}waypoint\-\_\-input\char`\"{} and \char`\"{}state\-\_\-estimate\char`\"{} topics. \-When false, subscriber is created for \char`\"{}velocity\-\_\-input\char`\"{} \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 62 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!state\-Callback@{state\-Callback}}
+\index{state\-Callback@{state\-Callback}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{state\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-Low\-Level\-Controller\-::state\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const geometry\-\_\-msgs\-::\-Pose\-Array}]{states}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotLowLevelController_a89cea0647462cb6115845729336e3450}
+\-Callback function for topic \char`\"{}state\-\_\-estimate\char`\"{}. \-This function is called whenever a new message is posted to the \char`\"{}state\-\_\-estimate\char`\"{} topic. \-The new message is used in computing velocities towards the latest waypoints, which are published to the topic \char`\"{}cmd\-\_\-vel\-\_\-array\char`\"{} as a \-Twist\-Array 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em states} & \-Pose\-Array of robot states containing position and heading of each robot. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 86 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!velocity\-Callback@{velocity\-Callback}}
+\index{velocity\-Callback@{velocity\-Callback}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{velocity\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-Low\-Level\-Controller\-::velocity\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const geometry\-\_\-msgs\-::\-Pose\-Array}]{velocity\-Pose}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotLowLevelController_a0a5c1dd05cb0f8440d8f52b9f711f11e}
+\-Callback function for topic \char`\"{}velocity\-\_\-input\char`\"{}. \-This function is called whenever a new message is posted to the \char`\"{}velocity\-\_\-input\char`\"{} topic. \-The incoming message is converted from a \-Pose\-Array to a \-Twist\-Array and published on topic \char`\"{}cmd\-\_\-vel\-\_\-array.\char`\"{} \-The conversion is needed due to incompatibility of matlab ipc-\/bridge with the custom \-Twist\-Array message type. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em velocity\-Pose} & \-Pose\-Array of desired robot velocities. \-Linear velocity is stored in position.\-x of each pose, and angular velocity is stored in orientation.\-z of each pose. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 155 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!waypoint\-Callback@{waypoint\-Callback}}
+\index{waypoint\-Callback@{waypoint\-Callback}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{waypoint\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-Low\-Level\-Controller\-::waypoint\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const geometry\-\_\-msgs\-::\-Pose\-Array}]{new\-Waypoints}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotLowLevelController_a2186700b9f2398bbfdf57421b55eaf89}
+\-Callback function for topic \char`\"{}waypoint\-\_\-input\char`\"{}. \-This function is called whenever a new message is posted to the \char`\"{}waypoint\-\_\-input\char`\"{} topic. \-The new message is stored for later use in computing velocities when a new state arrives. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em new\-Waypoints} & \-Pose\-Array of desired robot states. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 129 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+
+
+\subsection{\-Member \-Data \-Documentation}
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!k1@{k1}}
+\index{k1@{k1}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{k1}]{\setlength{\rightskip}{0pt plus 5cm}const double {\bf \-Miabot\-Low\-Level\-Controller\-::k1}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotLowLevelController_ab7427162ec36be0c6319511d90b07c9e}
+
+
+\-Definition at line 33 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!k2@{k2}}
+\index{k2@{k2}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{k2}]{\setlength{\rightskip}{0pt plus 5cm}const double {\bf \-Miabot\-Low\-Level\-Controller\-::k2}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotLowLevelController_a9122e6d6272b14a76d63b0a5fc667275}
+
+
+\-Definition at line 34 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!n@{n}}
+\index{n@{n}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{n}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Node\-Handle {\bf \-Miabot\-Low\-Level\-Controller\-::n}}\label{classMiabotLowLevelController_a5bbb34bbea6d2ddc6fe1e3fe454e64d8}
+
+
+\-Definition at line 19 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!num\-Robots@{num\-Robots}}
+\index{num\-Robots@{num\-Robots}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{num\-Robots}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Miabot\-Low\-Level\-Controller\-::num\-Robots}}\label{classMiabotLowLevelController_a807779251e4100509d9d1b9571855a70}
+
+
+\-Definition at line 18 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!\-Pub\-\_\-low\-\_\-level@{\-Pub\-\_\-low\-\_\-level}}
+\index{\-Pub\-\_\-low\-\_\-level@{\-Pub\-\_\-low\-\_\-level}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{\-Pub\-\_\-low\-\_\-level}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Publisher {\bf \-Miabot\-Low\-Level\-Controller\-::\-Pub\-\_\-low\-\_\-level}}\label{classMiabotLowLevelController_a3365f841fc0278cb57a96a6d377f2e33}
+
+
+\-Definition at line 20 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!\-Sub\-\_\-state@{\-Sub\-\_\-state}}
+\index{\-Sub\-\_\-state@{\-Sub\-\_\-state}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{\-Sub\-\_\-state}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Subscriber {\bf \-Miabot\-Low\-Level\-Controller\-::\-Sub\-\_\-state}}\label{classMiabotLowLevelController_a121efcef49b0c709b1ef8c28878999e1}
+
+
+\-Definition at line 21 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!\-Sub\-\_\-velocity@{\-Sub\-\_\-velocity}}
+\index{\-Sub\-\_\-velocity@{\-Sub\-\_\-velocity}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{\-Sub\-\_\-velocity}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Subscriber {\bf \-Miabot\-Low\-Level\-Controller\-::\-Sub\-\_\-velocity}}\label{classMiabotLowLevelController_a3f6378f0c7410ea6a6e97f215bd89997}
+
+
+\-Definition at line 23 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!\-Sub\-\_\-waypoint@{\-Sub\-\_\-waypoint}}
+\index{\-Sub\-\_\-waypoint@{\-Sub\-\_\-waypoint}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{\-Sub\-\_\-waypoint}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Subscriber {\bf \-Miabot\-Low\-Level\-Controller\-::\-Sub\-\_\-waypoint}}\label{classMiabotLowLevelController_a285af7e3cd5bd9fc1a41a37e8c757aaa}
+
+
+\-Definition at line 22 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!waypoints\-\_\-theta@{waypoints\-\_\-theta}}
+\index{waypoints\-\_\-theta@{waypoints\-\_\-theta}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{waypoints\-\_\-theta}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$double$>$ {\bf \-Miabot\-Low\-Level\-Controller\-::waypoints\-\_\-theta}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotLowLevelController_a1982a52ce938ee43dbdd989ea805d9f5}
+
+
+\-Definition at line 32 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!waypoints\-\_\-x@{waypoints\-\_\-x}}
+\index{waypoints\-\_\-x@{waypoints\-\_\-x}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{waypoints\-\_\-x}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$double$>$ {\bf \-Miabot\-Low\-Level\-Controller\-::waypoints\-\_\-x}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotLowLevelController_a90a0c7650867a91ee6ce30e2ec2f5c7e}
+
+
+\-Definition at line 30 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+\index{\-Miabot\-Low\-Level\-Controller@{\-Miabot\-Low\-Level\-Controller}!waypoints\-\_\-y@{waypoints\-\_\-y}}
+\index{waypoints\-\_\-y@{waypoints\-\_\-y}!MiabotLowLevelController@{\-Miabot\-Low\-Level\-Controller}}
+\subsubsection[{waypoints\-\_\-y}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$double$>$ {\bf \-Miabot\-Low\-Level\-Controller\-::waypoints\-\_\-y}\hspace{0.3cm}{\ttfamily  [private]}}\label{classMiabotLowLevelController_ace0cb3012d629d03004d7bb6965a7092}
+
+
+\-Definition at line 31 of file dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc.
+
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+{\bf dcsl\-\_\-miabot\-\_\-low\-\_\-level\-\_\-control.\-cc}\end{DoxyCompactItemize}

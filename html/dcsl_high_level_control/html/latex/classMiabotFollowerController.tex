@@ -1,0 +1,122 @@
+\section{\-Miabot\-Follower\-Controller \-Class \-Reference}
+\label{classMiabotFollowerController}\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}}
+
+
+\doxyref{\-Miabot\-Follower\-Controller}{p.}{classMiabotFollowerController} class handles callbacks for miabot\-\_\-follower\-\_\-control node.  
+
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf init} ()
+\item 
+{\bf \-Miabot\-Follower\-Controller} (const ros\-::\-Node\-Handle \&node\-\_\-handle, const int num\-Bots)
+\item 
+void {\bf state\-Callback} (const geometry\-\_\-msgs\-::\-Pose\-Array states)
+\end{DoxyCompactItemize}
+\subsection*{\-Public \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+ros\-::\-Node\-Handle {\bf n}
+\item 
+int {\bf num\-Robots}
+\item 
+ros\-::\-Publisher {\bf \-Pub\-\_\-waypoint}
+\item 
+ros\-::\-Subscriber {\bf \-Sub\-\_\-state}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\doxyref{\-Miabot\-Follower\-Controller}{p.}{classMiabotFollowerController} class handles callbacks for miabot\-\_\-follower\-\_\-control node. 
+
+\-Definition at line 13 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}}
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!MiabotFollowerController@{\-Miabot\-Follower\-Controller}}
+\subsubsection[{\-Miabot\-Follower\-Controller}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Miabot\-Follower\-Controller\-::\-Miabot\-Follower\-Controller} (
+\begin{DoxyParamCaption}
+\item[{const ros\-::\-Node\-Handle \&}]{node\-\_\-handle, }
+\item[{const int}]{num\-Bots}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotFollowerController_a535c6d23bb6075233209ba8bdde79078}
+\-Constructor for \doxyref{\-Miabot\-Follower\-Controller}{p.}{classMiabotFollowerController}. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em node\-\_\-handle} & identifies which node we are running, used to create subscribers/publishers \\
+\hline
+\mbox{\tt in}  & {\em num\-Bots} & number of robots to be controlled \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 25 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+
+
+\subsection{\-Member \-Function \-Documentation}
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!init@{init}}
+\index{init@{init}!MiabotFollowerController@{\-Miabot\-Follower\-Controller}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-Follower\-Controller\-::init} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotFollowerController_ad7d47f7474f0dd97bf37ce03682ac93c}
+\-Initialization for \doxyref{\-Miabot\-Follower\-Controller}{p.}{classMiabotFollowerController}, to be called directly after object creation. \-Here we initialize subscriber and publisher objects which connect this node to roscore 
+
+\-Definition at line 34 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!state\-Callback@{state\-Callback}}
+\index{state\-Callback@{state\-Callback}!MiabotFollowerController@{\-Miabot\-Follower\-Controller}}
+\subsubsection[{state\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Miabot\-Follower\-Controller\-::state\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const geometry\-\_\-msgs\-::\-Pose\-Array}]{states}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  [inline]}}\label{classMiabotFollowerController_a2c6994533e58549ee48b447a41391034}
+\-Callback function for topic \char`\"{}state\-\_\-estimate\char`\"{}. \-This function is called whenever a new message is posted to the \char`\"{}state\-\_\-estimate\char`\"{} topic. \-The new message is used in computing new waypoints based on current positions, using the \char`\"{}miabot\-\_\-follower\-\_\-control\char`\"{} function in the dcsl\-\_\-miabot\-\_\-high\-\_\-level\-\_\-math library. \-The computed waypoints are published to the topic \char`\"{}waypoint\-\_\-input\char`\"{} as a \-Pose\-Array. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em states} & \-Pose\-Array of robot states containing position and heading of each robot. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 47 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+
+
+\subsection{\-Member \-Data \-Documentation}
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!n@{n}}
+\index{n@{n}!MiabotFollowerController@{\-Miabot\-Follower\-Controller}}
+\subsubsection[{n}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Node\-Handle {\bf \-Miabot\-Follower\-Controller\-::n}}\label{classMiabotFollowerController_a06c83ce5b4d6b42ff62ff484365c4d55}
+
+
+\-Definition at line 17 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!num\-Robots@{num\-Robots}}
+\index{num\-Robots@{num\-Robots}!MiabotFollowerController@{\-Miabot\-Follower\-Controller}}
+\subsubsection[{num\-Robots}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Miabot\-Follower\-Controller\-::num\-Robots}}\label{classMiabotFollowerController_a43a3c5d39bd708699d6af9abfa449f4f}
+
+
+\-Definition at line 16 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!\-Pub\-\_\-waypoint@{\-Pub\-\_\-waypoint}}
+\index{\-Pub\-\_\-waypoint@{\-Pub\-\_\-waypoint}!MiabotFollowerController@{\-Miabot\-Follower\-Controller}}
+\subsubsection[{\-Pub\-\_\-waypoint}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Publisher {\bf \-Miabot\-Follower\-Controller\-::\-Pub\-\_\-waypoint}}\label{classMiabotFollowerController_aac79f5d79b9d10b77c32ea63004a1710}
+
+
+\-Definition at line 18 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+\index{\-Miabot\-Follower\-Controller@{\-Miabot\-Follower\-Controller}!\-Sub\-\_\-state@{\-Sub\-\_\-state}}
+\index{\-Sub\-\_\-state@{\-Sub\-\_\-state}!MiabotFollowerController@{\-Miabot\-Follower\-Controller}}
+\subsubsection[{\-Sub\-\_\-state}]{\setlength{\rightskip}{0pt plus 5cm}ros\-::\-Subscriber {\bf \-Miabot\-Follower\-Controller\-::\-Sub\-\_\-state}}\label{classMiabotFollowerController_aa848e79ef40b647b1446dd275f91d1c8}
+
+
+\-Definition at line 19 of file dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc.
+
+
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+{\bf dcsl\-\_\-miabot\-\_\-follower\-\_\-control.\-cc}\end{DoxyCompactItemize}

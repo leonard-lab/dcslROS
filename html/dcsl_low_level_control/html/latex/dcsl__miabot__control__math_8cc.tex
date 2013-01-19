@@ -1,0 +1,55 @@
+\section{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc \-File \-Reference}
+\label{dcsl__miabot__control__math_8cc}\index{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc@{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc}}
+{\ttfamily \#include \char`\"{}dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-h\char`\"{}}\*
+{\ttfamily \#include $<$math.\-h$>$}\*
+\-Include dependency graph for dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=246pt]{dcsl__miabot__control__math_8cc__incl}
+\end{center}
+\end{figure}
+\subsection*{\-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bf miabot\-\_\-waypoint} (double $\ast$output, double $\ast$pose, double $\ast$waypoint, double k1, double k2)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Implements functions for calculating low level miabot control independent of \-R\-O\-S library. 
+
+\-Definition in file {\bf dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc}.
+
+
+
+\subsection{\-Function \-Documentation}
+\index{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc@{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc}!miabot\-\_\-waypoint@{miabot\-\_\-waypoint}}
+\index{miabot\-\_\-waypoint@{miabot\-\_\-waypoint}!dcsl_miabot_control_math.cc@{dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc}}
+\subsubsection[{miabot\-\_\-waypoint}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf miabot\-\_\-waypoint} (
+\begin{DoxyParamCaption}
+\item[{double $\ast$}]{output, }
+\item[{double $\ast$}]{pose, }
+\item[{double $\ast$}]{waypoint, }
+\item[{double}]{k1, }
+\item[{double}]{k2}
+\end{DoxyParamCaption}
+)}\label{dcsl__miabot__control__math_8cc_ad78eb146ac1a0c4b64438d726579a249}
+\-Control law to calculate desired velocity based on current position and desired position. \-This is a simple controller for differential-\/drive robots, as described by \-Brendan \-Andrade. 
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt out}  & {\em output} & [v, omega] \\
+\hline
+\mbox{\tt in}  & {\em pose} & [x, y, theta] \\
+\hline
+\mbox{\tt in}  & {\em waypoint} & [x, y, theta] \\
+\hline
+\mbox{\tt in}  & {\em k1} & forward gain \\
+\hline
+\mbox{\tt in}  & {\em k2} & angular gain \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 15 of file dcsl\-\_\-miabot\-\_\-control\-\_\-math.\-cc.
+
