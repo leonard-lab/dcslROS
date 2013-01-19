@@ -4,11 +4,58 @@
 
 \b dcsl_vision_tracker 
 
-<!-- 
-Provide an overview of your package.
--->
+This package provides a node called miabot_tracker.py that subscribes to the /camera/image_raw topic, detects robots in the images using OpenCV, matches the detected robots to the estimates of the positions of the robots, and outputs the robot poses on topic /planar_measurements as a PoseArray. It also provides a node to create the background image used in the tracking.
 
--->
+\section rosapi ROS API
 
+List of nodes:
+- \b miabot_tracker.py
+- \b background_generator.py
+
+<hr>
+
+\subsection miabot_tracker miabot_tracker.py
+
+\subsection usage Usage
+\verbatim
+$ miabot_tracker.py [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+-\b "state_estimate / PoseArray" : An array of Pose messages containing the estimated positions of the robots.
+-\b "camera/image_raw" / Image" : The latest image from the overhead camera.
+
+Publishes (name / type):
+-\b "tracked_image / Image" : The latest image from the camera overlayed with tracking indicators.
+-\b "/planar_measurements / PoseArray" : The poses of the robots in the same order as the state_estimate.
+
+\subsubsection parameters ROS parameters
+- \b "/n_robots" : The number of robots to expect in the image.
+- \b "/vision_tracker/background_image" : File path for the background image. Background image is the view from the camera with no robots present.
+
+<hr>
+
+\subsection background_generator background_generator.py
+
+This node generates a background image by outputing to a file an image that is the average of the first five images from the subscribed image_raw topic.
+
+\subsection usage Usage
+\verbatim
+$ background_generator.py [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "camera/image_raw / Image" : The latest image from the overhead camera.
+
+Publishes to (name / type): None
+
+\subsubsection parameters ROS Parameters
+- \b "/background_generator/image_name" : Path and name for outputing the background image. Must be a .png file.
+
+<hr>
 
 */
