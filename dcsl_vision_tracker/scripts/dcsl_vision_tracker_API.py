@@ -1,28 +1,39 @@
 #!/usr/bin/env python
+
+## @file
+# 
+
+## @author Brendan Andrade
+
+
 import cv
 from munkres import Munkres
 
 class dcsl_vision_tracker(object):
 
-    def __init__(self, firstImage, nRobots):
-        if type(firstImage) is not cv.CvMat:
-            raise Exception("Data type error: imageMat is not a CvMat")
-        self.image = firstImage
+    def __init__(self, nCameras, nRobots):
+        # if type(firstImage) is not cv.CvMat:
+        #    raise Exception("Data type error: imageMat is not a CvMat")
+        self.nCameras = nCameras
         self.nRobots = nRobots
+        self.images = [None]*nCameras
 
-    def blobContours(self, backgroundMat, binaryThreshold, erodeIterations, storage):
+    def blobContours(self, image, backgroundMat, binaryThreshold, erodeIterations, storage, maskMat = NULL):
         #Description
-        #This function will change imageMat
+        
         if type(backgroundMat) is not cv.CvMat:
             raise Exception("Data type error: backgroundMat is not a CvMat")
 
-        imageMat = cv.CloneMat(self.image)
+        imageMat = cv.CloneMat(image)
         
         #Subtract the background image
         cv.AbsDiff(imageMat,backgroundMat,imageMat)
 
         #Convert to binary image
         cv.Threshold(imageMat, imageMat, binaryThreshold)
+
+        #Apply mask
+        cv.Min(imageMat, maskMat, imageMat); #mask image should be black (0) where masking should be applied and white (255) in the working area
 
         #Erode small holes in binary image
         cv.Erode(imageMat, imageMat, None, erodeIterations)
@@ -32,10 +43,10 @@ class dcsl_vision_tracker(object):
         
         return contours
 
-    def newImage(self, imageMat):
+    def newImage(self, imageMat, camera = 0):
         if type(imageMat) is not cv.CvMat:
             raise Exception("Data type error: imageMat is not a CvMat")
-        self.image = imageMat
+        self.images[camera] = imageMat
 
     def matchRobots(self, readings, previousPoses):
         # This function sorts the readings from the image processing to match the order of the previous poses and returns the sorted list of tuples
