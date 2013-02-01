@@ -34,20 +34,21 @@ class DcslVisionTracker(object):
     # @param storage (CvMemStorage) is a storage space for the contours.
     # @param maskMat (CvMat) is a binary mask. Areas to ignore should be black and all other space should be white.
     def blob_contours(self, image, backgroundMat, binaryThreshold, erodeIterations, storage, maskMat = None):
-        
+        '''
         if type(backgroundMat) is not cv.CvMat:
             raise Exception("Data type error: backgroundMat is not a CvMat")
-
+        '''    
         imageMat = cv.CloneMat(image)
         
         #Subtract the background image
         cv.AbsDiff(imageMat,backgroundMat,imageMat)
 
-        #Convert to binary image
-        cv.Threshold(imageMat, imageMat, binaryThreshold)
+        #Convert to binary image by thresholding
+        cv.Threshold(imageMat, imageMat, binaryThreshold,255,cv.CV_THRESH_BINARY)
 
         #Apply mask
-        cv.Min(imageMat, maskMat, imageMat); #mask image should be black (0) where masking should be applied and white (255) in the working area
+        if maskMat:
+            cv.Min(imageMat, maskMat, imageMat); #mask image should be black (0) where masking should be applied and white (255) in the working area
 
         #Erode small holes in binary image
         cv.Erode(imageMat, imageMat, None, erodeIterations)
@@ -80,14 +81,14 @@ class DcslVisionTracker(object):
         sorted_measurements = []
         if len(cost_matrix) != 0: #There were sensed poses
             mun = Munkres()
-            indexes = mun.compute(costMatrix) #Returns a list of index pairs, 1st index cooresponds to the sensed pose and 2nd is the matched estimated pose
+            indexes = mun.compute(cost_matrix) #Returns a list of index pairs, 1st index cooresponds to the sensed pose and 2nd is the matched estimated pose
             for i in xrange(0,n_robots):
                 assigned = False
                 for pair in indexes:
                     if pair[1] == i: #Find estimated pose i in index pairs
                         sensed_poses_index = pair[0] #Matching sensed pose index is pair[0]
                         sensed_poses[sensed_poses_index].set_detected(True)
-                        sorted_measurments.append(sensed_poses[sensed_poses_index])
+                        sorted_measurements.append(sensed_poses[sensed_poses_index])
                         assigned = True
                 if not assigned: #If robot i was not found
                     empty_pose = DcslPose()
@@ -132,7 +133,7 @@ class DcslMiabotTracker(DcslVisionTracker):
         # Transform image frame coordinates to real world coordinates
         sensed_poses = self.coordinate_transform(image_poses, estimated_poses, camera_id = 0)
         # Match robots to estimates
-        matched_poses = self.matched_robots(sensed_poses, estimated_poses)
+        matched_poses = self.match_robots(sensed_poses, estimated_poses)
         return matched_poses
     
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
@@ -164,7 +165,7 @@ class DcslMiabotTracker(DcslVisionTracker):
         while cr is not None:
             # Find area of blob and reject those not the size of a robot
             blob_size = cv.ContourArea(cr)
-            if blob_size > self.minBlobSize and blobSize < self.maxBlobSize:
+            if blob_size > self.minBlobSize and blob_size < self.maxBlobSize:
                 moments = cv.Moments(cr, False)
                 # Find center of blob
                 box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
