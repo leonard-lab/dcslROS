@@ -18,6 +18,7 @@ from munkres import Munkres
 ## This class is the superclass for overhead camera robot tracker classes. 
 # 
 # It provides a generic blob detection method and a method to match sensed robots with estimates of robot poses. It should likely not be used alone but as an inherited class for a tracking class specific to a system.
+# The subclass must have methods get_image_poses and coordinate_transform as defined in this class.
 class DcslVisionTracker(object):
 
     ## Class initializer. This class needs no arguments or actions at initiation.
@@ -29,19 +30,19 @@ class DcslVisionTracker(object):
     # Returns matched_poses (List of DcslPose objects) positions of 
     # @param image (CvMat) is the image in which to find the poses of the robots
     # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
-    def get_poses(self, image, estimated_poses):
+    # @param camera_id (int) the number of the camera the image comes from. This is used in the coordinate_transform function to chose the correct transform.
+    def get_poses(self, image, estimated_poses, camera_id):
 
         # Find contours of blobs in the image
         contours = self.blob_contours(image, self.background, self.threshold, self.erodeIterations, self.storage)
         # Find poses of blobs in image reference frame
         image_poses = self.get_image_poses(contours)
         # Transform image frame coordinates to real world coordinates
-        sensed_poses = self.coordinate_transform(image_poses, estimated_poses, camera_id = 0)
+        sensed_poses = self.coordinate_transform(image_poses, estimated_poses, camera_id)
         # Match robots to estimates
         matched_poses = self.match_robots(sensed_poses, estimated_poses)
         return matched_poses
     
-
     ## Detects blobs in an image and returns the OpenCV contours of those blobs.
     #
     # @param image (CvMat) is the image in which to find contours. It should be a CvMat type.
@@ -75,7 +76,6 @@ class DcslVisionTracker(object):
         
         return contours
     
-
     ## Sorts the sensedPoses to match of the order of previousPose and detects whether or not each robot has been detected.
     #
     # Returns a list of DcslPose objects that contain sensed poses in the order of the previous poses. This allows detection of which robot is which.
@@ -117,6 +117,24 @@ class DcslVisionTracker(object):
                 empty_pose.set_detected(False)
                 sorted_measurements.append(empty_pose)
         return sorted_measurements
+
+    ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
+    #
+    # This function needs to be defined in the subclass.
+    # Return sensed_poses is a list of DcslPose objects in a right hand coordinate system in meters and radians centered at the center of the image with x up in the image frame and y to the right. Theta measured CCW from x axis.
+    # @param image_poses a list of poses in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta measured CCW from x axis.
+    # @param estimated_poses (List of DcslPose objects) is required if the transform depends on the state of the robot.
+    # @param camera_id (int) is uses to apply for the correct transform in the case of multi-camera systems.
+    def coordinate_transform(self, image_poses, estimated_poses, camera_id):
+        pass
+
+    ## Takes the contours found in an image and returns the positions and headings of the blobs in image frame coordinates.
+    #
+    # This function needs to be defined in the subclass.
+    # Returns image_poses (list of DcslPose objects) in the coordinate frame of the image of all contours in unknown order
+    # @param contours (CvSeq of contours) contours of the blobs found in an image 
+    def get_image_poses(self, contours):
+        pass
 
 
 #############################################################

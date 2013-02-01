@@ -65,7 +65,7 @@ class miabot_tracker:
         cv.Merge(working_image,working_image,working_image, None, output_image)        
         
         # Find poses and place into a message
-        measurements = self.tracker.get_poses(working_image, self.current_states)
+        measurements = self.tracker.get_poses(working_image, self.current_states, 0)
         pose_array = PoseArray()
         for dcsl_pose in measurements:
             p = Pose()
