@@ -24,6 +24,23 @@ class DcslVisionTracker(object):
     def __init__(self):  
         pass
 
+    ## Returns the poses of the robots in the image.
+    #
+    # Returns matched_poses (List of DcslPose objects) positions of 
+    # @param image (CvMat) is the image in which to find the poses of the robots
+    # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
+    def get_poses(self, image, estimated_poses):
+
+        # Find contours of blobs in the image
+        contours = self.blob_contours(image, self.background, self.threshold, self.erodeIterations, self.storage)
+        # Find poses of blobs in image reference frame
+        image_poses = self.get_image_poses(contours)
+        # Transform image frame coordinates to real world coordinates
+        sensed_poses = self.coordinate_transform(image_poses, estimated_poses, camera_id = 0)
+        # Match robots to estimates
+        matched_poses = self.match_robots(sensed_poses, estimated_poses)
+        return matched_poses
+    
 
     ## Detects blobs in an image and returns the OpenCV contours of those blobs.
     #
@@ -119,23 +136,7 @@ class DcslMiabotTracker(DcslVisionTracker):
         self.image_width = image_width
         self.image_height = image_height
         
-    ## Returns the poses of the robots in the image.
-    #
-    # Returns matched_poses (List of DcslPose objects) positions of 
-    # @param image (CvMat) is the image in which to find the poses of the robots
-    # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
-    def get_poses(self, image, estimated_poses):
 
-        # Find contours of blobs in the image
-        contours = self.blob_contours(image, self.background, self.threshold, self.erodeIterations, self.storage)
-        # Find poses of blobs in image reference frame
-        image_poses = self.get_image_poses(contours)
-        # Transform image frame coordinates to real world coordinates
-        sensed_poses = self.coordinate_transform(image_poses, estimated_poses, camera_id = 0)
-        # Match robots to estimates
-        matched_poses = self.match_robots(sensed_poses, estimated_poses)
-        return matched_poses
-    
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
     #
     # Return sensed_poses is a list of DcslPose objects in a right hand coordinate system in meters and radians centered at the center of the image with x up in the image frame and y to the right. Theta measured CCW from x axis.
