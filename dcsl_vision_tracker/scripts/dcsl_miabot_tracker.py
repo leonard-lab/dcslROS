@@ -13,6 +13,7 @@ from geometry_msgs.msg import PoseArray,Pose
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import cv
+import math as m
 
 from dcsl_vision_tracker_API import DcslMiabotTracker, DcslPose
 
@@ -39,7 +40,7 @@ class miabot_tracker:
         self.storage = cv.CreateMemStorage()
         self.tracker = DcslMiabotTracker(background, threshold, erode_iterations, min_blob_size, max_blob_size, scale, self.storage, image_width, image_height)
 
-        '''
+        
         #For testing
         temp1 = DcslPose()
         temp1.set_position((0,0,0))
@@ -48,7 +49,7 @@ class miabot_tracker:
         temp2.set_position((-1,-1,0))
         temp2.set_quaternion((0,0,0,0))
         self.current_states = [temp1,temp2]
-        '''
+        
 
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
     #
@@ -59,13 +60,10 @@ class miabot_tracker:
             working_image = self.bridge.imgmsg_to_cv(data, "mono8")
         except CvBridgeError, e:
             print e
-
-        # Create BGR8 image to be output
-        output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
-        cv.Merge(working_image,working_image,working_image, None, output_image)        
+        
         
         # Find poses and place into a message
-        measurements = self.tracker.get_poses(working_image, self.current_states, 0)
+        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, 0)
         pose_array = PoseArray()
         for dcsl_pose in measurements:
             p = Pose()
@@ -78,12 +76,32 @@ class miabot_tracker:
                 p.orientation.w = 0
             pose_array.poses.append(p)
 
+        #Publish measuremented poses
+        self.measurement_pub.publish(pose_array)
+
+        # Create BGR8 image to be output
+        output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
+        cv.Merge(working_image,working_image,working_image, None, output_image)
+
+        # Overlay position, heading, and contour
+        length = 15.0
+        radius = 5
+        blue = cv.RGB(0,255,255)
+        for point in image_poses:
+            end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
+            center = (int(point.position_x()), int(point.position_y()))
+            cv.Line(output_image, center, end, blue)
+            cv.Circle(output_image, center, radius, blue)
+        cv.DrawContours(output_image, contours, blue, blue, 2)
+        
+
+        # Publish image with overlay
         try:
             self.image_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
             print e
 
-        self.measurement_pub.publish(pose_array)
+        
 
     ## Callback function for state estimates. Stores state estimates as self.currentStates.
     #

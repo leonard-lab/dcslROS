@@ -27,7 +27,9 @@ class DcslVisionTracker(object):
 
     ## Returns the poses of the robots in the image.
     #
-    # Returns matched_poses (List of DcslPose objects) positions of 
+    # Returns matched_poses (List of DcslPose objects) positions of robots in real world frame in the same order as estimated_poses
+    # Returns image_poses (List of DcslPose objects) in image coordinates in a random order
+    # Returns contours (CvSeq) structure containing the contours of blobs found in the image
     # @param image (CvMat) is the image in which to find the poses of the robots
     # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
     # @param camera_id (int) the number of the camera the image comes from. This is used in the coordinate_transform function to chose the correct transform.
@@ -41,7 +43,7 @@ class DcslVisionTracker(object):
         sensed_poses = self.coordinate_transform(image_poses, estimated_poses, camera_id)
         # Match robots to estimates
         matched_poses = self.match_robots(sensed_poses, estimated_poses)
-        return matched_poses
+        return matched_poses, image_poses, contours
     
     ## Detects blobs in an image and returns the OpenCV contours of those blobs.
     #
