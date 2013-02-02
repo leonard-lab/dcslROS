@@ -40,8 +40,8 @@ class miabot_tracker:
         self.storage = cv.CreateMemStorage()
         self.tracker = DcslMiabotTracker(background, threshold, erode_iterations, min_blob_size, max_blob_size, scale, self.storage, image_width, image_height)
 
-        
-        #For testing
+        '''
+        # For testing
         temp1 = DcslPose()
         temp1.set_position((0,0,0))
         temp1.set_quaternion((0,0,0,0))
@@ -49,7 +49,7 @@ class miabot_tracker:
         temp2.set_position((-1,-1,0))
         temp2.set_quaternion((0,0,0,0))
         self.current_states = [temp1,temp2]
-        
+        '''
 
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
     #
@@ -99,9 +99,7 @@ class miabot_tracker:
         try:
             self.image_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
-            print e
-
-        
+            print e        
 
     ## Callback function for state estimates. Stores state estimates as self.currentStates.
     #
