@@ -86,13 +86,13 @@ class miabot_tracker:
         # Overlay position, heading, and contour
         length = 15.0
         radius = 5
-        blue = cv.RGB(0,255,255)
+        cyan = cv.RGB(0,255,255)
         for point in image_poses:
             end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
             center = (int(point.position_x()), int(point.position_y()))
-            cv.Line(output_image, center, end, blue)
-            cv.Circle(output_image, center, radius, blue)
-        cv.DrawContours(output_image, contours, blue, blue, 2)
+            cv.Line(output_image, center, end, cyan)
+            cv.Circle(output_image, center, radius, cyan)
+        cv.DrawContours(output_image, contours, cyan, cyan, 2)
         
 
         # Publish image with overlay
