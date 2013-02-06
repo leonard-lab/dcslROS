@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ## @file
-# A node that subscribes to the /camera/image_raw topic with Image messages, uses OpenCV to find the poses of the robots in the images, and publishes the poses of the robots as a PoseArray. It also subscribes to the state_estimate topic (PoseArray messages) so that the published PoseArray maintains the same order as the state_estimate. It matches the detected robots with the estimated poses using the Hungarian algorithm via the munkres library.
+# A node that subscribes to the /camera/image_raw topic with Image messages, uses OpenCV to find the poses of the Miabot robots in the images, and publishes the poses of the robots as a PoseArray. It also subscribes to the state_estimate topic (PoseArray messages) so that the published PoseArray maintains the same order as the state_estimate. It matches the detected robots with the estimated poses using the Hungarian algorithm via the munkres library.
 
 ## @author Brendan Andrade
 
