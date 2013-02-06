@@ -36,13 +36,17 @@ class BelugaTracker:
         self.bridge = CvBridge()
 
         # Load background images
+        background_list = []
         location0 = rospy.get_param('/vision_tracker/background_image0')
-        self.background0 = cv.LoadImageM(location0, cv.CV_LOAD_IMAGE_COLOR)
+        background_list.append(cv.LoadImageM(location0, cv.CV_LOAD_IMAGE_COLOR))
         location1 = rospy.get_param('/vision_tracker/background_image1')
-        self.background1 = cv.LoadImageM(location1, cv.CV_LOAD_IMAGE_COLOR)
+        background_list.append(cv.LoadImageM(location1, cv.CV_LOAD_IMAGE_COLOR))
         location2 = rospy.get_param('/vision_tracker/background_image2')
-        self.background2 = cv.LoadImageM(location2, cv.CV_LOAD_IMAGE_COLOR)
+        background_list.append(cv.LoadImageM(location2, cv.CV_LOAD_IMAGE_COLOR))
         location3 = rospy.get_param('/vision_tracker/background_image3')
+        background_list.append(cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_COLOR))
+
+        '''
 
         # Load masks
         location0 = rospy.get_param('/vision_tracker/mask0')
@@ -54,18 +58,20 @@ class BelugaTracker:
         location3 = rospy.get_param('/vision_tracker/mask3')
         self.mask3 = cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_GREYSCALE)
 
+        '''
+
         # Create tracker object from API
         threshold = 100
         erode_iterations = 1
         min_blob_size = 500
         max_blob_size = 2000
         scale = 1.7526/1024.0 #meters/pixel
-        image_width = self.background0.width
-        image_height = self.background0.height
+        image_width = background_list[0].width
+        image_height = background_list[0].height
         self.storage = cv.CreateMemStorage()
-        self.tracker = DcslBelugaTracker(background, threshold, erode_iterations, min_blob_size, max_blob_size, scale, self.storage, image_width, image_height)
+        self.tracker = DcslBelugaTracker(background_list, threshold, erode_iterations, min_blob_size, max_blob_size, scale, self.storage, image_width, image_height)
 
-        '''
+        
         # For testing
         temp1 = DcslPose()
         temp1.set_position((0,0,0))
@@ -74,7 +80,7 @@ class BelugaTracker:
         temp2.set_position((-1,-1,0))
         temp2.set_quaternion((0,0,0,0))
         self.current_states = [temp1,temp2]
-        '''
+        
 
     ## Callback function for when new images are received on camera0. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
     #
@@ -174,7 +180,7 @@ class BelugaTracker:
         
         # Find poses and place into a message
         measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
-         pose_array = self._dcsl_pose_to_ros_pose(image_poses)
+        pose_array = self._dcsl_pose_to_ros_pose(image_poses)
 
         # Publish measuremented poses
         self.measurement_pub.publish(pose_array)

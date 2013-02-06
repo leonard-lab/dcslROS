@@ -13,6 +13,7 @@ import cv
 from munkres import Munkres
 
 
+##################################################
 
 
 ## This class is the superclass for overhead camera robot tracker classes. 
@@ -36,7 +37,7 @@ class DcslVisionTracker(object):
     def get_poses(self, image, estimated_poses, camera_id):
 
         # Find contours of blobs in the image
-        contours = self.blob_contours(image, self.background, self.threshold, self.erodeIterations, self.storage)
+        contours = self.blob_contours(image, self.background[camera_id], self.threshold, self.erode_iterations, self.storage)
         # Find poses of blobs in image reference frame
         image_poses = self.get_image_poses(contours)
         # Transform image frame coordinates to real world coordinates
@@ -96,24 +97,24 @@ class DcslVisionTracker(object):
                 column.append(difference)                
             cost_matrix.append(column)
 
-        #Sort readings to match previous pose order
+        # Sort readings to match previous pose order
         sorted_measurements = []
-        if len(cost_matrix) != 0: #There were sensed poses
+        if len(cost_matrix) != 0: # There were sensed poses
             mun = Munkres()
-            indexes = mun.compute(cost_matrix) #Returns a list of index pairs, 1st index cooresponds to the sensed pose and 2nd is the matched estimated pose
+            indexes = mun.compute(cost_matrix) # Returns a list of index pairs, 1st index cooresponds to the sensed pose and 2nd is the matched estimated pose
             for i in xrange(0,n_robots):
                 assigned = False
                 for pair in indexes:
-                    if pair[1] == i: #Find estimated pose i in index pairs
+                    if pair[1] == i: # Find estimated pose i in index pairs
                         sensed_poses_index = pair[0] #Matching sensed pose index is pair[0]
                         sensed_poses[sensed_poses_index].set_detected(True)
                         sorted_measurements.append(sensed_poses[sensed_poses_index])
                         assigned = True
-                if not assigned: #If robot i was not found
+                if not assigned: # If robot i was not found
                     empty_pose = DcslPose()
                     empty_pose.set_detected(False)
                     sorted_measurements.append(empty_pose)
-        else: #No sensed poses
+        else: # No sensed poses
             for i in xrange(0,n_robots):
                 empty_pose = DcslPose()
                 empty_pose.set_detected(False)
@@ -144,11 +145,11 @@ class DcslVisionTracker(object):
 
 class DcslMiabotTracker(DcslVisionTracker):
 
-    def __init__(self, backgroundMat, binaryThreshold, erodeIterations, minBlobSize, maxBlobSize, scale, storage, image_width, image_height):
+    def __init__(self, backgroundMat, binary_threshold, erode_iterations, minBlobSize, maxBlobSize, scale, storage, image_width, image_height):
         DcslVisionTracker.__init__(self)
-        self.background = backgroundMat
-        self.threshold = binaryThreshold
-        self.erodeIterations = erodeIterations
+        self.background = [backgroundMat] # A list of background images, index matches camera_id
+        self.threshold = binary_threshold
+        self.erode_iterations = erode_iterations
         self.minBlobSize = minBlobSize
         self.maxBlobSize = maxBlobSize
         self.scale = scale
@@ -210,7 +211,7 @@ class DcslMiabotTracker(DcslVisionTracker):
                     elif error < previous_error:
                         theta = theta_test
                     previous_error = error
-                #Append found pose to image_poses list
+                # Append found pose to image_poses list
                 pose = DcslPose()
                 pose.set_position((center[0],center[1],0))
                 pose.set_quaternion((0,0,theta,0))
@@ -223,10 +224,83 @@ class DcslMiabotTracker(DcslVisionTracker):
         
 #############################################################################
 
-class dcsl_beluga_tracker(DcslVisionTracker):
+class DcslBelugaTracker(DcslVisionTracker):
     
-    def __init__(self):
-        pass
+    def __init__(self, background_list, threshold, erode_iterations, min_blob_size, max_blob_size, scale, storage, image_width, image_height):
+        self.background = background_list
+        self.threshold = threshold
+        self.erode_iterations = erode_iterations
+        self.min_blob_size = min_blob_size
+        self.max_blob_size = max_blob_size
+        self.scale = scale
+        self.image_width = image_width
+        self.image_height = image_height
+        self.storage = storage
+
+    ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
+    #
+    # Return sensed_poses is a list of DcslPose objects in a right hand coordinate system in meters and radians centered at the center of the image with x up in the image frame and y to the right. Theta measured CCW from x axis.
+    # @param image_poses a list of poses in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta measured CCW from x axis.
+    # @param estimated_poses (List of DcslPose objects) not required for miabot tracker.
+    # @param camera_id (int) not required for miabot tracker.    
+    def coordinate_transform(self, image_poses, estimated_poses, camera_id):
+        sensed_poses = []
+        if camera_id is 0:
+            pass
+        if camera_id is 1:
+            pass
+        if camera_id is 2:
+            pass
+        if camera_id is 3:
+            pass
+        return sensed_poses
+
+    ## Takes the contours found in an image and returns the positions and headings of the blobs in image frame coordinates
+    #
+    # Returns image_poses (list of DcslPose objects) in the coordinate frame of the image of all contours in unknown order
+    # @param contours (CvSeq of contours) contours of the blobs found in an image 
+    def get_image_poses(self, contours):
+        image_poses = [] # List to store measured poses
+        cr = contours #Copy contours to not change original variable
+        
+        while cr is not None:
+            # Find area of blob and reject those not the size of a robot
+            blob_size = cv.ContourArea(cr)
+            if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
+                moments = cv.Moments(cr, False)
+                # Find center of blob
+                ellipse = FitEllipse2(cr)
+                center = (ellipse[0][0], ellipse[0][1])
+                centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
+                # Estimate heading by drawing line from centroid to center and finding heading of line
+                theta_estimate = -m.atan2(center[1]-centroid[1],center[0]-centroid[0])
+                # Theta is found using the minimum area box from above
+                theta_box = -m.pi/180.0*ellipse[2] #Angle in the first quadrant of the best fit ellipse with the x-axis
+                # Test angle of box in each quadrant to see which is closest to angle found from centroid
+                # Box angle is more accurate than centroid method
+                previous_error = -1.0
+                theta = None
+                step_list = [-m.pi,-m.pi*0.5,0,m.pi*0.5]
+                for step in step_list:
+                    theta_test = theta_box+step
+                    error = pow(theta_estimate-theta_test,2)
+                    if previous_error < 0:
+                        theta = theta_test
+                    elif error < previous_error:
+                        theta = theta_test
+                    previous_error = error
+                # Append found pose to image_poses list
+                pose = DcslPose()
+                pose.set_position((center[0],center[1],0))
+                pose.set_quaternion((0,0,theta,0))
+                image_poses.append(pose)
+                del ellipse                
+            #Cycle to next contour
+            cr=cr.h_next()
+        del cr 
+        return image_poses
+            
+        
 
 #############################################################################
 
