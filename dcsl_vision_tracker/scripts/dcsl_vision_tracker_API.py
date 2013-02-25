@@ -60,8 +60,8 @@ class DcslVisionTracker(object):
 
     ## Returns the poses of the robots in the image.
     #
-    # Returns matched_poses (List of DcslPose objects) positions of robots in real world frame in the same order as estimated_poses
-    # Returns image_poses (List of DcslPose objects) in image coordinates in a random order
+    # Returns matched_sensed_world (List of DcslPose objects) positions of robots in real world frame in the same order as estimated_poses
+    # Returns matched_sensed_image (List of DcslPose objects) positions of robots in image coordinates in the same order as estimated_poses
     # Returns contours (CvSeq) structure containing the contours of blobs found in the image
     # @param image (CvMat) is the image in which to find the poses of the robots
     # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
@@ -71,12 +71,14 @@ class DcslVisionTracker(object):
         # Find contours of blobs in the image
         contours = self.blob_contours(image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage)
         # Find poses of blobs in image reference frame
-        image_poses = self.get_image_poses(contours)
+        sensed_image = self.get_image_poses(contours)
+        # Transform estimated poses to image frame
+        estimated_image = self.world_to_image(estimated_poses, camera_id)
+        #Match robots to estimates in image frame
+        matched_sensed_image = self.match_robots(sensed_image, estimated_image)
         # Transform image frame coordinates to real world coordinates
-        sensed_poses = self.image_to_world(image_poses, estimated_poses, camera_id)
-        # Match robots to estimates
-        matched_poses = self.match_robots(sensed_poses, estimated_poses)
-        return matched_poses, image_poses, contours
+        matched_sensed_world = self.image_to_world(matched_sensed_image, estimated_poses, camera_id)
+        return matched_sensed_world, matched_sensed_image, contours
     
     ## Detects blobs in an image and returns the OpenCV contours of those blobs.
     #
@@ -192,12 +194,34 @@ class DcslMiabotTracker(DcslVisionTracker):
         sensed_poses = []
         for pose in image_poses:
             sensed_pose = DcslPose()
-            sensed_x = (pose.position[0]-0.5*self.image_width)*self.scale
-            sensed_y = -(pose.position[1]-0.5*self.image_height)*self.scale
-            sensed_pose.set_position((sensed_x,sensed_y,0))
-            sensed_pose.set_quaternion((None,None,pose.quaternion[2],None))
+            if pose.position[0] is not None:
+                sensed_x = (pose.position[0]-0.5*self.image_width)*self.scale
+                sensed_y = -(pose.position[1]-0.5*self.image_height)*self.scale
+                sensed_pose.set_position((sensed_x,sensed_y,0))
+                sensed_pose.set_quaternion((None,None,pose.quaternion[2],None))
+                if pose.detected:
+                    sensed_pose.set_detected(True)
             sensed_poses.append(sensed_pose)
         return sensed_poses
+
+    ## Applies coordinate transform from world frame to image frame on world_poses and returns image_poses.
+    #
+    # Return image_poses is a list of DcslPose objects in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta is measured CCW from x axis.
+    # @param world_poses a list of poses in the world reference frame (meters and radians).
+    # @param camera_id (int) not required for miabot tracker.
+    def world_to_image(self, world_poses, camera_id = None):
+        image_poses = []
+        for pose in world_poses:
+            image_pose = DcslPose()
+            if pose.position[0] is not None:
+                image_x = pose.position[0]*self.scale + 0.5*self.image_width
+                image_y = -1.0*pose.position[1]*self.scale - 0.5*self.image_height
+                image_pose.set_position((image_x, image_y, None))
+                image_pose.set_quaternion((None, None, pose.quaternion[2], None))
+                if pose.detected:
+                    image_pose.set_detected(True)
+            image_poses.append(image_pose)
+        return image_poses
 
 
     ## Takes the contours found in an image and returns the positions and headings of the blobs in image frame coordinates
