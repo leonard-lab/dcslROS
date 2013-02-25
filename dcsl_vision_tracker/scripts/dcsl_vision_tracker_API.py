@@ -156,7 +156,33 @@ class DcslMiabotTracker(DcslVisionTracker):
         self.storage = storage
         self.image_width = image_width
         self.image_height = image_height
+
+        ## @var background
+        # A list of background images. The i
         
+        ## @var threshold
+        #
+
+        ## @var erode_iterations
+        #
+
+        ## @var minBlobSize
+        #
+        
+        ## @var maxBlobSize
+        #
+
+        ## @var scale
+        #
+        
+        ## @var storage
+        # 
+        
+        ## @var image_width
+        # Width of the image to be tracked
+
+        ## @var image_height
+        # Height of the image to be tracked
 
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
     #
