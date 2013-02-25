@@ -73,7 +73,7 @@ class DcslVisionTracker(object):
         # Find poses of blobs in image reference frame
         image_poses = self.get_image_poses(contours)
         # Transform image frame coordinates to real world coordinates
-        sensed_poses = self.coordinate_transform(image_poses, estimated_poses, camera_id)
+        sensed_poses = self.image_to_world(image_poses, estimated_poses, camera_id)
         # Match robots to estimates
         matched_poses = self.match_robots(sensed_poses, estimated_poses)
         return matched_poses, image_poses, contours
@@ -188,7 +188,7 @@ class DcslMiabotTracker(DcslVisionTracker):
     # @param image_poses a list of poses in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta measured CCW from x axis.
     # @param estimated_poses (List of DcslPose objects) not required for miabot tracker.
     # @param camera_id (int) not required for miabot tracker.    
-    def coordinate_transform(self, image_poses, estimated_poses = None, camera_id = None):
+    def image_to_world(self, image_poses, estimated_poses = None, camera_id = None):
         sensed_poses = []
         for pose in image_poses:
             sensed_pose = DcslPose()
@@ -264,7 +264,7 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param image_poses a list of poses in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta measured CCW from x axis.
     # @param estimated_poses (List of DcslPose objects) not required for miabot tracker.
     # @param camera_id (int) not required for miabot tracker.    
-    def coordinate_transform(self, image_poses, estimated_poses, camera_id):
+    def image_to_world(self, image_poses, estimated_poses, camera_id):
         sensed_poses = []
         if camera_id is 0:
             pass
