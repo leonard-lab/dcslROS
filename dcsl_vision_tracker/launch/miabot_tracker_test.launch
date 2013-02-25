@@ -1,0 +1,9 @@
+<launch>
+	
+  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_miabot_tracker.py" output="screen">
+    <param name="background_image" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/backgroundOldTest.png" />
+    <remap from="state_estimate" to="planar_measurements" />
+    <remap from="tracked_image" to="output_image" />
+  </node >
+
+</launch >
