@@ -23,8 +23,40 @@ from munkres import Munkres
 class DcslVisionTracker(object):
 
     ## Class initializer. This class needs no arguments or actions at initiation.
-    def __init__(self):  
-        pass
+    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height):  
+        self.background_list = background_list
+        self.mask_list = mask_list
+        self.threshold = binary_threshold
+        self.erode_iterations = erode_iterations
+        self.min_blob_size = min_blob_size
+        self.max_blob_size = max_blob_size
+        self.storage = storage
+        self.image_width = image_width
+        self.image_height = image_height
+
+        ## @var background
+        # A list of background images. The ith list entry should be the background for camera id i.
+        
+        ## @var threshold
+        # The cut off brightness value for converting from a gray scale to binary image.
+
+        ## @var erode_iterations
+        # The number of times to erode the binary image. This is used to eliminate small detected blobs. More iterations removes larger blobs.
+
+        ## @var min_blob_size
+        # The minimum expected blob size in square pixels for a robot.
+        
+        ## @var max_blob_size
+        # The maximum expected blob size in square pixels for a robot.
+        
+        ## @var storage
+        # An OpenCV storage container created with cv.CreateMemStorage.
+        
+        ## @var image_width
+        # Width of the image to be tracked.
+
+        ## @var image_height
+        # Height of the image to be tracked.
 
     ## Returns the poses of the robots in the image.
     #
@@ -37,7 +69,7 @@ class DcslVisionTracker(object):
     def get_poses(self, image, estimated_poses, camera_id):
 
         # Find contours of blobs in the image
-        contours = self.blob_contours(image, self.background[camera_id], self.threshold, self.erode_iterations, self.storage)
+        contours = self.blob_contours(image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage)
         # Find poses of blobs in image reference frame
         image_poses = self.get_image_poses(contours)
         # Transform image frame coordinates to real world coordinates
@@ -54,28 +86,25 @@ class DcslVisionTracker(object):
     # @param erodeIterations (int) is the number of iterations to erode the binary image. This eliminates small detected blobs.
     # @param storage (CvMemStorage) is a storage space for the contours.
     # @param maskMat (CvMat) is a binary mask. Areas to ignore should be black and all other space should be white.
-    def blob_contours(self, image, backgroundMat, binaryThreshold, erodeIterations, storage, maskMat = None):
-        '''
-        if type(backgroundMat) is not cv.CvMat:
-            raise Exception("Data type error: backgroundMat is not a CvMat")
-        '''    
-        imageMat = cv.CloneMat(image)
+    def blob_contours(self, image, background_mat, binary_threshold, erode_iterations, storage, mask_mat = None):
+        
+        image_mat = cv.CloneMat(image)
         
         #Subtract the background image
-        cv.AbsDiff(imageMat,backgroundMat,imageMat)
+        cv.AbsDiff(image_mat, background_mat, image_mat)
 
         #Convert to binary image by thresholding
-        cv.Threshold(imageMat, imageMat, binaryThreshold,255,cv.CV_THRESH_BINARY)
+        cv.Threshold(image_mat, image_mat, binary_threshold, 255, cv.CV_THRESH_BINARY)
 
         #Apply mask
-        if maskMat:
-            cv.Min(imageMat, maskMat, imageMat); #mask image should be black (0) where masking should be applied and white (255) in the working area
+        if mask_mat:
+            cv.Min(image_mat, mask_mat, image_mat); #mask image should be black (0) where masking should be applied and white (255) in the working area
 
         #Erode small holes in binary image
-        cv.Erode(imageMat, imageMat, None, erodeIterations)
+        cv.Erode(image_mat, image_mat, None, erode_iterations)
 
         #Find contours
-        contours = cv.FindContours(imageMat, storage, cv.CV_RETR_LIST, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
+        contours = cv.FindContours(image_mat, storage, cv.CV_RETR_LIST, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
         
         return contours
     
@@ -145,44 +174,13 @@ class DcslVisionTracker(object):
 
 class DcslMiabotTracker(DcslVisionTracker):
 
-    def __init__(self, backgroundMat, binary_threshold, erode_iterations, minBlobSize, maxBlobSize, scale, storage, image_width, image_height):
-        DcslVisionTracker.__init__(self)
-        self.background = [backgroundMat] # A list of background images, index matches camera_id
-        self.threshold = binary_threshold
-        self.erode_iterations = erode_iterations
-        self.minBlobSize = minBlobSize
-        self.maxBlobSize = maxBlobSize
+    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale):
+        DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
         self.scale = scale
-        self.storage = storage
-        self.image_width = image_width
-        self.image_height = image_height
-
-        ## @var background
-        # A list of background images. The i
         
-        ## @var threshold
-        #
-
-        ## @var erode_iterations
-        #
-
-        ## @var minBlobSize
-        #
-        
-        ## @var maxBlobSize
-        #
-
         ## @var scale
-        #
-        
-        ## @var storage
-        # 
-        
-        ## @var image_width
-        # Width of the image to be tracked
+        # The conversion scale between pixels and meters in meters/pixel.
 
-        ## @var image_height
-        # Height of the image to be tracked
 
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
     #
@@ -213,7 +211,7 @@ class DcslMiabotTracker(DcslVisionTracker):
         while cr is not None:
             # Find area of blob and reject those not the size of a robot
             blob_size = cv.ContourArea(cr)
-            if blob_size > self.minBlobSize and blob_size < self.maxBlobSize:
+            if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
                 moments = cv.Moments(cr, False)
                 # Find center of blob
                 box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
@@ -252,16 +250,13 @@ class DcslMiabotTracker(DcslVisionTracker):
 
 class DcslBelugaTracker(DcslVisionTracker):
     
-    def __init__(self, background_list, threshold, erode_iterations, min_blob_size, max_blob_size, scale, storage, image_width, image_height):
-        self.background = background_list
-        self.threshold = threshold
-        self.erode_iterations = erode_iterations
-        self.min_blob_size = min_blob_size
-        self.max_blob_size = max_blob_size
+    def __init__(self, background_list, mask_list, threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale):
+        DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
         self.scale = scale
-        self.image_width = image_width
-        self.image_height = image_height
-        self.storage = storage
+        
+        ## @var scale
+        # The conversion scale between pixels and meters in meters/pixel.
+
 
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
     #
