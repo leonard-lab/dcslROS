@@ -38,9 +38,9 @@ class miabot_tracker:
         image_width = 1024
         image_height = 768
         self.storage = cv.CreateMemStorage()
-        self.tracker = DcslMiabotTracker(background, threshold, erode_iterations, min_blob_size, max_blob_size, scale, self.storage, image_width, image_height)
+        self.tracker = DcslMiabotTracker([background], None, threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale)
 
-        '''
+    
         # For testing
         temp1 = DcslPose()
         temp1.set_position((0,0,0))
@@ -49,7 +49,7 @@ class miabot_tracker:
         temp2.set_position((-1,-1,0))
         temp2.set_quaternion((0,0,0,0))
         self.current_states = [temp1,temp2]
-        '''
+        
 
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
     #
