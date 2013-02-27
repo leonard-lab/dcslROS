@@ -22,7 +22,17 @@ from munkres import Munkres
 # The subclass must have methods get_image_poses and coordinate_transform as defined in this class.
 class DcslVisionTracker(object):
 
-    ## Class initializer. This class needs no arguments or actions at initiation.
+    ## Class initializer. Loads arguments into object variables.
+    #
+    # @param background_list A list of background images. The ith list entry should be the background for camera id i.
+    # @param mask_list A list of masks. The ith list entry should be the mask for camera id i.
+    # @param threshold  The cut off brightness value for converting from a gray scale to binary image.
+    # @param erode_iterations The number of times to erode the binary image. This is used to eliminate small detected blobs. More iterations removes larger blobs.
+    # @param min_blob_size The minimum expected blob size in square pixels for a robot.
+    # @param max_blob_size The maximum expected blob size in square pixels for a robot.
+    # @param storage An OpenCV storage container created with cv.CreateMemStorage.
+    # @param image_width Width of the image to be tracked in pixels.
+    # @param image_height Height of the image to be tracked in pixels.
     def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height):  
         self.background_list = background_list
         self.mask_list = mask_list
@@ -36,6 +46,9 @@ class DcslVisionTracker(object):
 
         ## @var background
         # A list of background images. The ith list entry should be the background for camera id i.
+        
+        ## @var mask_list
+        # A list of masks. The ith list entry should be the mask for camera id i.
         
         ## @var threshold
         # The cut off brightness value for converting from a gray scale to binary image.
@@ -53,10 +66,10 @@ class DcslVisionTracker(object):
         # An OpenCV storage container created with cv.CreateMemStorage.
         
         ## @var image_width
-        # Width of the image to be tracked.
+        # Width of the image to be tracked in pixels.
 
         ## @var image_height
-        # Height of the image to be tracked.
+        # Height of the image to be tracked in pixels.
 
     ## Returns the poses of the robots in the image.
     #
@@ -185,6 +198,18 @@ class DcslVisionTracker(object):
 
 class DcslMiabotTracker(DcslVisionTracker):
 
+    ## Class initializer. Loads arguments into object variables.
+    #
+    # @param background_list A list of background images. The ith list entry should be the background for camera id i.
+    # @param mask_list A list of masks. The ith list entry should be the mask for camera id i.
+    # @param threshold  The cut off brightness value for converting from a gray scale to binary image.
+    # @param erode_iterations The number of times to erode the binary image. This is used to eliminate small detected blobs. More iterations removes larger blobs.
+    # @param min_blob_size The minimum expected blob size in square pixels for a robot.
+    # @param max_blob_size The maximum expected blob size in square pixels for a robot.
+    # @param storage An OpenCV storage container created with cv.CreateMemStorage.
+    # @param image_width Width of the image to be tracked in pixels.
+    # @param image_height Height of the image to be tracked in pixels.
+    # @param scale The converstion scale between pixels and meters in meters/pixel.
     def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale):
         DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
         self.scale = scale
@@ -282,14 +307,41 @@ class DcslMiabotTracker(DcslVisionTracker):
 #############################################################################
 
 class DcslBelugaTracker(DcslVisionTracker):
-    
-    def __init__(self, background_list, mask_list, threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale):
+
+     ## Class initializer. Loads arguments into object variables.
+    #
+    # @param background_list A list of background images. The ith list entry should be the background for camera id i.
+    # @param mask_list A list of masks. The ith list entry should be the mask for camera id i.
+    # @param threshold  The cut off brightness value for converting from a gray scale to binary image.
+    # @param erode_iterations The number of times to erode the binary image. This is used to eliminate small detected blobs. More iterations removes larger blobs.
+    # @param min_blob_size The minimum expected blob size in square pixels for a robot.
+    # @param max_blob_size The maximum expected blob size in square pixels for a robot.
+    # @param storage An OpenCV storage container created with cv.CreateMemStorage.
+    # @param image_width Width of the image to be tracked in pixels.
+    # @param image_height Height of the image to be tracked in pixels.
+    # @param scale The converstion scale between pixels and normalized coordinates in 1/pixel.
+    # @param translation_offset_list A list of tuples (o_x, o_y) where the ith tuple is the translation offset for camera i in meters.
+    # @param camera_height Height of camera above the water surface in meters.
+    # @param refraction_ratio (float) The ratio of the index of refraction of air to the index of refraction of water.
+    def __init__(self, background_list, mask_list, threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale, translation_offset_list, refraction_ratio):
         DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
         self.scale = scale
+        self.translation = translation_offset_list
+        self.camera_height = camera_height
+        self.refraction_ratio = refraction_ratio
         
         ## @var scale
         # The conversion scale between pixels and meters in meters/pixel.
 
+        ## @var translation
+        # A list of tuples (o_x, o_y) where the ith tuple is the translation offset for camera i in meters.
+        
+        ## @var camera_height
+        # Height of the camera above the water surface in meters.
+
+        ## @var refraction_ratio
+        # The ratio of the index of refraction of air to the index of refraction of water.
+        
 
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
     #
@@ -299,15 +351,28 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param camera_id (int) not required for miabot tracker.    
     def image_to_world(self, image_poses, estimated_poses, camera_id):
         world_poses = []
-        if camera_id is 0:
-            pass
-        if camera_id is 1:
-            pass
-        if camera_id is 2:
-            pass
-        if camera_id is 3:
-            pass
+        o_x = self.translation[camera_id][0]
+        o_y = self.translation[camera_id][1]
+        for idx, pose in enumerate(image_poses):
+            world_pose = DcslPose()
+            if pose.position[0] is not None:
+                world_z = estimated_poses[idx].position_z()
+                x_prime_image = pose.position_x() - 0.5*self.image_width
+                y_prime_image = -pose.position_y() - 0.5*self.image_height
+                x_prime_world = self.scale*x_prime_image*(self.camera_height - world_z)
+                y_prime_world = self.scale*y_prime_image*(self.camera_height - world_z)
+                theta1 = (pow(x_prime_world,2) + pow(y_prime_world,2))/(self.camera_height - world_z)
+                theta2 = m.asin(m.sin(theta1*self.refraction_ratio))
+                x_world = x_prime_world*m.tan(theta1)/m.tan(theta2) - o_x
+                y_world = y_prime_world*m.tan(theta1)/m.tan(theta2) - o_y
+                world_pose.set_position((x_world, y_world, z_world))
+                world_pose.set_quaternion((None, None, pose.quarternion_z(), None))
+                world_pose.set_detected(pose.detected)
+            world_poses.append(world_pose)       
         return world_poses
+    
+    
+        
 
 
     ## Applies coordinate transform from world frame to image frame on world_poses and returns image_poses.
@@ -317,14 +382,9 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param camera_id (int) not required for miabot tracker.
     def world_to_image(self, world_poses, camera_id):
         image_poses = []
-        if camera_id is 0:
-            pass
-        if camera_id is 1:
-            pass
-        if camera_id is 2:
-            pass
-        if camera_id is 3:
-            pass
+        o_x = self.translation[camera_id][0]
+        o_y = self.translation[camera_id][1]
+        for pose in world_poses
         return image_poses
 
 
