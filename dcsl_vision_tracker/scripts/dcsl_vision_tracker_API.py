@@ -80,7 +80,9 @@ class DcslVisionTracker(object):
     # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
     # @param camera_id (int) the number of the camera the image comes from. This is used in the coordinate_transform function to chose the correct transform.
     def get_poses(self, image, estimated_poses, camera_id):
-
+        
+        #Convert to greyscale
+        gray_image = self.convert_to_grayscale(image)
         # Find contours of blobs in the image
         contours = self.blob_contours(image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage)
         # Find poses of blobs in image reference frame
@@ -191,6 +193,15 @@ class DcslVisionTracker(object):
     # @param camera_id (int) is uses to apply for the correct transform in the case of multi-camera systems.
     def world_to_image(self, world_poses, camera_id):
         pass
+
+    ## Converts the image acquired from the camera to an 8-bit cvMat grayscale image.
+    #
+    # This function needs to be defined in the subclass if the camera is not receiving 8-bit cvMat images.
+    # @param image An image to be converted to grayscale.
+    # Return grayscale_image an 8-bit cvMat image.
+    def convert_to_grayscale(self, image):
+        grayscale_image = cv.CloneMat(image)
+        return grayscale_image
 
 
 #############################################################
@@ -308,7 +319,7 @@ class DcslMiabotTracker(DcslVisionTracker):
 
 class DcslBelugaTracker(DcslVisionTracker):
 
-     ## Class initializer. Loads arguments into object variables.
+    ## Class initializer. Loads arguments into object variables.
     #
     # @param background_list A list of background images. The ith list entry should be the background for camera id i.
     # @param mask_list A list of masks. The ith list entry should be the mask for camera id i.
@@ -341,7 +352,15 @@ class DcslBelugaTracker(DcslVisionTracker):
 
         ## @var refraction_ratio
         # The ratio of the index of refraction of air to the index of refraction of water.
-        
+     
+    
+    ##
+    #
+    #
+    def convert_to_grayscale(self, image):
+        grayscale_image = cv.CreateMat(image.height, image.width, CV_8UC1)
+        cv.CvtColor(image, grayscale_image, cv.BGR2GRAY)
+   
 
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
     #
@@ -366,14 +385,11 @@ class DcslBelugaTracker(DcslVisionTracker):
                 x_world = x_prime_world*m.tan(theta1)/m.tan(theta2) - o_x
                 y_world = y_prime_world*m.tan(theta1)/m.tan(theta2) - o_y
                 world_pose.set_position((x_world, y_world, z_world))
-                world_pose.set_quaternion((None, None, pose.quarternion_z(), None))
-                world_pose.set_detected(pose.detected)
+                world_pose.set_quaternion((None, None, pose.quaternion_z(), None))
+            world_pose.set_detected(pose.detected)
             world_poses.append(world_pose)       
         return world_poses
     
-    
-        
-
 
     ## Applies coordinate transform from world frame to image frame on world_poses and returns image_poses.
     #
@@ -384,8 +400,35 @@ class DcslBelugaTracker(DcslVisionTracker):
         image_poses = []
         o_x = self.translation[camera_id][0]
         o_y = self.translation[camera_id][1]
-        for pose in world_poses
+        for pose in world_poses:
+            image_pose = DcslPose()
+            if pose.position[0] is not None:
+                x = pose.position_x()
+                y = pose.position_y()
+                z = pose.position_z()
+                delta = 100000.0
+                theta1 = 0.1
+                while delta > 0.01:
+                    old_theta1 = theta1
+                    theta1 = theta1 - self.__f(theta1, x, y, z)/self.__delf(theta1, x, y, z)
+                    delta = abs(old_theta1-theta1)
+                theta2 = m.asin(m.sin(theta1)*self.refraction_ratio)
+                x_prime = x*m.tan(theta1)/tan(theta2)
+                y_prime = y*m.tan(theta1)/tan(theta2)
+                x_image = x_prime/(self.scale*(self.camera_height-z))
+                y_image = y_prime/(self.scale*(self.camera_height-z))
+                image_pose.set_position((x_image, y_image, z))
+                image_pose.set_quaternion((None, None, pose.quaternion_z(), None))
+            image_pose.set_detected(pose.detected)
+            image_poses.append(image_pose)
         return image_poses
+
+    def __f(self, theta1, x, y, z):
+        f = self.camera_height*m.tan(theta1) - z*m.tan(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5))-(pow(x,2)+pow(y,2))
+        return f
+    def __delf(self, theta1):
+        delf = self.camera_height*pow(m.sec(theta1),2) - self.refraction_ratio*z*pow(m.sec(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5)), 2)/pow(1-pow(self.refraction_ratio*theta1, 2), 1.5)
+        return delf
 
 
     ## Takes the contours found in an image and returns the positions and headings of the blobs in image frame coordinates
