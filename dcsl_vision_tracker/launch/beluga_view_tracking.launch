@@ -13,7 +13,7 @@
   </node >
 
   <node name="image4" pkg="image_view" type="image_view">
-    <remap from="image" to="/camera4/tracked_image" />
+    <remap from="image" to="/camera0/tracked_image" />
   </node >
 
 </launch>

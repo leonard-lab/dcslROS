@@ -61,25 +61,30 @@ class BelugaTracker:
         '''
 
         # Create tracker object from API
-        threshold = 100
-        erode_iterations = 1
-        min_blob_size = 500
+        binary_threshold = 25
+        erode_iterations = 3
+        min_blob_size = 20
         max_blob_size = 2000
-        scale = 1.7526/1024.0 #meters/pixel
+        scale = 1.45/3.05*1.0/204.0 # 1/pixels
+        camera_height = 3.14 # meters
+        refraction_ratio = 1.0/1.333 #refractive index of air/refractive index of water
         image_width = background_list[0].width
         image_height = background_list[0].height
+        o_cam1 = (1.0, 1.0)
+        o_cam2 = (-1.0, 1.0)
+        o_cam3 = (-1.0, -1.0)
+        o_cam4 = (1.0, -1.0)
+        translation_offset_list = [o_cam1, o_cam2, o_cam3, o_cam4]
+        print max_blob_size
         self.storage = cv.CreateMemStorage()
-        self.tracker = DcslBelugaTracker(background_list, threshold, erode_iterations, min_blob_size, max_blob_size, scale, self.storage, image_width, image_height)
+        self.tracker = DcslBelugaTracker(background_list, None, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
 
         
         # For testing
         temp1 = DcslPose()
         temp1.set_position((0,0,0))
         temp1.set_quaternion((0,0,0,0))
-        temp2 = DcslPose()
-        temp2.set_position((-1,-1,0))
-        temp2.set_quaternion((0,0,0,0))
-        self.current_states = [temp1,temp2]
+        self.current_states = [temp1]
         
 
     ## Callback function for when new images are received on camera0. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
@@ -90,19 +95,20 @@ class BelugaTracker:
         
         # Bridge image from ROS message to OpenCV
         try:
-            working_image = self.bridge.imgmsg_to_cv(data, "mono8")
+            working_image = self.bridge.imgmsg_to_cv(data, "bgr8")
         except CvBridgeError, e:
             print e
         
         # Find poses and place into a message
-        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
-        pose_array = self._dcsl_pose_to_ros_pose(image_poses)
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
+        image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
         # Publish measuremented poses
-        self.measurement_pub.publish(pose_array)
+        self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
-        output_image = self._tracking_overlay(working_image, image_poses, contours)
+        output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
                
         # Publish image with overlay
         try:
@@ -118,19 +124,20 @@ class BelugaTracker:
         
         # Bridge image from ROS message to OpenCV
         try:
-            working_image = self.bridge.imgmsg_to_cv(data, "mono8")
+            working_image = self.bridge.imgmsg_to_cv(data, "bgr8")
         except CvBridgeError, e:
             print e
         
         # Find poses and place into a message
-        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
-        pose_array = self._dcsl_pose_to_ros_pose(image_poses)
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
+        image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
         # Publish measuremented poses
-        self.measurement_pub.publish(pose_array)
+        self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
-        output_image = self._tracking_overlay(working_image, image_poses, contours)
+        output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
                
         # Publish image with overlay
         try:
@@ -146,19 +153,20 @@ class BelugaTracker:
         
         # Bridge image from ROS message to OpenCV
         try:
-            working_image = self.bridge.imgmsg_to_cv(data, "mono8")
+            working_image = self.bridge.imgmsg_to_cv(data, "bgr8")
         except CvBridgeError, e:
             print e
         
         # Find poses and place into a message
-        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
-        pose_array = self._dcsl_pose_to_ros_pose(image_poses)
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
+        image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
         # Publish measuremented poses
-        self.measurement_pub.publish(pose_array)
+        self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
-        output_image = self._tracking_overlay(working_image, image_poses, contours)
+        output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
                
         # Publish image with overlay
         try:
@@ -174,19 +182,20 @@ class BelugaTracker:
         
         # Bridge image from ROS message to OpenCV
         try:
-            working_image = self.bridge.imgmsg_to_cv(data, "mono8")
+            working_image = self.bridge.imgmsg_to_cv(data, "bgr8")
         except CvBridgeError, e:
             print e
         
         # Find poses and place into a message
-        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
-        pose_array = self._dcsl_pose_to_ros_pose(image_poses)
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
+        image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
         # Publish measuremented poses
-        self.measurement_pub.publish(pose_array)
+        self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
-        output_image = self._tracking_overlay(working_image, image_poses, contours)
+        output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
                
         # Publish image with overlay
         try:
@@ -194,9 +203,9 @@ class BelugaTracker:
         except CvBridgeError, e:
             print e  
 
-    def _dcsl_pose_to_ros_pose(self, image_poses):
+    def _dcsl_pose_to_ros_pose(self, dcsl_poses):
         pose_array = PoseArray()
-        for dcsl_pose in measurements:
+        for dcsl_pose in dcsl_poses:
             p = Pose()
             if dcsl_pose.detected:
                 p.position.x = dcsl_pose.position_x()
@@ -211,18 +220,18 @@ class BelugaTracker:
     def _tracking_overlay(self, image, image_poses, contours):
 
         # Create BGR8 image to be output
-        output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
-        cv.Merge(working_image,working_image,working_image, None, output_image)
+        output_image = cv.CloneMat(image)
 
         # Draw line and circle for heading and position
         length = 15.0
         radius = 5
         cyan = cv.RGB(0,255,255)
         for point in image_poses:
-            end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
-            center = (int(point.position_x()), int(point.position_y()))
-            cv.Line(output_image, center, end, cyan)
-            cv.Circle(output_image, center, radius, cyan)
+            if point.position[0] is not None:
+                end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
+                center = (int(point.position_x()), int(point.position_y()))
+                cv.Line(output_image, center, end, cyan)
+                cv.Circle(output_image, center, radius, cyan)
         # Draw contours
         cv.DrawContours(output_image, contours, cyan, cyan, 2)
 

@@ -34,7 +34,11 @@ class DcslVisionTracker(object):
     # @param image_width Width of the image to be tracked in pixels.
     # @param image_height Height of the image to be tracked in pixels.
     def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height):  
-        self.background_list = background_list
+        self.background_list = []
+        # Convert the given to grayscale in the same way the tracker does. It's better to do it this way than pre-convert.
+        for background in background_list:
+            gray_background = self.convert_to_grayscale(background)
+            self.background_list.append(gray_background)
         self.mask_list = mask_list
         self.threshold = binary_threshold
         self.erode_iterations = erode_iterations
@@ -82,14 +86,14 @@ class DcslVisionTracker(object):
     def get_poses(self, image, estimated_poses, camera_id):
         
         #Convert to greyscale
-        gray_image = self.convert_to_grayscale(image)
+        grayscale_image = self.convert_to_grayscale(image)
         # Find contours of blobs in the image
-        contours = self.blob_contours(image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage)
+        contours = self.blob_contours(grayscale_image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage)
         # Find poses of blobs in image reference frame
         sensed_image = self.get_image_poses(contours)
         # Transform estimated poses to image frame
         estimated_image = self.world_to_image(estimated_poses, camera_id)
-        #Match robots to estimates in image frame
+        # Match robots to estimates in image frame
         matched_sensed_image = self.match_robots(sensed_image, estimated_image)
         # Transform image frame coordinates to real world coordinates
         matched_sensed_world = self.image_to_world(matched_sensed_image, estimated_poses, camera_id)
@@ -334,7 +338,7 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param translation_offset_list A list of tuples (o_x, o_y) where the ith tuple is the translation offset for camera i in meters.
     # @param camera_height Height of camera above the water surface in meters.
     # @param refraction_ratio (float) The ratio of the index of refraction of air to the index of refraction of water.
-    def __init__(self, background_list, mask_list, threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale, translation_offset_list, refraction_ratio):
+    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio):
         DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
         self.scale = scale
         self.translation = translation_offset_list
@@ -358,8 +362,9 @@ class DcslBelugaTracker(DcslVisionTracker):
     #
     #
     def convert_to_grayscale(self, image):
-        grayscale_image = cv.CreateMat(image.height, image.width, CV_8UC1)
-        cv.CvtColor(image, grayscale_image, cv.BGR2GRAY)
+        grayscale_image = cv.CreateMat(image.height, image.width, cv.CV_8UC1)
+        cv.CvtColor(image, grayscale_image, cv.CV_BGR2GRAY)
+        return grayscale_image
    
 
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
@@ -375,12 +380,12 @@ class DcslBelugaTracker(DcslVisionTracker):
         for idx, pose in enumerate(image_poses):
             world_pose = DcslPose()
             if pose.position[0] is not None:
-                world_z = estimated_poses[idx].position_z()
+                z_world = estimated_poses[idx].position_z()
                 x_prime_image = pose.position_x() - 0.5*self.image_width
                 y_prime_image = -pose.position_y() - 0.5*self.image_height
-                x_prime_world = self.scale*x_prime_image*(self.camera_height - world_z)
-                y_prime_world = self.scale*y_prime_image*(self.camera_height - world_z)
-                theta1 = (pow(x_prime_world,2) + pow(y_prime_world,2))/(self.camera_height - world_z)
+                x_prime_world = self.scale*x_prime_image*(self.camera_height - z_world)
+                y_prime_world = self.scale*y_prime_image*(self.camera_height - z_world)
+                theta1 = (pow(x_prime_world,2) + pow(y_prime_world,2))/(self.camera_height - z_world)
                 theta2 = m.asin(m.sin(theta1*self.refraction_ratio))
                 x_world = x_prime_world*m.tan(theta1)/m.tan(theta2) - o_x
                 y_world = y_prime_world*m.tan(theta1)/m.tan(theta2) - o_y
@@ -403,18 +408,24 @@ class DcslBelugaTracker(DcslVisionTracker):
         for pose in world_poses:
             image_pose = DcslPose()
             if pose.position[0] is not None:
-                x = pose.position_x()
-                y = pose.position_y()
+                x = pose.position_x()+o_x
+                y = pose.position_y()+o_y
                 z = pose.position_z()
                 delta = 100000.0
-                theta1 = 0.1
+                theta1 = 0.4
+                '''
                 while delta > 0.01:
                     old_theta1 = theta1
+                    print "Theta 1: " + str(theta1)
+                    print "X: " + str(x)
+                    print "Y: " + str(y)
+                    print "Z: " + str(z)
                     theta1 = theta1 - self._f(theta1, x, y, z)/self._delf(theta1, x, y, z)
                     delta = abs(old_theta1-theta1)
+                '''
                 theta2 = m.asin(m.sin(theta1)*self.refraction_ratio)
-                x_prime = x*m.tan(theta1)/tan(theta2)
-                y_prime = y*m.tan(theta1)/tan(theta2)
+                x_prime = x*m.tan(theta1)/m.tan(theta2)
+                y_prime = y*m.tan(theta1)/m.tan(theta2)
                 x_image = x_prime/(self.scale*(self.camera_height-z))
                 y_image = y_prime/(self.scale*(self.camera_height-z))
                 image_pose.set_position((x_image, y_image, z))
@@ -426,8 +437,8 @@ class DcslBelugaTracker(DcslVisionTracker):
     def _f(self, theta1, x, y, z):
         f = self.camera_height*m.tan(theta1) - z*m.tan(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5))-(pow(x,2)+pow(y,2))
         return f
-    def _delf(self, theta1):
-        delf = self.camera_height*pow(m.sec(theta1),2) - self.refraction_ratio*z*pow(m.sec(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5)), 2)/pow(1-pow(self.refraction_ratio*theta1, 2), 1.5)
+    def _delf(self, theta1, x, y, z):
+        delf = self.camera_height*pow(m.cos(theta1),-2) - self.refraction_ratio*z*pow(m.cos(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5)), -2)/pow(1-pow(self.refraction_ratio*theta1, 2), 1.5)
         return delf
 
 
@@ -438,18 +449,27 @@ class DcslBelugaTracker(DcslVisionTracker):
     def get_image_poses(self, contours):
         image_poses = [] # List to store measured poses
         cr = contours #Copy contours to not change original variable
-        
         while cr is not None:
             # Find area of blob and reject those not the size of a robot
             blob_size = cv.ContourArea(cr)
             if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
                 moments = cv.Moments(cr, False)
-                # Find center of blob
-                ellipse = FitEllipse2(cr)
+                '''
+                # Fit ellipse to blob
+                PointArray2D32f = cv.CreateMat(1, len(cv), cv.CV_32FC2)
+                for (i, (x,y)) in enumerate(c):
+                PointArray2D32f[0,i] = (x,y)
+                ellipse = cv.FitEllipse2(PointArray2D32f)
+                # Find center and centroid of blob
                 center = (ellipse[0][0], ellipse[0][1])
+                '''
+                # Find center of blob
+                box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
+                ellipse = box
+                center = (box[0][0], box[0][1])
                 centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
                 # Estimate heading by drawing line from centroid to center and finding heading of line
-                theta_estimate = -m.atan2(center[1]-centroid[1],center[0]-centroid[0])
+                theta_estimate = -m.atan2(centroid[1]-center[1],centroid[0]-center[0])
                 # Theta is found using the minimum area box from above
                 theta_box = -m.pi/180.0*ellipse[2] #Angle in the first quadrant of the best fit ellipse with the x-axis
                 # Test angle of box in each quadrant to see which is closest to angle found from centroid
@@ -470,7 +490,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                 pose.set_position((center[0],center[1],0))
                 pose.set_quaternion((0,0,theta,0))
                 image_poses.append(pose)
-                del ellipse                
+                del ellipse, box                
             #Cycle to next contour
             cr=cr.h_next()
         del cr 
