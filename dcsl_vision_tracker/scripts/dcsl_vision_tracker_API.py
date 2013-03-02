@@ -410,7 +410,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                 theta1 = 0.1
                 while delta > 0.01:
                     old_theta1 = theta1
-                    theta1 = theta1 - self.__f(theta1, x, y, z)/self.__delf(theta1, x, y, z)
+                    theta1 = theta1 - self._f(theta1, x, y, z)/self._delf(theta1, x, y, z)
                     delta = abs(old_theta1-theta1)
                 theta2 = m.asin(m.sin(theta1)*self.refraction_ratio)
                 x_prime = x*m.tan(theta1)/tan(theta2)
@@ -423,10 +423,10 @@ class DcslBelugaTracker(DcslVisionTracker):
             image_poses.append(image_pose)
         return image_poses
 
-    def __f(self, theta1, x, y, z):
+    def _f(self, theta1, x, y, z):
         f = self.camera_height*m.tan(theta1) - z*m.tan(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5))-(pow(x,2)+pow(y,2))
         return f
-    def __delf(self, theta1):
+    def _delf(self, theta1):
         delf = self.camera_height*pow(m.sec(theta1),2) - self.refraction_ratio*z*pow(m.sec(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5)), 2)/pow(1-pow(self.refraction_ratio*theta1, 2), 1.5)
         return delf
 
