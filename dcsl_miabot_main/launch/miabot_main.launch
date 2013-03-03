@@ -6,12 +6,16 @@
     <param name="video_mode" value="1024x768_mono8" />
   </node>
 
-  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="miabot_tracker.py" >
+  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_miabot_tracker.py" >
     <param name="background_image" value="$(find dcsl_miabot_main)/parameters/background.png" />
   </node >
-  
+
+  <node name="tracked_image_viewer" pkg="image_view" type="image_view" >
+    <remap from="image" to="/tracked_image" />
+  </node >
+
   <group ns="robot" >
-    <node name="miabotA" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" >
+    <node name="miabotA" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" args="/dev/rfcomm0" >
       <remap from="/robot/cmd_vel" to="/cmd_vel0" />
     </node > 
   </group >    
