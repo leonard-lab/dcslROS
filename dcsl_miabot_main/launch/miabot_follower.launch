@@ -10,10 +10,14 @@
     <param name="video_mode" value="1024x768_mono8" />
   </node>
 
-  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="miabot_tracker.py" >
+  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_miabot_tracker.py" >
     <param name="background_image" value="$(find dcsl_miabot_main)/parameters/background.png" />
   </node >
   
+  <node name="tracked_image_viewer" pkg="image_view" type="image_view" >
+    <remap from="image" to="/tracked_image" />
+  </node >
+
   <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" >
     <!-- order of initial condition list is [x_1, y_1, theta_1, x_2, y_2, theta_2, etc] -->
     <!-- so as it is, place the rfcomm0 miabot to the right of rfcomm1 miabot, both facing right -->
