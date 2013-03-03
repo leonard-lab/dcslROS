@@ -4,11 +4,60 @@
 
 \b dcsl_state_estimator 
 
-<!-- 
-Provide an overview of your package.
--->
+This package provides state estimation for planar differential drive robots, using an extended Kalman-Bucy filter for continuous dynamics with discrete measurement updates.
 
--->
+\section rosapi ROS API
 
+List of nodes:
+- \b dcsl_miabot_state_estimator.cc
+
+List of libraries:
+- \b dcsl_miabot_estimator_math.h
+
+List of tests:
+- \b miabot_estimator_math_test.cc
+
+<hr>
+
+\subsection dcsl_miabot_state_estimator
+
+This node estimates the states (poses) of the robots based on incoming measurements from the vision tracker and control inputs from the low level controller. States are propagated and estimates published at a rate of at least 25 Hz (with more depending on rate of measurements).
+
+\subsection usage Usage
+\verbatim
+$ dcsl_miabot_state_estimator [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "planar_measurements/PoseArray" : contains array of poses of robots as measured by vision tracker.
+- \b "cmd_vel_array/TwistArray" : contains array of Twists describing velocity of each robot.
+
+Publishes to (name / type):
+- \b "state_estimate/PoseArray" : array "poses" holds estimate of current pose for each robot.
+
+\subsubsection parameters ROS parameters
+- \b "/n_robots"     : Number of robots to be controlled.
+- \b "initial_poses" : List of initial positions of robots in the system, in the format 
+						[x_0, y_0, theta_0, x_1, y_1, theta_1, ...].
+
+<hr>
+
+\subsection dcsl_miabot_estimator_math
+
+This is a C++ shared-object library that includes the math functions used in the state estimator. It depends on the Eigen linear algebra library for matrix computations.
+
+<hr>
+
+\subsection dcsl_miabot_state_estimator_test 
+
+Unit tests for the dcsl_miabot_estimator_math library using the Google gtest framework. (A work in progress...)
+
+To compile and run, from within the package folder type:
+\verbatim
+$ make tests
+$ make test
+\endverbatim
 
 */

@@ -4,11 +4,58 @@
 
 \b dcsl_miabot_driver 
 
-<!-- 
-Provide an overview of your package.
--->
+This package provides an interface to control Miabot PRO robots from Merlin System Corp. Ltd over a serial port connection. It also has a node for controlling the Miabot PRO directly with a joystick.
 
--->
+\section rosapi ROS API
 
+List of nodes:
+- \b dcsl_miabot_driver.py 
+- \b dcsl_miabot_joy
+
+<hr>
+
+\subsection dcsl_miabot_driver dcsl_miabot_driver.py
+
+This node subscribes to control inputs of velocity and angular velocity, converts these into the corresponding wheel speeds, and sends the wheel speed commands to the Miabot PRO over a serial connection.
+
+\subsection usage Usage
+\verbatim
+$ dcsl_miabot_driver.py <path to serial port> [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "cmd_vel/Twist" : linear.x is the desired linear speed in m/s; angular.z is the desired angular rotation rate in rad/s.
+
+Publishes to (name / type):
+None
+
+<hr>
+
+\subsection dcsl_miabot_joy dcsl_miabot_joy
+
+This node subscribes to joystick commands, translates these commands into a velocity and an angular velocity command and publishes them on cmd_vel.
+
+\subsubsection usage Usage
+\verbatim
+$ dcsl_miabot_joy [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "joy / Joy" : Joy message containing inputs from a joystick.
+
+Publishes to (name / type):
+- \b "cmd_vel / Twist" : linear.x is the desired linear speed in m/s; angular.z is the desired angular rotation rate in rad/s.
+
+\subsubsection parameters ROS parameters
+- \b "axis_linear" : Number of the axis of the joystick that should control velocity.
+- \b "axis_angular" : Number of the axis of the joystick that should control angular velocity.
+- \b "scale_linear" : The scaling factor used to translate from the [-1,1] range of the axis to the velocity of the robot in m/s.
+- \b "scale_angular" : The scaling factor used to translate from the [-1,1] range of the axis to the angular velocity of the robot in rad/s.
+
+<hr>
 
 */

@@ -4,11 +4,15 @@
 
 \b dcsl_miabot_main 
 
-<!-- 
-Provide an overview of your package.
--->
+This package only contains launch files for the DCSL Miabot platform.
 
--->
+The miabot_follower.launch file launches a demostration where the robot connected on /dev/rfcomm0 is controlled by a joystick and the robot on /dev/rfcomm1 follows the first robot under closed loop control.
 
+The miabot_main.launch file launches the whole system including the MATLAB interface. This file currently needs to be manually editted to direct how many robots to connect and which serial ports they are connected to.
+
+/subsection usage Usage
+/verbatim
+$ roslaunch dcsl_miabot_main <launchfile>
+/endverbatim
 
 */

@@ -4,11 +4,36 @@
 
 \b dcsl_swarm_director 
 
-<!-- 
-Provide an overview of your package.
--->
+This node subscribes to a TwistArray message and publishes each Twist in the TwistArray as a Twist messsage on new topics. It can be used to unpack commands send to multi-agent systems.
 
--->
+\section rosapi ROS API
 
+List of nodes:
+- \b dcsl_swarm_director
+
+<hr>
+
+\subsection dcsl_swarm_director dcsl_swarm_director
+
+\subsubsection usage Usage
+\verbatim
+$ dcsl_swarm_director.py [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "cmd_vel_array/TwistArray" : An array of Twist messages. TwistArray is defined in the dcsl_messages package.
+
+Publishes to (name / type):
+- \b "cmd_vel0/Twist" : The Twist messsage contained in the 0th entry of the subscribed TwistArray
+- \b "cmd_vel1/Twist" : The Twist message contained in the 1st entry of the subscribed TwistArray
+...
+- \b "cmd_velN/Twist" : The Twist message contained in the Nth entry of the subscibed Twist Array
+
+\subsubsection parameters ROS parameters
+- \b "/n_robots" : The number of Twist messages to expect in the TwistArray. This defines how many topics to publish Twist messages to.
+
+<hr>
 
 */

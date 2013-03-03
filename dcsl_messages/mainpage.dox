@@ -4,11 +4,28 @@
 
 \b dcsl_messages 
 
-<!-- 
-Provide an overview of your package.
--->
+This package contains the custom messages used by the DCSL ROS packages. The belugaInput message contains motor commands for the DCSL Beluga aquatic robots. The TwistArray message is an array of Twist messages similar to how a PoseArray is an array of Pose messages.
 
--->
+<hr>
 
+\subsection belugaInput belugaInput
+
+Defined in belugaInpunt.msg file.
+
+This message has the following properties (name / type):
+- \b "vertical_motor / int16" : Veritcal thurst motor input from -255 to 255
+- \b "thrust_motor / int16" : Horizontal thrust motor input from -255 to 255
+- \b "servo / int16" : Servo motor input that should be from -90 to 90
+
+<hr>
+
+\subsection TwistArray TwistArray
+
+Defined in TwistArray.msg file.
+
+This message has one property (name / type):
+- \b "twists / Twist[]" : an array of twist messages
+
+<hr>
 
 */

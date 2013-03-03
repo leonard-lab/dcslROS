@@ -1,10 +1,10 @@
 <package>
   <description brief="dcsl_low_level_control">
 
-     dcsl_low_level_control
+     The dcsl_low_level_control package contains dcsl_miabot_low_level_control node and dcsl_miabot_control_math library. This purpose of this package is to link output from high level control to low level velocity inputs for the swarm controller.
 
   </description>
-  <author>bandrade</author>
+  <author>Will Scott</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dcsl_low_level_control</url>
