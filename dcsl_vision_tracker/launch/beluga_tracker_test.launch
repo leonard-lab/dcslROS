@@ -1,0 +1,13 @@
+<launch>
+	
+  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_beluga_tracker.py" output="screen">
+    <param name="background_image0" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background4.png" />
+    <param name="background_image1" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background1.png" />
+    <param name="background_image2" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background2.png" />
+    <param name="background_image3" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background3.png" />
+    <remap from="state_estimate" to="planar_measurements" />
+    <remap from="tracked_image" to="output_image" />
+    <remap from="/camera0/image_raw" to="/camera4/image_raw" />
+  </node >
+
+</launch >

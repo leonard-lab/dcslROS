@@ -1,4 +1,7 @@
 guid: 000a47010f093052
 video_mode: 640x480_mono8
+frame_rate: 30.0
+bayer_pattern: "rggb"
+bayer_method: "HQ"
 frame_id: frame1
 camera_info_url: package://dcsl_vision_tracker/config/000a47010f093052.yaml
