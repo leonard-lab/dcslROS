@@ -12,8 +12,13 @@ import rospy
 from geometry_msgs.msg import PoseArray,Pose
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from dynamic_reconfigure.server import Server
+from dcsl_vision_tracker.cfg import dcsl_miabot_tracker_configConfig as Config
+
 import cv
 import math as m
+
+
 
 from dcsl_vision_tracker_API import DcslMiabotTracker, DcslPose
 
@@ -27,6 +32,7 @@ class miabot_tracker:
         self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.imageCallback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
+        self.srv = Server(Config, self.parameter_callback)
 
         location = rospy.get_param('/vision_tracker/background_image')
         background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
@@ -116,11 +122,29 @@ class miabot_tracker:
             temp.set_quaternion((0,0,theta,0))
             self.current_states.append(temp)
 
+    ## Call back function for parameter updates.
+    #
+    # @param config data received for parameter update
+    # @param level
+    def parameter_callback(self, config, level):
+        if "tracker" in self.__dict__:
+            self.tracker.threshold = config["binary_threshold"]
+            self.tracker.erode_iterations = config["erode_iterations"]
+            self.tracker.min_blob_size = config["min_blob_size"]
+            self.tracker.max_blob_size = config["max_blob_size"]
+            self.tracker.scale = config["scale"]
+            location = config["background_file"]
+            background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
+            self.background_list = [background]
+        rospy.logdebug("""Reconfigure Request: {background_file}, {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}, {scale}""".format(**config))
+        return config
+    
+
 ## Runs on the startup of the node. Initializes the node and creates the MiabotTracker object.
 def main():
     rospy.init_node('dcsl_miabot_tracker')
     tracker = miabot_tracker()
-
+    
     try:
         rospy.spin()
     except KeyboardInterrupt:
