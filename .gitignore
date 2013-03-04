@@ -16,4 +16,5 @@ lib/
 *.bag*
 .git-rewrite
 html/*
-
+*docs*
+*.cfgc
