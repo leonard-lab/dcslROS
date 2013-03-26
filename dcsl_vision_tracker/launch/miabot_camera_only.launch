@@ -1,0 +1,5 @@
+<launch>
+  <node name="camera" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/miabot_camera.yaml" />
+  </node >
+</launch >
