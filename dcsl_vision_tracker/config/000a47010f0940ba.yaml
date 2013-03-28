@@ -4,12 +4,12 @@ camera_name: miabot_camera
 camera_matrix:
   rows: 3
   cols: 3
-  data: [1336.302097, 0, 493.878664, 0, 1341.382294, 356.303878, 0, 0, 1]
+  data: [1297.234575, 0, 477.676971, 0, 1293.852207, 394.634391, 0, 0, 1]
 distortion_model: plumb_bob
 distortion_coefficients:
   rows: 1
   cols: 5
-  data: [-0.119011, 0.172985, -0.00811, -0.007725, 0]
+  data: [-0.14928, 0.277583, -0.000632, -0.0067, 0]
 rectification_matrix:
   rows: 3
   cols: 3
@@ -17,4 +17,4 @@ rectification_matrix:
 projection_matrix:
   rows: 3
   cols: 4
-  data: [1316.720337, 0, 488.056158, 0, 0, 1327.19873, 352.599855, 0, 0, 0, 1, 0]
+  data: [1272.505371, 0, 472.268622, 0, 0, 1278.32666, 394.08135, 0, 0, 0, 1, 0]
