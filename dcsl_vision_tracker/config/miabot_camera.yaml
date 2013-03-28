@@ -2,4 +2,6 @@ guid: 000a47010f0940ba
 video_mode: 1024x768_mono8
 frame_rate: 15.0
 frame_id: frame0
+auto_gain: 3
+gain: 450
 camera_info_url: package://dcsl_vision_tracker/config/000a47010f0940ba.yaml
