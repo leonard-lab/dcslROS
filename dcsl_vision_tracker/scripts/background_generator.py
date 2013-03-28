@@ -16,7 +16,7 @@ from cv_bridge import CvBridge, CvBridgeError
 class background_generator:
     ## Creates the subscriber, sets properties defining how many images to average, and creates teh CvBridge object.
     def __init__(self, image_type):
-        self.image_sub = rospy.Subscriber("/camera/image_raw", Image, self.callback)
+        self.image_sub = rospy.Subscriber("image", Image, self.callback)
         self.bridge = CvBridge()
         self.n = 5
         self.count = 1

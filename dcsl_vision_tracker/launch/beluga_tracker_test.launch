@@ -7,7 +7,7 @@
     <param name="background_image3" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background3.png" />
     <remap from="state_estimate" to="planar_measurements" />
     <remap from="tracked_image" to="output_image" />
-    <remap from="/camera0/image_raw" to="/camera4/image_raw" />
+    <remap from="/camera0/image_rect_color" to="/camera4/image_rect_color" />
   </node >
 
 </launch >

@@ -2,22 +2,22 @@
   
   <node pkg="dcsl_vision_tracker" type="background_generator.py" name="background_generator1" output="screen" args="bgr8" > 
     <param name="image_name" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background1.png" />
-    <remap from="/camera/image_raw" to="camera1/image_raw" />
+    <remap from="image" to="camera1/image_rect_color" />
   </node >
 
   <node pkg="dcsl_vision_tracker" type="background_generator.py" name="background_generator2" args="bgr8" >
     <param name="image_name" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background2.png" />
-    <remap from="/camera/image_raw" to="camera2/image_raw" />
+    <remap from="image" to="camera2/image_rect_color" />
   </node >
 
   <node pkg="dcsl_vision_tracker" type="background_generator.py" name="background_generator3" args="bgr8" >
     <param name="image_name" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background3.png" />
-    <remap from="/camera/image_raw" to="camera3/image_raw" />
+    <remap from="image" to="camera3/image_rect_color" />
   </node >
 
   <node pkg="dcsl_vision_tracker" type="background_generator.py" name="background_generator4" args="bgr8" >
     <param name="image_name" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background4.png" />
-    <remap from="/camera/image_raw" to="camera4/image_raw" />
+    <remap from="image" to="camera4/image_rect_color" />
   </node >
 
 </launch >

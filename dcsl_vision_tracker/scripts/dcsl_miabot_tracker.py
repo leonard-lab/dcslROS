@@ -29,7 +29,7 @@ class miabot_tracker:
     def __init__(self):
         self.image_pub = rospy.Publisher("tracked_image",Image)
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        self.image_sub = rospy.Subscriber("/camera/image_raw",Image,self.imageCallback)
+        self.image_sub = rospy.Subscriber("/camera/image_rect",Image,self.imageCallback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
         self.srv = Server(Config, self.parameter_callback)

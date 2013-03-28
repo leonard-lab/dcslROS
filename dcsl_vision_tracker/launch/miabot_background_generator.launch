@@ -1,0 +1,8 @@
+<launch>
+  
+  <node pkg="dcsl_vision_tracker" type="background_generator.py" name="background_generator" args="mono8" >
+    <param name="image_name" value="$(find dcsl_vision_tracker)/config/miabot_background.png" />
+    <remap from="image" to="camera/image_rect" />
+  </node>
+
+</launch>

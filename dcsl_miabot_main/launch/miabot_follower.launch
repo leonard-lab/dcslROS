@@ -6,12 +6,16 @@
 -->  
   <param name="/n_robots" value="2" />
 
-  <node name="camera1" pkg="camera1394" type="camera1394_node" >
-    <param name="video_mode" value="1024x768_mono8" />
+  <node name="camera" pkg="camera1394" type="camera1394_node" >
+    <rosparam file="$(find dcsl_vision_tracker)/config/miabot_camera.yaml" />
+  </node>
+
+  <node name="image_proc" pkg="image_proc" type="image_proc" ns="camera" >
+    <remap from="image" to="camera/image_raw" />
   </node>
 
   <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_miabot_tracker.py" >
-    <param name="background_image" value="$(find dcsl_miabot_main)/parameters/background.png" />
+    <param name="background_image" value="$(find dcsl_vision_tracker)/config/miabot_background.png" />
   </node >
   
   <node name="tracked_image_viewer" pkg="image_view" type="image_view" >
