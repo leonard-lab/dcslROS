@@ -111,18 +111,21 @@ class DcslVisionTracker(object):
         
         image_mat = cv.CloneMat(image)
         
-        #Subtract the background image
+        # Subtract the background image
         cv.AbsDiff(image_mat, background_mat, image_mat)
 
-        #Convert to binary image by thresholding
+        # Convert to binary image by thresholding
         cv.Threshold(image_mat, image_mat, binary_threshold, 255, cv.CV_THRESH_BINARY)
 
-        #Apply mask
+        # Apply mask
         if mask_mat:
-            cv.Min(image_mat, mask_mat, image_mat); #mask image should be black (0) where masking should be applied and white (255) in the working area
+            cv.Min(image_mat, mask_mat, image_mat); # mask image should be black (0) where masking should be applied and white (255) in the working area
 
-        #Erode small holes in binary image
+        # Erode small holes in binary image
         cv.Erode(image_mat, image_mat, None, erode_iterations)
+
+        # Dilate remaining holes to offset erode
+        cv.Dilate(image_mat, image_mat, None, erode_iterations)
 
         #Find contours
         contours = cv.FindContours(image_mat, storage, cv.CV_RETR_LIST, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
