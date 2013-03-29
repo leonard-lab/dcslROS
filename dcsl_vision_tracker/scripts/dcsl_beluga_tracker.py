@@ -75,7 +75,6 @@ class BelugaTracker:
         o_cam3 = (-1.0, -1.0)
         o_cam4 = (1.0, -1.0)
         translation_offset_list = [o_cam1, o_cam2, o_cam3, o_cam4]
-        print max_blob_size
         self.storage = cv.CreateMemStorage()
         self.tracker = DcslBelugaTracker(background_list, None, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
 
