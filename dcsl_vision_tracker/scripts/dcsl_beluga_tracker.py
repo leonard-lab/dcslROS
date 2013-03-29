@@ -12,6 +12,8 @@ import rospy
 from geometry_msgs.msg import PoseArray,Pose
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from dynamic_reconfigure.server import Server
+from dcsl_vision_tracker.cfg import dcsl_beluga_tracker_configConfig as Config
 import cv
 import math as m
 
@@ -34,6 +36,7 @@ class BelugaTracker:
         self.image3_sub = rospy.Subscriber("/camera3/image_rect_color", Image, self.image3Callback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
+        self.srv = Server(Config, self.parameter_callback)
 
         # Load background images
         background_list = []
@@ -250,6 +253,22 @@ class BelugaTracker:
             temp.set_position((pos_x,pos_y,0))
             temp.set_quaternion((0,0,theta,0))
             self.current_states.append(temp)
+
+    ## Callback function for parameter updates.
+    #
+    #@param config data received for parameter update
+    #@param level
+    def parameter_callback(self, config, level):
+        if "tracker" in self.__dict__:
+            self.tracker.threshold = config["binary_threshold"]
+            self.tracker.erode_iterations = config["erode_iterations"]
+            self.tracker.min_blob_size = config["min_blob_size"]
+            self.tracker.max_blob_size = config["max_blob_size"]
+            self.tracker.scale = config["scale"]
+            self.tracker.camera_height = config["camera_height"]
+        rospy.logdebug
+        return config
+
 
 ## Runs on the startup of the node. Initializes the node and creates the BelugaTracker object.
 def main():
