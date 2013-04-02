@@ -20,11 +20,12 @@ class PassthroughEstimator:
         
 
     def planar_callback(self, data):
-        measured_pose = data.poses[0]
-        measured_pose.position.z = self.depth
-        array = PoseArray()
-        array.poses.append(measured_pose)
-        self.pub.publish(array)
+        if data.poses[0].orientation.w == 1:
+            measured_pose = data.poses[0]
+            measured_pose.position.z = self.depth
+            array = PoseArray()
+            array.poses.append(measured_pose)
+            self.pub.publish(array)
 
 def main():
     rospy.init_node('passthrough_estimator')
