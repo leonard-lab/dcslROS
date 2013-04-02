@@ -88,7 +88,7 @@ class DcslVisionTracker(object):
         #Convert to greyscale
         grayscale_image = self.convert_to_grayscale(image)
         # Find contours of blobs in the image
-        contours = self.blob_contours(grayscale_image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage)
+        contours = self.blob_contours(grayscale_image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage, self.mask_list[camera_id])
         # Find poses of blobs in image reference frame
         sensed_image = self.get_image_poses(contours)
         # Transform estimated poses to image frame
