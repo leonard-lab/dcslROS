@@ -49,19 +49,16 @@ class BelugaTracker:
         location3 = rospy.get_param('/vision_tracker/background_image3')
         background_list.append(cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_COLOR))
 
-        '''
-
         # Load masks
+        mask_list = []
         location0 = rospy.get_param('/vision_tracker/mask0')
-        self.mask0 = cv.LoadImageM(location0, cv.CV_LOAD_IMAGE_GREYSCALE)
+        mask_list.append(cv.LoadImageM(location0, cv.CV_LOAD_IMAGE_GRAYSCALE))
         location1 = rospy.get_param('/vision_tracker/mask1')
-        self.mask1 = cv.LoadImageM(location1, cv.CV_LOAD_IMAGE_GREYSCALE)
+        mask_list.append(cv.LoadImageM(location1, cv.CV_LOAD_IMAGE_GRAYSCALE))
         location2 = rospy.get_param('/vision_tracker/mask2')
-        self.mask2 = cv.LoadImageM(location2, cv.CV_LOAD_IMAGE_GREYSCALE)
+        mask_list.append(cv.LoadImageM(location2, cv.CV_LOAD_IMAGE_GRAYSCALE))
         location3 = rospy.get_param('/vision_tracker/mask3')
-        self.mask3 = cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_GREYSCALE)
-
-        '''
+        mask_list.append(cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_GRAYSCALE))
 
         # Create tracker object from API
         binary_threshold = 25
@@ -79,7 +76,7 @@ class BelugaTracker:
         R_cam4 = (0.996, -1.908, 5.52)
         translation_offset_list = [R_cam1, R_cam2, R_cam3, R_cam4]
         self.storage = cv.CreateMemStorage()
-        self.tracker = DcslBelugaTracker(background_list, None, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
+        self.tracker = DcslBelugaTracker(background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
 
         
         # For testing
