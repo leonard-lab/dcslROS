@@ -84,7 +84,7 @@ class BelugaTracker:
         
         # For testing
         temp1 = DcslPose()
-        temp1.set_position((0,0,0))
+        temp1.set_position((-2,-2,0))
         temp1.set_quaternion((0,0,0,0))
         self.current_states = [temp1]
         
@@ -228,12 +228,13 @@ class BelugaTracker:
         length = 15.0
         radius = 5
         cyan = cv.RGB(0,255,255)
+        red = cv.RGB(255, 0, 0)
         for point in image_poses:
             if point.position[0] is not None:
                 end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
                 center = (int(point.position_x()), int(point.position_y()))
-                cv.Line(output_image, center, end, cyan)
-                cv.Circle(output_image, center, radius, cyan)
+                cv.Line(output_image, center, end, red)
+                cv.Circle(output_image, center, radius, red)
         # Draw contours
         cv.DrawContours(output_image, contours, cyan, cyan, 2)
 
@@ -249,8 +250,9 @@ class BelugaTracker:
             temp = DcslPose()
             pos_x = pose.position.x
             pos_y = pose.position.y
+            pos_z = pose.position.z
             theta = pose.orientation.z
-            temp.set_position((pos_x,pos_y,0))
+            temp.set_position((pos_x,pos_y,pos_z))
             temp.set_quaternion((0,0,theta,0))
             self.current_states.append(temp)
 
