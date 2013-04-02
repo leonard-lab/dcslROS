@@ -249,7 +249,7 @@ class DcslMiabotTracker(DcslVisionTracker):
             if pose.position[0] is not None:
                 sensed_x = (pose.position[0]-0.5*self.image_width)*self.scale
                 sensed_y = -(pose.position[1]-0.5*self.image_height)*self.scale
-                sensed_pose.set_position((sensed_x,sensed_y,0))
+                sensed_pose.set_position((sensed_x,sensed_y, None))
                 sensed_pose.set_quaternion((None,None,pose.quaternion[2],None))
                 if pose.detected:
                     sensed_pose.set_detected(True)
@@ -394,7 +394,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                 y_camera = 1/alpha*(y_image - 0.5*self.image_height)*z_camera*beta
                 x_world = x_camera + R_x
                 y_world = -y_camera + R_y
-                world_pose.set_position((x_world, y_world, z_world))
+                world_pose.set_position((x_world, y_world, None))
                 world_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             world_pose.set_detected(pose.detected)
             world_poses.append(world_pose)       
@@ -432,7 +432,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                 y_camera_prime = y_camera * 1/beta
                 x_image = alpha * x_camera_prime/z_camera + self.image_width*0.5
                 y_image = alpha * y_camera_prime/z_camera + self.image_height*0.5
-                image_pose.set_position((x_image, y_image, z_world))
+                image_pose.set_position((x_image, y_image, None))
                 image_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             image_pose.set_detected(pose.detected)
             image_poses.append(image_pose)
