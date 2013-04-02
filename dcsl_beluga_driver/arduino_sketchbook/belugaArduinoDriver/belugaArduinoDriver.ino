@@ -43,10 +43,10 @@ ros::Publisher depth("depth_measurement", &rawDepth);
 //Callback function for receiving motor inputs
 void command( const dcsl_messages::belugaInput& input){
   if (input.vertical_motor > 0){
-    digitalWrite(dir2Pin, HIGH);
+    digitalWrite(dir2Pin, LOW);
   }
   else {
-    digitalWrite(dir2Pin, LOW);
+    digitalWrite(dir2Pin, HIGH);
   }
   analogWrite(en2Pin, abs(input.vertical_motor));
   

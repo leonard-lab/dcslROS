@@ -1,7 +1,7 @@
 <launch>
 
  <!-- dcsl_miabot_driver Node-->
-  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node" args="/dev/ttyUSB0" />
+  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node" args="/dev/ttyUSB1" />
 
 
  <!-- joy node -->
