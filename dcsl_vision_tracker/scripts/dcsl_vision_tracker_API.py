@@ -378,26 +378,34 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param camera_id (int) not required for miabot tracker.    
     def image_to_world(self, image_poses, estimated_poses, camera_id):
         world_poses = []
-        o_x = self.translation[camera_id][0]
-        o_y = self.translation[camera_id][1]
+        R_x = self.translation[camera_id][0]
+        R_y = self.translation[camera_id][1]
+        R_z = self.translation[camera_id][2]
+        alpha = self.scale
         for idx, pose in enumerate(image_poses):
             world_pose = DcslPose()
             if pose.position[0] is not None:
                 z_world = estimated_poses[idx].position_z()
-                x_prime_image = pose.position_x() - 0.5*self.image_width
-                y_prime_image = -pose.position_y() - 0.5*self.image_height
-                x_prime_world = self.scale*x_prime_image*(self.camera_height - z_world)
-                y_prime_world = self.scale*y_prime_image*(self.camera_height - z_world)
-                theta1 = (pow(x_prime_world,2) + pow(y_prime_world,2))/(self.camera_height - z_world)
-                theta2 = m.asin(m.sin(theta1*self.refraction_ratio))
-                x_world = x_prime_world*m.tan(theta1)/m.tan(theta2) - o_x
-                y_world = y_prime_world*m.tan(theta1)/m.tan(theta2) - o_y
+                x_image = pose.position_x()
+                y_image = pose.position_y()
+                z_camera = -1*(z_world-R_z)
+                beta = self._beta(z_camera)
+                x_camera = 1/alpha*(x_image - 0.5*self.image_width)*z_camera*beta
+                y_camera = 1/alpha*(y_image - 0.5*self.image_height)*z_camera*beta
+                x_world = x_camera + R_x
+                y_world = -y_camera + R_y
                 world_pose.set_position((x_world, y_world, z_world))
                 world_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             world_pose.set_detected(pose.detected)
             world_poses.append(world_pose)       
         return world_poses
-    
+
+    def _beta(self, z_camera):
+        H = self.camera_height
+        rir = self.refraction_ratio
+        beta = pow(rir + (1 - rir)*H/z_camera, 0.5)
+        return beta
+
 
     ## Applies coordinate transform from world frame to image frame on world_poses and returns image_poses.
     #
@@ -406,32 +414,25 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param camera_id (int) not required for miabot tracker.
     def world_to_image(self, world_poses, camera_id):
         image_poses = []
-        o_x = self.translation[camera_id][0]
-        o_y = self.translation[camera_id][1]
+        R_x = self.translation[camera_id][0]
+        R_y = self.translation[camera_id][1]
+        R_z = self.translation[camera_id][2]
+        alpha = self.scale
         for pose in world_poses:
             image_pose = DcslPose()
             if pose.position[0] is not None:
-                x = pose.position_x()+o_x
-                y = pose.position_y()+o_y
-                z = pose.position_z()
-                delta = 100000.0
-                theta1 = 0.4
-                '''
-                while delta > 0.01:
-                    old_theta1 = theta1
-                    print "Theta 1: " + str(theta1)
-                    print "X: " + str(x)
-                    print "Y: " + str(y)
-                    print "Z: " + str(z)
-                    theta1 = theta1 - self._f(theta1, x, y, z)/self._delf(theta1, x, y, z)
-                    delta = abs(old_theta1-theta1)
-                '''
-                theta2 = m.asin(m.sin(theta1)*self.refraction_ratio)
-                x_prime = x*m.tan(theta1)/m.tan(theta2)
-                y_prime = y*m.tan(theta1)/m.tan(theta2)
-                x_image = x_prime/(self.scale*(self.camera_height-z))
-                y_image = y_prime/(self.scale*(self.camera_height-z))
-                image_pose.set_position((x_image, y_image, z))
+                x_world = pose.position_x()
+                y_world = pose.position_y()
+                z_world = pose.position_z()
+                x_camera = x_world - R_x
+                y_camera = -1*(y_world - R_y)
+                z_camera = -1*(z_world - R_z)
+                beta = self._beta(z_camera)
+                x_camera_prime = x_camera * 1/beta
+                y_camera_prime = y_camera * 1/beta
+                x_image = alpha * x_camera_prime/z_camera + self.image_width*0.5
+                y_image = alpha * y_camera_prime/z_camera + self.image_height*0.5
+                image_pose.set_position((x_image, y_image, z_world))
                 image_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             image_pose.set_detected(pose.detected)
             image_poses.append(image_pose)
