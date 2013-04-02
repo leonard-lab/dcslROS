@@ -62,7 +62,7 @@ class BelugaTracker:
 
         # Create tracker object from API
         binary_threshold = 25
-        erode_iterations = 3
+        erode_iterations = 4
         min_blob_size = 20
         max_blob_size = 2000
         scale = pow(1.45/3.05*1.0/204.0, -1) # 1/pixels

@@ -449,7 +449,7 @@ dcsl_beluga_tracker_configConfig::GroupDescription<dcsl_beluga_tracker_configCon
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       __max__.erode_iterations = 10;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
-      __default__.erode_iterations = 3;
+      __default__.erode_iterations = 4;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       Default.abstract_parameters.push_back(dcsl_beluga_tracker_configConfig::AbstractParamDescriptionConstPtr(new dcsl_beluga_tracker_configConfig::ParamDescription<int>("erode_iterations", "int", 0, "Level of eroding to get rid of small contours", "", &dcsl_beluga_tracker_configConfig::erode_iterations)));
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
@@ -479,7 +479,7 @@ dcsl_beluga_tracker_configConfig::GroupDescription<dcsl_beluga_tracker_configCon
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       __max__.scale = std::numeric_limits<double>::infinity();
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
-      __default__.scale = 0.0216789215686;
+      __default__.scale = 46.1277557942;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       Default.abstract_parameters.push_back(dcsl_beluga_tracker_configConfig::AbstractParamDescriptionConstPtr(new dcsl_beluga_tracker_configConfig::ParamDescription<double>("scale", "double", 0, "Conversion factor for pixels to real world in 1/pixels", "", &dcsl_beluga_tracker_configConfig::scale)));
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
