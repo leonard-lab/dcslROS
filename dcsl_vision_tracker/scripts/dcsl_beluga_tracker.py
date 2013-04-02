@@ -68,16 +68,16 @@ class BelugaTracker:
         erode_iterations = 3
         min_blob_size = 20
         max_blob_size = 2000
-        scale = 1.45/3.05*1.0/204.0 # 1/pixels
+        scale = pow(1.45/3.05*1.0/204.0, -1) # 1/pixels
         camera_height = 3.14 # meters
         refraction_ratio = 1.0/1.333 #refractive index of air/refractive index of water
         image_width = background_list[0].width
         image_height = background_list[0].height
-        o_cam1 = (1.0, 1.0)
-        o_cam2 = (-1.0, 1.0)
-        o_cam3 = (-1.0, -1.0)
-        o_cam4 = (1.0, -1.0)
-        translation_offset_list = [o_cam1, o_cam2, o_cam3, o_cam4]
+        R_cam1 = (0.984, 1.956, 5.52)
+        R_cam2 = (-1.021, 1.956, 5.52)
+        R_cam3 = (-1.057, -2.005, 5.52)
+        R_cam4 = (0.996, -1.908, 5.52)
+        translation_offset_list = [R_cam1, R_cam2, R_cam3, R_cam4]
         self.storage = cv.CreateMemStorage()
         self.tracker = DcslBelugaTracker(background_list, None, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
 
