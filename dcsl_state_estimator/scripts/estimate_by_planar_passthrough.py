@@ -16,7 +16,7 @@ class PassthroughEstimator:
         self.pub = rospy.Publisher("state_estimate", PoseArray)
 
     def depth_callback(self, data):
-        self.depth = 2.38-data.data
+        self.depth = data.data
         
 
     def planar_callback(self, data):

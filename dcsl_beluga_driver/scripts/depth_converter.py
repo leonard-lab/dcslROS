@@ -14,8 +14,8 @@ class DepthConverter:
         self.sub = rospy.Subscriber("depth_measurement", Int16, self.callback)
 
     def callback(self, data):
-        reading_air = 135
-        reading_water = 615
+        reading_air = 123
+        reading_water = 604
         depth_of_reading_water = 2.0066 #meters
         tank_depth = 2.3876
         depth_meters = tank_depth-(depth_of_reading_water/(reading_water-reading_air)*(data.data-reading_air))
