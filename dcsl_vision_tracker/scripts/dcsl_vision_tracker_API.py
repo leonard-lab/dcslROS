@@ -308,9 +308,10 @@ class DcslMiabotTracker(DcslVisionTracker):
                     error = pow(theta_estimate-theta_test,2)
                     if previous_error < 0:
                         theta = theta_test
+                        previous_error = error
                     elif error < previous_error:
                         theta = theta_test
-                    previous_error = error
+                        previous_error = error
                 # Append found pose to image_poses list
                 pose = DcslPose()
                 pose.set_position((center[0],center[1],0))
@@ -487,6 +488,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                         error = pow(theta_estimate-theta_test,2)
                         if previous_error < 0:
                             theta = theta_test
+                            previous_error = error
                         elif error < previous_error:
                             theta = theta_test
                             previous_error = error
