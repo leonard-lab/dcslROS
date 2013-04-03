@@ -457,9 +457,9 @@ dcsl_beluga_tracker_configConfig::GroupDescription<dcsl_beluga_tracker_configCon
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       __min__.min_blob_size = 0;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
-      __max__.min_blob_size = 1000;
+      __max__.min_blob_size = 2000;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
-      __default__.min_blob_size = 20;
+      __default__.min_blob_size = 500;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       Default.abstract_parameters.push_back(dcsl_beluga_tracker_configConfig::AbstractParamDescriptionConstPtr(new dcsl_beluga_tracker_configConfig::ParamDescription<int>("min_blob_size", "int", 0, "Minimum area of the robot in square pixels", "", &dcsl_beluga_tracker_configConfig::min_blob_size)));
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
@@ -467,7 +467,7 @@ dcsl_beluga_tracker_configConfig::GroupDescription<dcsl_beluga_tracker_configCon
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       __min__.max_blob_size = 0;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
-      __max__.max_blob_size = 2000;
+      __max__.max_blob_size = 3000;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
       __default__.max_blob_size = 2000;
 //#line 259 "/opt/ros/fuerte/stacks/dynamic_reconfigure/src/dynamic_reconfigure/parameter_generator.py"
