@@ -17,7 +17,6 @@ class PassthroughEstimator:
 
     def depth_callback(self, data):
         self.depth = data.data
-        
 
     def planar_callback(self, data):
         if data.poses[0].orientation.w == 1:
