@@ -367,7 +367,13 @@ class DcslBelugaTracker(DcslVisionTracker):
     #
     def convert_to_grayscale(self, image):
         grayscale_image = cv.CreateMat(image.height, image.width, cv.CV_8UC1)
-        cv.CvtColor(image, grayscale_image, cv.CV_BGR2GRAY)
+        # cv.CvtColor(image, grayscale_image, cv.CV_BGR2GRAY)
+        
+        _image = cv.CloneMat(image)
+        
+        # cv.CvtColor(_image, _image, cv.CV_BGR2HSV)
+        cv.MixChannels([_image],[grayscale_image],[(1,0)])
+        
         return grayscale_image
    
 
