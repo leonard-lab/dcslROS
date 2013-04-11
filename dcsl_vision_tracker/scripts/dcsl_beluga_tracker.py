@@ -61,10 +61,10 @@ class BelugaTracker:
         mask_list.append(cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_GRAYSCALE))
 
         # Create tracker object from API
-        binary_threshold = 15
+        binary_threshold = 5
         erode_iterations = 4
-        min_blob_size = 500
-        max_blob_size = 2000
+        min_blob_size = 350
+        max_blob_size = 1750
         scale = pow(1.45/3.05*1.0/204.0, -1) # 1/pixels
         camera_height = 3.14 # meters
         refraction_ratio = 1.0/1.333 #refractive index of air/refractive index of water
