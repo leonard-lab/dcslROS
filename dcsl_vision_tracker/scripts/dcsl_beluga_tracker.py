@@ -12,6 +12,8 @@ import rospy
 from geometry_msgs.msg import PoseArray,Pose
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from dynamic_reconfigure.server import Server
+from dcsl_vision_tracker.cfg import dcsl_beluga_tracker_configConfig as Config
 import cv
 import math as m
 
@@ -34,6 +36,7 @@ class BelugaTracker:
         self.image3_sub = rospy.Subscriber("/camera3/image_rect_color", Image, self.image3Callback)
         self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
         self.bridge = CvBridge()
+        self.srv = Server(Config, self.parameter_callback)
 
         # Load background images
         background_list = []
@@ -46,42 +49,39 @@ class BelugaTracker:
         location3 = rospy.get_param('/vision_tracker/background_image3')
         background_list.append(cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_COLOR))
 
-        '''
-
         # Load masks
+        mask_list = []
         location0 = rospy.get_param('/vision_tracker/mask0')
-        self.mask0 = cv.LoadImageM(location0, cv.CV_LOAD_IMAGE_GREYSCALE)
+        mask_list.append(cv.LoadImageM(location0, cv.CV_LOAD_IMAGE_GRAYSCALE))
         location1 = rospy.get_param('/vision_tracker/mask1')
-        self.mask1 = cv.LoadImageM(location1, cv.CV_LOAD_IMAGE_GREYSCALE)
+        mask_list.append(cv.LoadImageM(location1, cv.CV_LOAD_IMAGE_GRAYSCALE))
         location2 = rospy.get_param('/vision_tracker/mask2')
-        self.mask2 = cv.LoadImageM(location2, cv.CV_LOAD_IMAGE_GREYSCALE)
+        mask_list.append(cv.LoadImageM(location2, cv.CV_LOAD_IMAGE_GRAYSCALE))
         location3 = rospy.get_param('/vision_tracker/mask3')
-        self.mask3 = cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_GREYSCALE)
-
-        '''
+        mask_list.append(cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_GRAYSCALE))
 
         # Create tracker object from API
-        binary_threshold = 25
-        erode_iterations = 3
-        min_blob_size = 20
-        max_blob_size = 2000
-        scale = 1.45/3.05*1.0/204.0 # 1/pixels
+        binary_threshold = 5
+        erode_iterations = 4
+        min_blob_size = 350
+        max_blob_size = 1750
+        scale = pow(1.45/3.05*1.0/204.0, -1) # 1/pixels
         camera_height = 3.14 # meters
         refraction_ratio = 1.0/1.333 #refractive index of air/refractive index of water
         image_width = background_list[0].width
         image_height = background_list[0].height
-        o_cam1 = (1.0, 1.0)
-        o_cam2 = (-1.0, 1.0)
-        o_cam3 = (-1.0, -1.0)
-        o_cam4 = (1.0, -1.0)
-        translation_offset_list = [o_cam1, o_cam2, o_cam3, o_cam4]
+        R_cam1 = (0.984, 1.956, 5.52)
+        R_cam2 = (-1.021, 1.956, 5.52)
+        R_cam3 = (-1.057, -2.005, 5.52)
+        R_cam4 = (0.996, -1.908, 5.52)
+        translation_offset_list = [R_cam4, R_cam1, R_cam2, R_cam3]
         self.storage = cv.CreateMemStorage()
-        self.tracker = DcslBelugaTracker(background_list, None, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
+        self.tracker = DcslBelugaTracker(background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
 
         
         # For testing
         temp1 = DcslPose()
-        temp1.set_position((0,0,0))
+        temp1.set_position((-2,-2,0))
         temp1.set_quaternion((0,0,0,0))
         self.current_states = [temp1]
         
@@ -225,12 +225,13 @@ class BelugaTracker:
         length = 15.0
         radius = 5
         cyan = cv.RGB(0,255,255)
+        red = cv.RGB(255, 0, 0)
         for point in image_poses:
             if point.position[0] is not None:
                 end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
                 center = (int(point.position_x()), int(point.position_y()))
-                cv.Line(output_image, center, end, cyan)
-                cv.Circle(output_image, center, radius, cyan)
+                cv.Line(output_image, center, end, red)
+                cv.Circle(output_image, center, radius, red)
         # Draw contours
         cv.DrawContours(output_image, contours, cyan, cyan, 2)
 
@@ -246,10 +247,27 @@ class BelugaTracker:
             temp = DcslPose()
             pos_x = pose.position.x
             pos_y = pose.position.y
+            pos_z = pose.position.z
             theta = pose.orientation.z
-            temp.set_position((pos_x,pos_y,0))
+            temp.set_position((pos_x,pos_y,pos_z))
             temp.set_quaternion((0,0,theta,0))
             self.current_states.append(temp)
+
+    ## Callback function for parameter updates.
+    #
+    #@param config data received for parameter update
+    #@param level
+    def parameter_callback(self, config, level):
+        if "tracker" in self.__dict__:
+            self.tracker.threshold = config["binary_threshold"]
+            self.tracker.erode_iterations = config["erode_iterations"]
+            self.tracker.min_blob_size = config["min_blob_size"]
+            self.tracker.max_blob_size = config["max_blob_size"]
+            self.tracker.scale = config["scale"]
+            self.tracker.camera_height = config["camera_height"]
+        rospy.logdebug
+        return config
+
 
 ## Runs on the startup of the node. Initializes the node and creates the BelugaTracker object.
 def main():

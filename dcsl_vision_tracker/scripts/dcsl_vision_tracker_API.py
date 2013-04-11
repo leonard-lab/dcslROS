@@ -88,7 +88,7 @@ class DcslVisionTracker(object):
         #Convert to greyscale
         grayscale_image = self.convert_to_grayscale(image)
         # Find contours of blobs in the image
-        contours = self.blob_contours(grayscale_image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage)
+        contours = self.blob_contours(grayscale_image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage, self.mask_list[camera_id])
         # Find poses of blobs in image reference frame
         sensed_image = self.get_image_poses(contours)
         # Transform estimated poses to image frame
@@ -111,18 +111,21 @@ class DcslVisionTracker(object):
         
         image_mat = cv.CloneMat(image)
         
-        #Subtract the background image
+        # Subtract the background image
         cv.AbsDiff(image_mat, background_mat, image_mat)
 
-        #Convert to binary image by thresholding
+        # Convert to binary image by thresholding
         cv.Threshold(image_mat, image_mat, binary_threshold, 255, cv.CV_THRESH_BINARY)
 
-        #Apply mask
+        # Apply mask
         if mask_mat:
-            cv.Min(image_mat, mask_mat, image_mat); #mask image should be black (0) where masking should be applied and white (255) in the working area
+            cv.Min(image_mat, mask_mat, image_mat); # mask image should be black (0) where masking should be applied and white (255) in the working area
 
-        #Erode small holes in binary image
+        # Erode small holes in binary image
         cv.Erode(image_mat, image_mat, None, erode_iterations)
+
+        # Dilate remaining holes to offset erode
+        cv.Dilate(image_mat, image_mat, None, erode_iterations)
 
         #Find contours
         contours = cv.FindContours(image_mat, storage, cv.CV_RETR_LIST, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
@@ -246,7 +249,7 @@ class DcslMiabotTracker(DcslVisionTracker):
             if pose.position[0] is not None:
                 sensed_x = (pose.position[0]-0.5*self.image_width)*self.scale
                 sensed_y = -(pose.position[1]-0.5*self.image_height)*self.scale
-                sensed_pose.set_position((sensed_x,sensed_y,0))
+                sensed_pose.set_position((sensed_x,sensed_y, None))
                 sensed_pose.set_quaternion((None,None,pose.quaternion[2],None))
                 if pose.detected:
                     sensed_pose.set_detected(True)
@@ -305,9 +308,10 @@ class DcslMiabotTracker(DcslVisionTracker):
                     error = pow(theta_estimate-theta_test,2)
                     if previous_error < 0:
                         theta = theta_test
+                        previous_error = error
                     elif error < previous_error:
                         theta = theta_test
-                    previous_error = error
+                        previous_error = error
                 # Append found pose to image_poses list
                 pose = DcslPose()
                 pose.set_position((center[0],center[1],0))
@@ -363,7 +367,9 @@ class DcslBelugaTracker(DcslVisionTracker):
     #
     def convert_to_grayscale(self, image):
         grayscale_image = cv.CreateMat(image.height, image.width, cv.CV_8UC1)
-        cv.CvtColor(image, grayscale_image, cv.CV_BGR2GRAY)
+        _image = cv.CloneMat(image)
+        cv.CvtColor(_image, _image, cv.CV_BGR2HSV)
+        cv.MixChannels([_image],[grayscale_image],[(0,0)])
         return grayscale_image
    
 
@@ -375,26 +381,34 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param camera_id (int) not required for miabot tracker.    
     def image_to_world(self, image_poses, estimated_poses, camera_id):
         world_poses = []
-        o_x = self.translation[camera_id][0]
-        o_y = self.translation[camera_id][1]
+        R_x = self.translation[camera_id][0]
+        R_y = self.translation[camera_id][1]
+        R_z = self.translation[camera_id][2]
+        alpha = self.scale
         for idx, pose in enumerate(image_poses):
             world_pose = DcslPose()
             if pose.position[0] is not None:
                 z_world = estimated_poses[idx].position_z()
-                x_prime_image = pose.position_x() - 0.5*self.image_width
-                y_prime_image = -pose.position_y() - 0.5*self.image_height
-                x_prime_world = self.scale*x_prime_image*(self.camera_height - z_world)
-                y_prime_world = self.scale*y_prime_image*(self.camera_height - z_world)
-                theta1 = (pow(x_prime_world,2) + pow(y_prime_world,2))/(self.camera_height - z_world)
-                theta2 = m.asin(m.sin(theta1*self.refraction_ratio))
-                x_world = x_prime_world*m.tan(theta1)/m.tan(theta2) - o_x
-                y_world = y_prime_world*m.tan(theta1)/m.tan(theta2) - o_y
-                world_pose.set_position((x_world, y_world, z_world))
+                x_image = pose.position_x()
+                y_image = pose.position_y()
+                z_camera = -1*(z_world-R_z)
+                beta = self._beta(z_camera)
+                x_camera = 1/alpha*(x_image - 0.5*self.image_width)*z_camera*beta
+                y_camera = 1/alpha*(y_image - 0.5*self.image_height)*z_camera*beta
+                x_world = x_camera + R_x
+                y_world = -y_camera + R_y
+                world_pose.set_position((x_world, y_world, None))
                 world_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             world_pose.set_detected(pose.detected)
             world_poses.append(world_pose)       
         return world_poses
-    
+
+    def _beta(self, z_camera):
+        H = self.camera_height
+        rir = self.refraction_ratio
+        beta = pow(rir + (1 - rir)*H/z_camera, 0.5)
+        return beta
+
 
     ## Applies coordinate transform from world frame to image frame on world_poses and returns image_poses.
     #
@@ -403,32 +417,25 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param camera_id (int) not required for miabot tracker.
     def world_to_image(self, world_poses, camera_id):
         image_poses = []
-        o_x = self.translation[camera_id][0]
-        o_y = self.translation[camera_id][1]
+        R_x = self.translation[camera_id][0]
+        R_y = self.translation[camera_id][1]
+        R_z = self.translation[camera_id][2]
+        alpha = self.scale
         for pose in world_poses:
             image_pose = DcslPose()
             if pose.position[0] is not None:
-                x = pose.position_x()+o_x
-                y = pose.position_y()+o_y
-                z = pose.position_z()
-                delta = 100000.0
-                theta1 = 0.4
-                '''
-                while delta > 0.01:
-                    old_theta1 = theta1
-                    print "Theta 1: " + str(theta1)
-                    print "X: " + str(x)
-                    print "Y: " + str(y)
-                    print "Z: " + str(z)
-                    theta1 = theta1 - self._f(theta1, x, y, z)/self._delf(theta1, x, y, z)
-                    delta = abs(old_theta1-theta1)
-                '''
-                theta2 = m.asin(m.sin(theta1)*self.refraction_ratio)
-                x_prime = x*m.tan(theta1)/m.tan(theta2)
-                y_prime = y*m.tan(theta1)/m.tan(theta2)
-                x_image = x_prime/(self.scale*(self.camera_height-z))
-                y_image = y_prime/(self.scale*(self.camera_height-z))
-                image_pose.set_position((x_image, y_image, z))
+                x_world = pose.position_x()
+                y_world = pose.position_y()
+                z_world = pose.position_z()
+                x_camera = x_world - R_x
+                y_camera = -1*(y_world - R_y)
+                z_camera = -1*(z_world - R_z)
+                beta = self._beta(z_camera)
+                x_camera_prime = x_camera * 1/beta
+                y_camera_prime = y_camera * 1/beta
+                x_image = alpha * x_camera_prime/z_camera + self.image_width*0.5
+                y_image = alpha * y_camera_prime/z_camera + self.image_height*0.5
+                image_pose.set_position((x_image, y_image, None))
                 image_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             image_pose.set_detected(pose.detected)
             image_poses.append(image_pose)
@@ -455,34 +462,29 @@ class DcslBelugaTracker(DcslVisionTracker):
                 blob_size = cv.ContourArea(cr)
                 if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
                     moments = cv.Moments(cr, False)
-                    '''
-                    # Fit ellipse to blob
-                    PointArray2D32f = cv.CreateMat(1, len(cv), cv.CV_32FC2)
-                    for (i, (x,y)) in enumerate(c):
-                    PointArray2D32f[0,i] = (x,y)
-                    ellipse = cv.FitEllipse2(PointArray2D32f)
-                    # Find center and centroid of blob
-                    center = (ellipse[0][0], ellipse[0][1])
-                    '''
                     # Find center of blob
                     box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
-                    ellipse = box
                     center = (box[0][0], box[0][1])
+                    # Find centroid of blob
                     centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
                     # Estimate heading by drawing line from centroid to center and finding heading of line
                     theta_estimate = -m.atan2(centroid[1]-center[1],centroid[0]-center[0])
                     # Theta is found using the minimum area box from above
-                    theta_box = -m.pi/180.0*ellipse[2] #Angle in the first quadrant of the best fit ellipse with the x-axis
+                    theta_box = -m.pi/180.0*box[2] #Angle in the first quadrant of the best fit ellipse with the x-axis
                     # Test angle of box in each quadrant to see which is closest to angle found from centroid
                     # Box angle is more accurate than centroid method
                     previous_error = -1.0
                     theta = None
-                    step_list = [-m.pi,-m.pi*0.5,0,m.pi*0.5]
+                    if box[1][0] > box[1][1]:
+                        step_list = [-m.pi, 0]
+                    else:
+                        step_list = [-m.pi*0.5, m.pi*0.5]
                     for step in step_list:
                         theta_test = theta_box+step
-                        error = pow(theta_estimate-theta_test,2)
+                        error = min(pow(theta_estimate-theta_test,2),pow(theta_estimate-(theta_test+m.pi*2.0),2))
                         if previous_error < 0:
                             theta = theta_test
+                            previous_error = error
                         elif error < previous_error:
                             theta = theta_test
                             previous_error = error
@@ -491,7 +493,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                     pose.set_position((center[0],center[1],0))
                     pose.set_quaternion((0,0,theta,0))
                     image_poses.append(pose)
-                    del ellipse, box                
+                    del box                
                 #Cycle to next contour
                 cr=cr.h_next()
             del cr 
