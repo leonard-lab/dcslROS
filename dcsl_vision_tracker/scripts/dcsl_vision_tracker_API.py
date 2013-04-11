@@ -462,32 +462,26 @@ class DcslBelugaTracker(DcslVisionTracker):
                 blob_size = cv.ContourArea(cr)
                 if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
                     moments = cv.Moments(cr, False)
-                    '''
-                    # Fit ellipse to blob
-                    PointArray2D32f = cv.CreateMat(1, len(cv), cv.CV_32FC2)
-                    for (i, (x,y)) in enumerate(c):
-                    PointArray2D32f[0,i] = (x,y)
-                    ellipse = cv.FitEllipse2(PointArray2D32f)
-                    # Find center and centroid of blob
-                    center = (ellipse[0][0], ellipse[0][1])
-                    '''
                     # Find center of blob
                     box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
-                    ellipse = box
                     center = (box[0][0], box[0][1])
+                    # Find centroid of blob
                     centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
                     # Estimate heading by drawing line from centroid to center and finding heading of line
                     theta_estimate = -m.atan2(centroid[1]-center[1],centroid[0]-center[0])
                     # Theta is found using the minimum area box from above
-                    theta_box = -m.pi/180.0*ellipse[2] #Angle in the first quadrant of the best fit ellipse with the x-axis
+                    theta_box = -m.pi/180.0*box[2] #Angle in the first quadrant of the best fit ellipse with the x-axis
                     # Test angle of box in each quadrant to see which is closest to angle found from centroid
                     # Box angle is more accurate than centroid method
                     previous_error = -1.0
                     theta = None
-                    step_list = [-m.pi,-m.pi*0.5,0,m.pi*0.5]
+                    if box[1][0] > box[1][1]:
+                        step_list = [-m.pi, 0]
+                    else:
+                        step_list = [-m.pi*0.5, m.pi*0.5]
                     for step in step_list:
                         theta_test = theta_box+step
-                        error = pow(theta_estimate-theta_test,2)
+                        error = min(pow(theta_estimate-theta_test,2),pow(theta_estimate-(theta_test+m.pi*2.0),2))
                         if previous_error < 0:
                             theta = theta_test
                             previous_error = error
@@ -499,7 +493,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                     pose.set_position((center[0],center[1],0))
                     pose.set_quaternion((0,0,theta,0))
                     image_poses.append(pose)
-                    del ellipse, box                
+                    del box                
                 #Cycle to next contour
                 cr=cr.h_next()
             del cr 
