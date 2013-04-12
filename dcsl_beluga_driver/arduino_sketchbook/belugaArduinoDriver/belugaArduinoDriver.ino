@@ -71,9 +71,11 @@ RunningAverage RA(numReadings);
 
 void setup()
 {
+  delay(250);
   nh.initNode(); //Initialized the node
   delay(250);
   nh.advertise(depth); //Advertise the topic
+  delay(250);
   nh.subscribe(sub);
   delay(250);
   
