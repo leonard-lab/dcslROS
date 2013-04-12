@@ -1,0 +1,38 @@
+<launch>
+
+  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node1" args="/dev/ttyUSB1" >
+    <remap from="depth_measurement" to="depth1" />
+  </node >
+
+  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node0" args="/dev/ttyUSB0" >
+    <remap from="depth_measurement" to="depth0" />
+  </node >
+
+  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node2" args="/dev/ttyUSB2" >
+    <remap from="depth_measurement" to="depth2" />
+  </node >
+
+  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node3" args="/dev/ttyUSB3" >
+    <remap from="depth_measurement" to="depth3" />
+  </node >
+
+
+ <!-- joy node -->
+  <node respawn="true" pkg="joy"
+        type="joy" name="turtle_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+ <!-- Axes -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="axis_vertical" value="2" type="int"/>
+  <param name="scale_linear" value="255" type="double"/>
+  <param name="scale_angular" value="-90" type="double"/>
+  <param name="scale_vertical" value="255" type="double"/>
+
+ <!-- Need to change this node -->
+  <node pkg="dcsl_beluga_driver" type="dcsl_beluga_joy" name="teleop"/>
+
+</launch>
