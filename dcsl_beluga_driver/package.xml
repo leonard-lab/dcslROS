@@ -1,0 +1,48 @@
+<package>
+  <name>dcsl_beluga_driver</name>
+  <version>0.1.0</version>
+  <description>dcsl_beluga_driver</description>
+  <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/dcsl_beluga_driver</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Brendan Andrade</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend> 
+  <build_depend>roscpp</build_depend> 
+  <build_depend>std_msgs</build_depend> 
+  <build_depend>sensor_msgs</build_depend>
+  <!-- <build_depend>rosserial_python</build_depend> -->
+  <!-- <build_depend>rosserial_arduino</build_depend> -->
+  <!-- <build_depend>rosserial_client</build_depend> -->
+  <build_depend>dcsl_messages</build_depend> 
+  <!-- <build_depend>joy</build_depend>  -->
+  <!-- <build_depend>turtlebot_teleop</build_depend> -->
+  <run_depend>rospy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>rosserial_python</run_depend>
+  <run_depend>rosserial_arduino</run_depend>
+  <run_depend>rosserial_client</run_depend>
+  <run_depend>dcsl_messages</run_depend>
+  <run_depend>joy</run_depend>
+  <run_depend>turtlebot_teleop</run_depend>
+  <!-- <test_depend>rospy</test_depend> -->
+  <!-- <test_depend>roscpp</test_depend> -->
+  <!-- <test_depend>std_msgs</test_depend> -->
+  <!-- <test_depend>rosserial_python</test_depend> -->
+  <!-- <test_depend>rosserial_arduino</test_depend> -->
+  <!-- <test_depend>rosserial_client</test_depend> -->
+  <!-- <test_depend>dcsl_messages</test_depend> -->
+  <!-- <test_depend>joy</test_depend> -->
+  <!-- <test_depend>turtlebot_teleop</test_depend> -->
+
+  <export>
+
+  </export>
+</package>

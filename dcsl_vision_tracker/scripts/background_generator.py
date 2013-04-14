@@ -5,7 +5,9 @@
 
 ## @author Brendan Andrade
 
-import roslib; roslib.load_manifest('dcsl_vision_tracker')
+# Not used with catkin
+# import roslib; roslib.load_manifest('dcsl_vision_tracker')
+
 import rospy
 import cv
 import sys

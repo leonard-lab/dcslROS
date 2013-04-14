@@ -5,9 +5,10 @@
 
 ## @author Brendan Andrade
 
+# Not used with catkin
+# import roslib
+# roslib.load_manifest('dcsl_vision_tracker')
 
-import roslib
-roslib.load_manifest('dcsl_vision_tracker')
 import rospy
 from geometry_msgs.msg import PoseArray,Pose
 from sensor_msgs.msg import Image

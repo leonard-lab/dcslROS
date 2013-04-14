@@ -1,0 +1,41 @@
+<package>
+  <name>dcsl_miabot_driver</name>
+  <version>0.1.0</version>
+  <description>
+    The dcsl_miabot_driver package contains the dcsl_miabot_driver.py node and the dcsl_miabot_joy node. The former subscribes to the cmd_vel topic with Twist messages, translates these into wheel speed commands, and sends them to the robot over a serial connection. The later subscribes to the joy topic and translates the joystick commands into velocities and angular velocities for the Miabot PRO which are published as Twist messages on the cmd_vel topic.
+  </description>
+  <maintainer email="brendan.andrade@alumni.tufts.edu">
+    Brendan Andrade
+  </maintainer>
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/dcsl_miabot_driver</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Brendan Andrade</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>roscpp</build_depend>
+  <!-- <build_depend>joy</build_depend> -->
+  <!-- <build_depend>turtlebot_teleop</build_depend> -->
+  <run_depend>std_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>joy</run_depend>
+  <run_depend>turtlebot_teleop</run_depend>
+  <!-- <test_depend>std_msgs</test_depend> -->
+  <!-- <test_depend>geometry_msgs</test_depend> -->
+  <!-- <test_depend>rospy</test_depend> -->
+  <!-- <test_depend>roscpp</test_depend> -->
+  <!-- <test_depend>joy</test_depend> -->
+  <!-- <test_depend>turtlebot_teleop</test_depend> -->
+
+  <export>
+
+  </export>
+</package>

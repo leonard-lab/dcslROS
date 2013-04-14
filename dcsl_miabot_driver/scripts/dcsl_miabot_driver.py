@@ -7,7 +7,9 @@
 
 import math, serial, sys
 
-import roslib; roslib.load_manifest('dcsl_miabot_driver')
+# Not used with catkin
+# import roslib; roslib.load_manifest('dcsl_miabot_driver')
+
 import rospy
 from geometry_msgs.msg import Twist
 

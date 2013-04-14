@@ -1,5 +1,11 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+# http://ros.org/doc/groovy/api/catkin/html/user_guide/supposed.html
+cmake_minimum_required(VERSION 2.8.3)
+project(dcsl_vision_tracker)
+
+# Load catkin and all dependencies required for this package
+set(SYS_DEPS opencv2 python-munkres)
+set(CATKIN_DEPS sensor_msgs cv_bridge rospy std_msgs rosunit dynamic_reconfigure roscpp)
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
@@ -9,29 +15,25 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
-rosbuild_init()
 
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+# catkin_add_nosetests(test/test_dcsl_vision_tracker.py)
 
-#uncomment if you have defined messages
-#rosbuild_genmsg()
-#uncomment if you have defined services
-#rosbuild_gensrv()
-
-#common commands for building c++ executables and libraries
-#rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
-#target_link_libraries(${PROJECT_NAME} another_library)
-#rosbuild_add_boost_directories()
-#rosbuild_link_boost(${PROJECT_NAME} thread)
-#rosbuild_add_executable(example examples/example.cpp)
-#target_link_libraries(example ${PROJECT_NAME})
-
-rosbuild_add_pyunit(test/test_dcsl_vision_tracker.py)
+catkin_python_setup()
 
 #add dynamic reconfigure api
-rosbuild_find_ros_package(dynamic_reconfigure)
-include(${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake)
-gencfg()
+generate_dynamic_reconfigure_options(cfg/dcsl_beluga_tracker_config.cfg cfg/dcsl_miabot_tracker_config.cfg)
+
+## DEPENDS: system dependencies of this project that dependent projects also need
+## CATKIN_DEPENDS: catkin_packages dependent projects also need
+## INCLUDE_DIRS: 
+## LIBRARIES: libraries you create in this project that dependent projects also need
+catkin_package(
+    DEPENDS ${SYS_DEPS}
+    CATKIN_DEPENDS ${CATKIN_DEPS}
+    INCLUDE_DIRS
+    LIBRARIES 
+)
+
+install(PROGRAMS scripts/background_generator.py scripts/dcsl_beluga_tracker.py scripts/dcsl_miabot_tracker.py
+  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+)

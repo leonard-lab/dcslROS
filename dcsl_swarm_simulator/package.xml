@@ -1,0 +1,19 @@
+<package>
+  <name>dcsl_swarm_simulator</name>
+  <version>0.1.0</version>
+  <description>dcsl_swarm_simulator</description>
+  <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/dcsl_swarm_simulator</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>bandrade</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+
+  </export>
+</package>

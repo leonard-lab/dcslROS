@@ -1,0 +1,24 @@
+<package>
+  <name>dcsl_messages</name>
+  <version>0.1.0</version>
+  <description>dcsl_messages</description>
+  <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/dcsl_messages</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Will Scott</author>
+  <author>Brendan Andrade</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <!-- <test_depend>geometry_msgs</test_depend> -->
+
+  <export>
+
+  </export>
+</package>

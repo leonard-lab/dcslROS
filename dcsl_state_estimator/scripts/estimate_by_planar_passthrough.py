@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+# Not used with catkin
+# import roslib
+# roslib.load_manifest('dcsl_state_estimator')
 
-import roslib
-roslib.load_manifest('dcsl_state_estimator')
 import rospy
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseArray

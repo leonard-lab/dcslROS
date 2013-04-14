@@ -6,9 +6,10 @@
 ## @author Brendan Andrade
 
 
+# Not used with catkin
+# import roslib
+# roslib.load_manifest('dcsl_swarm_director')
 
-import roslib
-roslib.load_manifest('dcsl_swarm_director')
 import rospy
 from geometry_msgs.msg import Twist
 from dcsl_messages.msg import TwistArray

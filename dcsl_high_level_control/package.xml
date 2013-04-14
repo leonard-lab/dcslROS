@@ -1,0 +1,26 @@
+<package>
+  <name>dcsl_high_level_control</name>
+  <version>0.1.0</version>
+  <description>The dcsl_high_level_control package contains dcsl_miabot_follower_control node and dcsl_high_level_math library. The purpose of this package is to implement high level control algorithms based upon robot state estimates.</description>
+  <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/dcsl_high_level_control</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Will Scott</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <!-- <test_depend>roscpp</test_depend> -->
+  <!-- <test_depend>geometry_msgs</test_depend> -->
+
+  <export>
+
+  </export>
+</package>

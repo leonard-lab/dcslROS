@@ -1,0 +1,47 @@
+<package>
+  <name>dcsl_miabot_main</name>
+  <version>0.1.0</version>
+  <description>dcsl_miabot_main</description>
+  <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/dcsl_miabot_main</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Brendan Andrade</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- <build_depend>std_msgs</build_depend> -->
+  <!-- <build_depend>rospy</build_depend> -->
+  <!-- <build_depend>roscpp</build_depend> -->
+  <!-- <build_depend>dcsl_high_level_control</build_depend> -->
+  <!-- <build_depend>dcsl_low_level_control</build_depend> -->
+  <!-- <build_depend>dcsl_miabot_driver</build_depend> -->
+  <!-- <build_depend>dcsl_state_estimator</build_depend> -->
+  <!-- <build_depend>dcsl_swarm_director</build_depend> -->
+  <!-- <build_depend>dcsl_vision_tracker</build_depend> -->
+  <run_depend>std_msgs</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>dcsl_high_level_control</run_depend>
+  <run_depend>dcsl_low_level_control</run_depend>
+  <run_depend>dcsl_miabot_driver</run_depend>
+  <run_depend>dcsl_state_estimator</run_depend>
+  <run_depend>dcsl_swarm_director</run_depend>
+  <run_depend>dcsl_vision_tracker</run_depend>
+  <!-- <test_depend>std_msgs</test_depend> -->
+  <!-- <test_depend>rospy</test_depend> -->
+  <!-- <test_depend>roscpp</test_depend> -->
+  <!-- <test_depend>dcsl_high_level_control</test_depend> -->
+  <!-- <test_depend>dcsl_low_level_control</test_depend> -->
+  <!-- <test_depend>dcsl_miabot_driver</test_depend> -->
+  <!-- <test_depend>dcsl_state_estimator</test_depend> -->
+  <!-- <test_depend>dcsl_swarm_director</test_depend> -->
+  <!-- <test_depend>dcsl_vision_tracker</test_depend> -->
+
+  <export>
+
+  </export>
+</package>

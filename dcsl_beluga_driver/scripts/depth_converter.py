@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-import roslib
-roslib.load_manifest('dcsl_swarm_director')
+## Not used with catkin
+# import roslib
+# roslib.load_manifest('dcsl_swarm_director')
+
 import rospy
 
 from std_msgs.msg import Int16

@@ -1,0 +1,46 @@
+<package>
+  <name>dcsl_vision_tracker</name>
+  <version>0.1.0</version>
+  <description>dcsl_vision_tracker</description>
+  <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/dcsl_vision_tracker</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Brendan Andrade</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>opencv2</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>rosunit</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>roscpp</build_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>opencv2</run_depend> 
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>rosunit</run_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>roscpp</run_depend>
+  <!-- <test_depend>sensor_msgs</test_depend> -->
+  <!-- <test_depend>opencv2</test_depend> -->
+  <!-- <test_depend>cv_bridge</test_depend> -->
+  <!-- <test_depend>rospy</test_depend> -->
+  <!-- <test_depend>std_msgs</test_depend> -->
+  <!-- <test_depend>rosunit</test_depend> -->
+  <!-- <test_depend>dynamic_reconfigure</test_depend> -->
+  <!-- <test_depend>roscpp</test_depend> -->
+
+  <export>
+
+  </export>
+</package>
