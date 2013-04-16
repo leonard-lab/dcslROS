@@ -23,6 +23,6 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-install(PROGRAMS scripts/dcsl_swarm_director_node.py
+install(PROGRAMS src/dcsl_swarm_director/dcsl_swarm_director_node.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )

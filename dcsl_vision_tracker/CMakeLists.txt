@@ -34,6 +34,6 @@ catkin_package(
     LIBRARIES 
 )
 
-install(PROGRAMS scripts/background_generator.py scripts/dcsl_beluga_tracker.py scripts/dcsl_miabot_tracker.py
+install(PROGRAMS src/dcsl_vision_tracker/background_generator.py src/dcsl_vision_tracker/dcsl_beluga_tracker.py src/dcsl_vision_tracker/dcsl_miabot_tracker.py src/dcsl_vision_tracker/dcsl_vision_tracker_API.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )

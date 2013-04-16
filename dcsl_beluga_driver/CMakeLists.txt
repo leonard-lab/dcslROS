@@ -23,6 +23,6 @@ install(TARGETS dcsl_beluga_joy
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS scripts/depth_converter.py
+install(PROGRAMS src/dcsl_beluga_driver/depth_converter.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )

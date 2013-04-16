@@ -47,6 +47,6 @@ install(TARGETS dcsl_miabot_state_estimator
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS scripts/estimate_by_planar_passthrough.py
+install(PROGRAMS src/dcsl_state_estimator/estimate_by_planar_passthrough.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
