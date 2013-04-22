@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
+#include "std_msgs/Header.h"
 
 namespace dcsl_messages
 {
@@ -12,6 +13,7 @@ namespace dcsl_messages
   class belugaInput : public ros::Msg
   {
     public:
+      std_msgs::Header header;
       int16_t vertical_motor;
       int16_t thrust_motor;
       int16_t servo;
@@ -19,6 +21,7 @@ namespace dcsl_messages
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
+      offset += this->header.serialize(outbuffer + offset);
       union {
         int16_t real;
         uint16_t base;
@@ -49,6 +52,7 @@ namespace dcsl_messages
     virtual int deserialize(unsigned char *inbuffer)
     {
       int offset = 0;
+      offset += this->header.deserialize(inbuffer + offset);
       union {
         int16_t real;
         uint16_t base;
@@ -80,7 +84,7 @@ namespace dcsl_messages
     }
 
     const char * getType(){ return "dcsl_messages/belugaInput"; };
-    const char * getMD5(){ return "d7a8a4a3ad3fa031c886b7c16b438163"; };
+    const char * getMD5(){ return "83c876f8078f787034407a9f5bafba00"; };
 
   };
 
