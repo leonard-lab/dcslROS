@@ -25,6 +25,7 @@ class PassthroughEstimator:
             measured_pose.position.z = self.depth
             array = PoseArray()
             array.poses.append(measured_pose)
+            array.header.stamp = rospy.Time.now()
             self.pub.publish(array)
 
 def main():
