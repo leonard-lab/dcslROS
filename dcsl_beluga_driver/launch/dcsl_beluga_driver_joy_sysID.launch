@@ -1,0 +1,25 @@
+<launch>
+
+ <!-- dcsl_beluga_driver Node-->
+  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node" args="/dev/ttyUSB1" />
+
+
+ <!-- joy node -->
+  <node respawn="true" pkg="joy"
+        type="joy_node" name="turtle_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+ <!-- Axes -->
+  <param name="axis_linear" value="1" type="int"/>
+  <param name="axis_angular" value="0" type="int"/>
+  <param name="axis_vertical" value="2" type="int"/>
+  <param name="scale_linear" value="255" type="double"/>
+  <param name="scale_angular" value="-90" type="double"/>
+  <param name="scale_vertical" value="255" type="double"/>
+
+ <!-- Need to change this node -->
+  <node pkg="dcsl_beluga_driver" type="dcsl_beluga_joy_sysID" name="teleop"/>
+
+</launch>
