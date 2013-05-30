@@ -38,8 +38,12 @@ class BelugaEstimator(object):
         self.m3 = 4
         self.r = 0.35
         self.Ktau = 0.05
-        
-        self.ukf = ukf(self.f, self.g, np.zeros(7), 0, 0, 7, 3, 4, 0.1, None, 10)
+
+        Q = np.eye(7, dtype=float)
+        R = np.eye(4, dtype=float)
+        x_init = np.zeros(7)
+
+        self.ukf = ukf(self.f, self.g, Q, R, x_init, 7, 3, 4, 0.1)
     
     ## 
     def f(self, state, t, command):

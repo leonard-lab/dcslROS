@@ -23,36 +23,50 @@ class ukf(object):
     #
     #
     def __init__(self, f, g, Q, R, initial_state, n_state, n_input, n_output, Ts, initial_input = None, integration_steps = 10):
-        self.f = f
-        self.g = g
-        self.Q = Q
-        self.R = R
-        self.Ts = float(Ts)
-        self.ode_steps = integration_steps
+        self._f = f
+        self._g = g
+        self._Q = Q
+        self._R = R
+        self._Ts = float(Ts)
+        self._ode_steps = integration_steps
 
         if initial_input is not None:
-            self.u = initial_input
+            u = initial_input
         else:
-            self.u = np.zeros(n_input)
+            u = np.zeros(n_input)
+        self._previous_u = u
+        self._tfs = []
+        
+        self._measurements = [[initial_state[0], initial_state[1], initial_state[2], initial_state[5]]]
 
-        self.aukf = AdditiveUnscentedKalmanFilter(transition_function=self.transition_function, observation_function=self.observation_function, initial_state_mean=initial_state, n_dim_state=n_state, n_dim_obs=n_outout)
+        self._aukf = AdditiveUnscentedKalmanFilter(transition_functions=self._tfs, observation_functions=self._observation_function, transition_covariance = self._Q, observation_covariance = self._R, initial_state_mean=initial_state, n_dim_state=n_state, n_dim_obs=n_output)
         
 
+    def estimate(self):
+        means, covar = self._aukf.filter(self._measurements)
+        return means[-1:,]
 
+    def update(self, y, u):
+        self._measurements.append(y)
+        self._tfs.append(lambda x: self._transition_function(x, self._previous_u))
+        self._previous_u = u
+        self._aukf.transition_functions = self._tfs
 
-    def new_measurement(self, y):
-        pass
+    def set_Q(self, Q):
+        self._aukf.transition_covariance = Q
+        self._Q = Q
 
-    def new_input(self, u):
-        self.u = u
+    def set_R(self, R):
+        self._aukf.observation_covariance = R
+        self._R = R
     
-    def transition_function(self, state):
-        step = float(self.Ts - 0.)/float(self.ode_steps)
-        t = np.arange(0.,self.Ts+step,step)
-        x_next = integrate.odeint(self.f, state, t, args=(self.u,))
-        return np.array(x_next)
+    def _transition_function(self, state, u):
+        step = float(self._Ts - 0.)/float(self._ode_steps)
+        t = np.arange(0.,self._Ts+step,step)
+        x_next = integrate.odeint(self._f, state, t, args=(u,))
+        return x_next[self._ode_steps]
 
-    def observation_function(self, state):
-        return self.g(state)
+    def _observation_function(self, state):
+        return self._g(state)
 
     
