@@ -1,5 +1,8 @@
 <launch>
   
+  <!-- Parameters -->
+  <arg name="N_ROBOTS" value="1" />
+
   <!-- Launch image viewers -->
   <include file="$(find dcsl_vision_tracker)/launch/beluga_view_tracking.launch" />
 
@@ -14,6 +17,7 @@
 
   <!-- Launch robots -->
 
-  
+  <!-- Estimator -->
+  <node name="state_estimator" pkg="dcsl_state_estimator" type="dcsl_beluga_estimator" args="$(arg N_ROBOTS)" />
 
 </launch>
