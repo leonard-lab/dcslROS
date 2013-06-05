@@ -53,6 +53,8 @@ class BelugaEstimator(object):
         self.cmd_sub = rospy.Subscriber("/cmd_inputs", TwistArray, self.cmd_callback)
         self.cmds = [np.zeros(3)]*self.n
         self.last_cmds = self.cmds
+
+        self.planar_sub = rospy.Subscriber("/planar_measurements", PoseArray, self.planar_callback)
         
         self.pub = rospy.Publisher("state_estimate", PoseArray)
 
@@ -81,16 +83,16 @@ class BelugaEstimator(object):
                 Y = np.ma.array([0,0,0,0], mask=[1,1,1,1])
                 U = self.last_cmds[i]
                 for j in range(self.time_step+1, new_time_step):
-                    self.ufks[i].update(Y, U)
+                    self.ukfs[i].update(Y, U)
             
             if data.poses[i].orientation.w == 1:
-                Y = np.array([data.poses[i].position.x, data.poses[1].position.y, self.depth[i], data.poses[i].orientation.z])
+                Y = np.array([data.poses[i].position.x, data.poses[i].position.y, self.depth[i], data.poses[i].orientation.z])
             else:
                 Y = np.ma.array([0,0,0,0], mask=[1,1,1,1])
             
             U = self.cmds[i] #Fix timing of this
-            self.ufks[i].updata(Y,U)            
-            X = ufks.estimate()
+            self.ukfs[i].update(Y,U)            
+            X = self.ukfs[i].estimate()
             pose = Pose()
             pose.position.x = X[0]
             pose.position.y = X[1]
@@ -98,11 +100,11 @@ class BelugaEstimator(object):
             pose.orientation.z = X[5]
             pose_array.poses.append(pose)
             
-        pose_array.stamp = rospy.Time.now()
+        pose_array.header.stamp = rospy.Time.now() #Consider passing original time.
         self.pub.publish(pose_array)
             
         self.time = new_time
-        self.time_step = new_Ts
+        self.time_step = new_time_step
         self.last_cmds = self.cmds
 
     def cmd_callback(self, data):
