@@ -11,11 +11,15 @@ from ukf_API import ukf
 
 import numpy as np
 import math as m
+import sys
 
 import rospy
 from geometry_msgs.msg import PoseArray, Pose
 from geometry_msgs.msg import Twist
 from dcsl_messages.msg import TwistArray
+from std_msgs.msg import Int16
+
+from dcsl_beluga_main.beluga import Beluga
 
 ###############################################
 
@@ -23,62 +27,100 @@ from dcsl_messages.msg import TwistArray
 class BelugaEstimator(object):
     
     ##
-    def __init__(self):
-        self.eta_t = 0.1
-        self.eta_z_up = 0.1
-        self.eta_z_down = 0.1
-        self.Kt = 0.2
-        self.Kd1 = 50.
-        self.Kd3 = 70.
-        self.K_omega = 12.
-        self.J = 2.5
-        self.Kg = 0.9
-        self.z_neutral = 1.26
-        self.m1 = 6
-        self.m3 = 4
-        self.r = 0.35
-        self.Ktau = 0.05
+    def __init__(self, n_robots):
+        
+        self.n = n_robots
 
+        self.beluga = Beluga()
         Q = np.eye(7, dtype=float)
         R = np.eye(4, dtype=float)
         x_init = np.zeros(7)
+        self.ukfs = []
+        self.Ts = 0.01
+        self.time = 0.0
+        self.time_step = 0
+        for i in range(0, self.n):
+            self.ukfs.append(ukf(self.beluga.f, self.beluga.g, Q, R, x_init, 7, 3, 4, self.Ts))
 
-        self.ukf = ukf(self.f, self.g, Q, R, x_init, 7, 3, 4, 0.1)
+
+        depth_callback_list = [self.depth0_callback, self.depth1_callback, self.depth2_callback, self.depth3_callback]
+        self.depth_sub_array = []
+        for i in range(0, self.n):
+            name = "robot" + str(i) +"/depth"
+            subscriber = rospy.Subscriber(name, Int16, depth_callback_list[i])
+            self.depth_sub_array.append(subscriber)
+
+        self.cmd_sub = rospy.Subscriber("/cmd_inputs", TwistArray, self.cmd_callback)
+        self.cmds = [np.zeros(3)]*self.n
+        self.last_cmds = self.cmds
+        
+        self.pub = rospy.Publisher("state_estimate", PoseArray)
+
+        self.start_time = rospy.get_time()
+
+    def depth0_callback(self, data):
+        self.depth[0] = data.data
+
+    def depth1_callback(self, data):
+        self.depth[1] = data.data
+
+    def depth2_callback(self, data):
+        self.depth[2] = data.data
+
+    def depth3_callback(self, data):
+        self.depth[3] = data.data
     
-    ## 
-    def f(self, state, t, command):
-        x = state[0]
-        y = state[1]
-        z = state[2]
-        v1 = state[3]
-        v3 = state[4]
-        theta = state[5]
-        theta_dot = state[6]
+    def planar_callback(self, data):
+        new_time = data.header.stamp.secs + data.header.stamp.nsecs*pow(10.0,-9) - self.start_time
+        new_time_step = int(new_time/self.Ts)
         
-        u_t = command[0]
-        u_phi = command[1]
-        u_z = command[2]
-
-        x_dot = v1*m.cos(theta)
-        y_dot = v1*m.sin(theta)
-        z_dot = v3
+        pose_array = PoseArray()
         
-        F1 = (1-self.eta_t)*self.Kt*u_t*m.cos(u_phi) - self.Kd1*v1*abs(v1)
-        if v3 < 0:
-            eta_z = self.eta_z_down
-        else:
-            eta_z = self.eta_z_up
-        F3 = (1-eta_z)*self.Kt*u_z - self.Kd3*v3*abs(v3) + self.Kg*(self.z_neutral - z)
+        for i in range(0, self.n):
+            if new_time_step - self.time_step > 2:
+                Y = np.ma.array([0,0,0,0], mask=[1,1,1,1])
+                U = self.last_cmds[i]
+                for j in range(self.time_step+1, new_time_step):
+                    self.ufks[i].update(Y, U)
+            
+            if data.poses[i].orientation.w == 1:
+                Y = np.array([data.poses[i].position.x, data.poses[1].position.y, self.depth[i], data.poses[i].orientation.z])
+            else:
+                Y = np.ma.array([0,0,0,0], mask=[1,1,1,1])
+            
+            U = self.cmds[i] #Fix timing of this
+            self.ufks[i].updata(Y,U)            
+            X = ufks.estimate()
+            pose = Pose()
+            pose.position.x = X[0]
+            pose.position.y = X[1]
+            pose.position.z = X[2]
+            pose.orientation.z = X[5]
+            pose_array.poses.append(pose)
+            
+        pose_array.stamp = rospy.Time.now()
+        self.pub.publish(pose_array)
+            
+        self.time = new_time
+        self.time_step = new_Ts
+        self.last_cmds = self.cmds
+
+    def cmd_callback(self, data):
+        for i, twist in enumerate(data.twists):
+            self.cmds[i] = np.array([twist.linear.x, twist.angular.x, twist.linear.z])
+            
         
-        v1_dot = F1/self.m1
-        v3_dot = F3/self.m3
-
-        gamma = (1-self.eta_t)*self.Kt*m.sin(u_phi)*self.r - self.K_omega*theta_dot*abs(theta_dot) - self.Ktau*u_z
-
-        theta_dotdot = gamma/self.J
-
-        return np.array([x_dot, y_dot, z_dot, v1_dot, v3_dot, theta_dot, theta_dotdot])
-
-    def g(self, state):
-        return np.array([state[0], state[1], state[2], state[5]])
     
+def main():
+    rospy.init_node('beluga_estimator')
+
+    n_robots = int(sys.argv[1])
+
+    estimator = BelugaEstimator(n_robots)
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print "Shutting down"
+
+if __name__ == '__main__':
+    main()
