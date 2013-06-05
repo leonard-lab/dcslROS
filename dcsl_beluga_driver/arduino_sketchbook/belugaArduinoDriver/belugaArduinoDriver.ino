@@ -47,6 +47,8 @@ std_msgs::Int16 raw_depth;
 ros::Publisher depth("depth_measurement", &cal_depth);
 ros::Publisher rdepth("raw_depth", &raw_depth);
 
+unsigned long last_cmd;
+
 //Callback function for receiving motor inputs
 void command( const dcsl_messages::belugaInput& input){
   if (input.vertical_motor > 0){
@@ -67,6 +69,8 @@ void command( const dcsl_messages::belugaInput& input){
   
   int pos = input.servo + 90;
   servo.write(pos);
+  
+  last_cmd = millis();
 }
 
 //Declare Subscriber object
@@ -118,6 +122,12 @@ void loop() {
   depth.publish( &cal_depth); //Publish current running average depth reading  
   rdepth.publish( &raw_depth);
   //ROS_DEBUG_STREAM_THROTTLE_NAMED(5, "beluga", "Thruster Current = " << analogRead(current1Pin) << "; Vertical Current = " << analogRead(current2Pin));
+  
+  //Stop motors if no commands have been received for 1 second
+  if (millis() - last_cmd > 1000){
+    analogWrite(en1Pin, 0);
+    analogWrite(en2Pin, 0);
+  }
   
   nh.spinOnce();
 }
