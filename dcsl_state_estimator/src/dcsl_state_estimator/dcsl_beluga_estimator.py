@@ -17,7 +17,7 @@ import rospy
 from geometry_msgs.msg import PoseArray, Pose
 from geometry_msgs.msg import Twist
 from dcsl_messages.msg import TwistArray
-from std_msgs.msg import Int16
+from std_msgs.msg import Float32
 
 from dcsl_beluga_main.beluga import Beluga
 
@@ -42,12 +42,12 @@ class BelugaEstimator(object):
         for i in range(0, self.n):
             self.ukfs.append(ukf(self.beluga.f, self.beluga.g, Q, R, x_init, 7, 3, 4, self.Ts))
 
-
+        self.depth = [0]*4
         depth_callback_list = [self.depth0_callback, self.depth1_callback, self.depth2_callback, self.depth3_callback]
         self.depth_sub_array = []
         for i in range(0, self.n):
-            name = "robot" + str(i) +"/depth"
-            subscriber = rospy.Subscriber(name, Int16, depth_callback_list[i])
+            name = "robot" + str(i) +"/depth_measurement"
+            subscriber = rospy.Subscriber(name, Float32, depth_callback_list[i])
             self.depth_sub_array.append(subscriber)
 
         self.cmd_sub = rospy.Subscriber("/cmd_inputs", TwistArray, self.cmd_callback)
