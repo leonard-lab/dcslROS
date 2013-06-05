@@ -1,0 +1,19 @@
+<launch>
+  
+  <!-- Launch image viewers -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_view_tracking.launch" />
+
+  <!-- Launch cameras and processors -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_cameras_only.launch" />
+
+  <!-- Launch tracking -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_tracker.launch" />
+
+  <!-- Launch rosbridge (websocket) -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+  <!-- Launch robots -->
+
+  
+
+</launch>
