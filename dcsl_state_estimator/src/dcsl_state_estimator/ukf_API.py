@@ -44,7 +44,7 @@ class ukf(object):
 
     def estimate(self):
         means, covar = self._aukf.filter(self._measurements)
-        return means[-1:,]
+        return means[-1:,][0]
 
     def update(self, y, u):
         self._measurements.append(y)
