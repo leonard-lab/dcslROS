@@ -18,6 +18,6 @@
   <!-- Launch robots -->
 
   <!-- Estimator -->
-  <node name="state_estimator" pkg="dcsl_state_estimator" type="dcsl_beluga_estimator" args="$(arg N_ROBOTS)" />
+  <node name="state_estimator" pkg="dcsl_state_estimator" type="dcsl_beluga_estimator.py" args="$(arg N_ROBOTS)" />
 
 </launch>
