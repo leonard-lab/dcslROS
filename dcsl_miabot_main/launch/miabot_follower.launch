@@ -59,7 +59,7 @@
   </node>    
 
   <node respawn="true" pkg="joy"
-        type="joy" name="turtle_joy" >
+        type="joy_node" name="turtle_joy" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
   </node>
