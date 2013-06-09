@@ -37,15 +37,15 @@ class miabot_tracker:
 
         location = rospy.get_param('/vision_tracker/background_image')
         background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
-        threshold = 100
-        erode_iterations = 1
-        min_blob_size = 500
+        threshold = 75
+        erode_iterations = 3
+        min_blob_size = 1000
         max_blob_size = 2000
         scale = 1.7526/1024.0 #meters/pixel
         image_width = 1024
         image_height = 768
         self.storage = cv.CreateMemStorage()
-        self.tracker = DcslMiabotTracker([background], None, threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale)
+        self.tracker = DcslMiabotTracker([background], [None], threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale)
 
     
         # For testing
@@ -129,10 +129,10 @@ class miabot_tracker:
     # @param level
     def parameter_callback(self, config, level):
         if "tracker" in self.__dict__:
-            self.tracker.threshold = config["binary_threshold"]
-            self.tracker.erode_iterations = config["erode_iterations"]
-            self.tracker.min_blob_size = config["min_blob_size"]
-            self.tracker.max_blob_size = config["max_blob_size"]
+            self.tracker.threshold = int(config["binary_threshold"])
+            self.tracker.erode_iterations = int(config["erode_iterations"])
+            self.tracker.min_blob_size = int(config["min_blob_size"])
+            self.tracker.max_blob_size = int(config["max_blob_size"])
             self.tracker.scale = config["scale"]
             location = config["background_file"]
             background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)

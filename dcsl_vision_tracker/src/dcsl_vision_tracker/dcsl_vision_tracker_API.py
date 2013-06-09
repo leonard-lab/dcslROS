@@ -283,10 +283,12 @@ class DcslMiabotTracker(DcslVisionTracker):
     def get_image_poses(self, contours):
         image_poses = [] # List to store measured poses
         cr = contours #Copy contours to not change original variable
-        
         while cr is not None:
             # Find area of blob and reject those not the size of a robot
-            blob_size = cv.ContourArea(cr)
+            ##blob_size = cv.ContourArea(cr)
+            # Contour Area is not robust to concave shapes and can return NaN in this case
+            box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
+            blob_size = box[1][0]*box[1][1]
             if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
                 moments = cv.Moments(cr, False)
                 # Find center of blob
@@ -317,10 +319,10 @@ class DcslMiabotTracker(DcslVisionTracker):
                 pose.set_position((center[0],center[1],0))
                 pose.set_quaternion((0,0,theta,0))
                 image_poses.append(pose)
-                del box
+            del box
             #Cycle to next contour
             cr=cr.h_next()
-        del cr 
+        del cr
         return image_poses
         
 #############################################################################

@@ -164,7 +164,7 @@ public:
         }
         else // robot was not tracked in this measurement
         {
-          ROS_ERROR_STREAM("no measurement for robot " << m << ", skipping state update");
+          ROS_WARN_STREAM("no measurement for robot " << m << ", skipping state update");
         }
         // place the updated state into the message to be published
         vectorToPose(x[m], current_pose);
