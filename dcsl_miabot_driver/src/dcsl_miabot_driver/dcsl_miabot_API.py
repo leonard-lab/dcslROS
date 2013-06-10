@@ -5,7 +5,7 @@
 
 ## @author Brendan Andrade
 
-import math
+import math as m
 from bluetooth import *
 
 
@@ -46,6 +46,7 @@ class Miabot(object):
         except:
             raise
         self.port = port
+
     ##
     #
     #
@@ -64,7 +65,26 @@ class Miabot(object):
     #
     #
     def sendMotorCommand(self, lin_vel, ang_vel):
-        pass
+        # Parameters
+        diffConversionFactor = 0.1 # Distance between the wheels in meters
+        motorScaleFactor = 1000 # Commands are received in the Twist message in meters and the robot accepts them in mm. This is the scale factor.
+
+        targetTransVel = lin_vel
+        targetRotVel = ang_vel
+
+        # Difference in speed between the wheels as this is a differential drive robot
+        # rotTerm = targetRotVel / diffConversionFactor
+        
+        # Motor speeds in mm/s
+        # leftVel = int((targetTransVel - rotTerm) * motorScaleFactor)
+        # rightVel = int((targetTransVel + rotTerm) * motorScaleFactor)
+        
+        leftVel = int((targetTransVel - targetRotVel*diffConversionFactor/(2.0*m.pi))*motorScaleFactor)
+        rightVel = int((targetTransVel + targetRotVel*diffConversionFactor/(2.0*m.pi))*motorScaleFactor)
+
+        # Create string for commanding wheel speed and write it to the serial port.
+        motorCommand = '[=<' + str(leftVel) + '><' + str(rightVel) + '>]' + '\n'
+        self.send(motorCommand)
 
     ##
     #
