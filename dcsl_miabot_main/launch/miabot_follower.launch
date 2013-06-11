@@ -42,13 +42,11 @@
   </node>
 
   <group ns="robot" >
-    <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" args="/dev/rfcomm0" >
-      <param name="serial_port" value="/dev/rfcomm0" />
+    <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" >
       <remap from="cmd_vel" to="cmd_vel0" />
       <!-- miabot0 will take in "cmd_vel0" from miabot_joy -->
     </node>
-    <node name="miabot1" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" args="/dev/rfcomm1">
-      <param name="serial_port" value="/dev/rfcomm1" />
+    <node name="miabot1" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" >
       <remap from="cmd_vel" to="cmd_vel1" />
       <!-- miabot1 will take in "cmd_vel1" from swarm_director -->
     </node>
@@ -67,7 +65,7 @@
  <!-- Axes -->
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="0" type="int"/>
-  <param name="scale_linear" value="0.1" type="double"/>
-  <param name="scale_angular" value="0.2" type="double"/>
+  <param name="scale_linear" value="0.2" type="double"/>
+  <param name="scale_angular" value="6" type="double"/>
 
 </launch>

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_miabot_driver)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS std_msgs geometry_msgs rospy roscpp)
+set(CATKIN_DEPS message_generation message_runtime std_msgs geometry_msgs rospy roscpp genmsg actionlib actionlib_msgs)
 set(SYS_DEPS python-bluez python-sys)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
@@ -15,8 +15,20 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
+# Add action files
+add_action_files(
+  DIRECTORY action
+  FILES ConnectMiabot.action
+)
+
 # Install python scripts using distutils
 catkin_python_setup()
+
+
+# Generate action messages
+generate_messages(
+  DEPENDENCIES actionlib_msgs
+)
 
 ## DEPENDS: system dependencies of this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need

@@ -1,11 +1,12 @@
 <launch>
 
  <!-- dcsl_miabot_driver Node-->
-  <node pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" name="miabot2" args="1"/>
-
+ 
+ <node pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" name="miabot2" />
+ 
 
  <!-- joy node -->
-  <node respawn="true" pkg="joy"
+ <node respawn="true" pkg="joy"
         type="joy_node" name="joy_node" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
