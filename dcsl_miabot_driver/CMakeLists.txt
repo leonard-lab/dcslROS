@@ -4,7 +4,7 @@ project(dcsl_miabot_driver)
 
 # Load catkin and all dependencies required for this package
 set(CATKIN_DEPS std_msgs geometry_msgs rospy roscpp)
-set(SYS_DEPS python-serial python-sys)
+set(SYS_DEPS python-bluez python-sys)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
@@ -37,6 +37,6 @@ install(TARGETS dcsl_miabot_joy
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_driver.py
+install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_driver.py src/dcsl_miabot_driver/dcsl_miabot_API.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )

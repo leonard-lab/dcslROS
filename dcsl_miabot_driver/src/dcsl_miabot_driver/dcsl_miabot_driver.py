@@ -13,7 +13,7 @@ import sys
 import rospy
 from geometry_msgs.msg import Twist
 
-from dcsl_miabot_driver.dcsl_miabot_API import *
+from dcsl_miabot_API import *
 
 
 ##
@@ -25,7 +25,8 @@ class MiabotNode(object):
     #
     def __init__(self, port):
         self.sub = rospy.Subscriber("cmd_vel", Twist, self.callback)
-        self.miabot = Miabot(port)
+        self.miabot = Miabot()
+	self.miabot.connect(port)
         
 
     ## The callback function for when a Twist message is published on the cmd_vel topic.
@@ -49,11 +50,11 @@ def main(port):
     rospy.init_node('dcsl_miabot',anonymous=True)
     miabot_node = MiabotNode(port)
     rospy.spin()
-    rospy.on_shutdown(MiabotNode.shutdown())
+    rospy.on_shutdown(miabot_node.shutdown())
 
 
 if __name__ == "__main__":
     args = rospy.myargv(argv=sys.argv)
-    port = args[1]
+    port = int(args[1])
     main(port)
         
