@@ -12,13 +12,14 @@ from bluetooth import *
 ##
 #
 #
-class Miabot(object):
+class Miabot(object): 
     
     ##
     #
     #
     def __init__(self, bdaddr = None):
         if bdaddr == None:
+            
             try:
                 nearby_bdaddrs = discover_devices()
             except:
@@ -40,7 +41,7 @@ class Miabot(object):
         except:
             raise
         '''
-
+        print "Attempting connection to " + self.bdaddr + " on port " + str(port) + "."
         try:
             self.socket.connect((self.bdaddr, port))
         except:
@@ -98,5 +99,3 @@ class Miabot(object):
     #
     def test(self):
         pass
-
-    
