@@ -23,9 +23,12 @@ class MiabotNode(object):
     ##
     #
     #
-    def __init__(self, port):
+    def __init__(self, port, bdaddr = None):
         self.sub = rospy.Subscriber("cmd_vel", Twist, self.callback)
-        self.miabot = Miabot()
+        if bdaddr is None:
+            self.miabot = Miabot()
+        else:
+            self.miabot = Miabot(baddr)
 	self.miabot.connect(port)
         
 
@@ -46,9 +49,12 @@ class MiabotNode(object):
 ## Main function which is called when the node begins
 #
 # Initializes the node and creates miabot_node object
-def main(port):
+def main(port, bdaddr = None):
     rospy.init_node('dcsl_miabot',anonymous=True)
-    miabot_node = MiabotNode(port)
+    if bdaddr is None:
+        miabot_node = MiabotNode(port)
+    else:
+        miabot_mode = MiabotNode(port, bdaddr = bdaddr)
     rospy.spin()
     rospy.on_shutdown(miabot_node.shutdown())
 
@@ -56,5 +62,8 @@ def main(port):
 if __name__ == "__main__":
     args = rospy.myargv(argv=sys.argv)
     port = int(args[1])
-    main(port)
+    if len(args) is 3:
+        main(port, bdaddr = args[2])
+    else:
+        main(port)
         
