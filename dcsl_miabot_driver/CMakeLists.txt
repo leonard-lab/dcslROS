@@ -41,6 +41,8 @@ catkin_package(
     LIBRARIES
 )
 
+include_directories(include ${catkin_INCLUDE_DIRS})
+
 add_executable(dcsl_miabot_joy src/dcsl_miabot_joy.cpp)
 target_link_libraries(dcsl_miabot_joy ${catkin_LIBRARIES})
 
@@ -49,6 +51,6 @@ install(TARGETS dcsl_miabot_joy
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_driver.py src/dcsl_miabot_driver/dcsl_miabot_API.py
+install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_node.py src/dcsl_miabot_driver/dcsl_miabot_API.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )

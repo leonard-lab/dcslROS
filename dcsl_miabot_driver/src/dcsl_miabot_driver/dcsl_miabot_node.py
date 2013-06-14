@@ -27,7 +27,7 @@ class MiabotNode(object):
     #
     def __init__(self, port, bdaddr = None):
         self.port = port
-        self.server = actionlib.SimpleActionServer('connect_miabot', ConnectMiabot, self.connect, False)
+        self.server = actionlib.SimpleActionServer('connect_miabot', ConnectMiabotAction, self.connect, False)
         self.server.start()
         self.connected = False
         self.bdaddr = bdaddr
