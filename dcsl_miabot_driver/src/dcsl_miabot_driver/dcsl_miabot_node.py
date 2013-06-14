@@ -22,12 +22,16 @@ from dcsl_miabot_API import *
 #
 #
 class MiabotNode(object):
-    ##
+    
+    _feedback = ConnectMiabotFeedback()
+    _result = ConnectMiabotResult()
+##
     #
     #
-    def __init__(self, port, bdaddr = None):
+    def __init__(self, name, port, bdaddr = None):
+        self._action_name = name
         self.port = port
-        self.server = actionlib.SimpleActionServer('connect_miabot', ConnectMiabotAction, self.connect, False)
+        self.server = actionlib.SimpleActionServer(self._action_name, ConnectMiabotAction, self.connect, False)
         self.server.start()
         self.connected = False
         self.bdaddr = bdaddr
@@ -56,23 +60,31 @@ class MiabotNode(object):
     #
     #
     def connect(self, goal):
-        if self.bdaddr is None:
-            self.miabot = Miabot()
-        else:
-            self.miabot = Miabot(bdaddr)
-	self.miabot.connect(self.port)
-        self.connected = True
-        self.server.set_succeeded()
+        if goal.connect is True:
+            self._feedback.in_progress = True;
+            self.server.publish_feedback(self._feedback)
+            if self.bdaddr is None:
+                self.miabot = Miabot()
+            else:
+                self.miabot = Miabot(bdaddr)
+            self.miabot.connect(self.port)
+            self.connected = True
+            self._feedback.in_progress = False;
+            self.server.publish_feedback(self._feedback)
+            self._result.connected = True
+            self.server.set_succeeded(self._result)
+        
         
 ## Main function which is called when the node begins
 #
 # Initializes the node and creates miabot_node object
 def main(port = 1, bdaddr = None):
-    rospy.init_node('dcsl_miabot',anonymous=True)
+    rospy.init_node('dcsl_miabot_node',anonymous=False)
+    name = rospy.get_name()
     if bdaddr is None:
-        miabot_node = MiabotNode(port)
+        miabot_node = MiabotNode(name, port)
     else:
-        miabot_node = MiabotNode(port, bdaddr = bdaddr)
+        miabot_node = MiabotNode(name, port, bdaddr = bdaddr)
     try:
         rospy.spin()
     except KeyboardInterrupt:
