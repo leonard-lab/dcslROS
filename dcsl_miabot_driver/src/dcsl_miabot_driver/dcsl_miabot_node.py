@@ -47,14 +47,16 @@ class MiabotNode(object):
             self.miabot.sendMotorCommand(cmd_vel.linear.x, cmd_vel.angular.z)
         else:
             msg = "Command received but miabot not connected"
-            rospy.logwarn(msg)
+            # rospy.logwarn(msg)
         
     ##
     #
     #
     def shutdown(self):
-        self.miabot.stop()
-        self.miabot.close()
+        if self.connected:
+            rospy.loginfo("Shutting down miabot...")
+            self.miabot.stop()
+            self.miabot.close()
 
     ## 
     #
@@ -90,17 +92,16 @@ class MiabotNode(object):
 def main(port = 1, bdaddr = None):
     rospy.init_node('dcsl_miabot_node',anonymous=True)
     name = rospy.get_name()
+
     if bdaddr is None:
         miabot_node = MiabotNode(name, port)
     else:
         miabot_node = MiabotNode(name, port, bdaddr = bdaddr)
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        rospy.loginfo("Shutting down miabot...")
-        miabot_node.shutdown()
 
+    rospy.spin()
+    rospy.on_shutdown(miabot_node.shutdown())
 
+        
 if __name__ == "__main__":
     args = rospy.myargv(argv=sys.argv)
     if len(args) is 2:
