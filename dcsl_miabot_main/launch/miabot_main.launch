@@ -19,9 +19,7 @@
   </node >
 
   <group ns="robot" >
-    <node name="miabotA" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" args="/dev/rfcomm0" >
-      <remap from="/robot/cmd_vel" to="/cmd_vel0" />
-    </node > 
+    <include file="$(find dcsl_miabot_main)/launch/miabot0.launch" />
   </group >    
 
   <node name="low_level_controller" pkg="dcsl_low_level_control" 
