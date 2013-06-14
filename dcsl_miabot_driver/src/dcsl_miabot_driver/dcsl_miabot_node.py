@@ -64,6 +64,7 @@ class MiabotNode(object):
             self._feedback.in_progress = True;
             self.server.publish_feedback(self._feedback)
             if self.bdaddr is None:
+                rospy.loginfo("Scanning for devices...")
                 self.miabot = Miabot()
             else:
                 self.miabot = Miabot(bdaddr)
@@ -73,13 +74,21 @@ class MiabotNode(object):
             self.server.publish_feedback(self._feedback)
             self._result.connected = True
             self.server.set_succeeded(self._result)
+            rospy.loginfo("Connected: " + self._action_name)
+        else:
+            if self.connected is True:
+                self.miabot.close()
+            self._result.connected = False
+            self.server.set_succeeded(self._result)
+            self.connected = False
+            rospy.loginfo("Disconnected: " + self._action_name)
         
         
 ## Main function which is called when the node begins
 #
 # Initializes the node and creates miabot_node object
 def main(port = 1, bdaddr = None):
-    rospy.init_node('dcsl_miabot_node',anonymous=False)
+    rospy.init_node('dcsl_miabot_node',anonymous=True)
     name = rospy.get_name()
     if bdaddr is None:
         miabot_node = MiabotNode(name, port)
