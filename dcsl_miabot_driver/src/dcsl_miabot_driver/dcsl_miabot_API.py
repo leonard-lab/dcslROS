@@ -19,7 +19,6 @@ class Miabot(object):
     #
     def __init__(self, bdaddr = None):
         if bdaddr == None:
-            
             try:
                 nearby_bdaddrs = discover_devices()
             except:
@@ -28,7 +27,7 @@ class Miabot(object):
                     bdaddr = nearby_bdaddrs[0]
             else:
                 raise Exception("Miabot initialization error: No bdaddr provided and no miabot found.")
-        self.socket = BluetoothSocket( RFCOMM )
+        
         self.bdaddr = bdaddr
         
     ##
@@ -41,6 +40,7 @@ class Miabot(object):
         except:
             raise
         '''
+        self.socket = BluetoothSocket( RFCOMM )
         print "Attempting connection to " + self.bdaddr + " on port " + str(port) + "."
         try:
             self.socket.connect((self.bdaddr, port))
