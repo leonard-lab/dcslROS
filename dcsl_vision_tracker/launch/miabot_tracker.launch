@@ -1,0 +1,7 @@
+<launch>
+
+  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_miabot_tracker.py" output="screen">
+    <param name="background_image" value="$(find dcsl_vision_tracker)/config/miabot_background.png" />
+  </node >
+
+</launch>

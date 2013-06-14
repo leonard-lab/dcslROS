@@ -1,9 +1,10 @@
 <launch>
 
- <!-- dcsl_miabot_driver Node-->
- 
- <node pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" name="miabot2" />
- 
+  <!-- Miabot Robot Node -->
+  <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_node.py" output="screen" />
+
+  <!--Action Client Node -->
+  <node name="miabot0_action_client" pkg="actionlib" type="axclient.py" args="/miabot0" />
 
  <!-- joy node -->
  <node respawn="true" pkg="joy"

@@ -1,0 +1,11 @@
+<launch>
+
+  <!-- Miabot Robot Node -->
+  <node name="miabot1" pkg="dcsl_miabot_driver" type="dcsl_miabot_node.py" output="screen" >
+    <remap from="cmd_vel" to="cmd_vel1" />
+  </node>
+
+  <!--Action Client Node -->
+  <node name="miabot1_action_client" pkg="actionlib" type="axclient.py" args="/miabot1" />
+
+</launch>
