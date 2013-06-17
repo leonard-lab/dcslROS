@@ -86,7 +86,7 @@ class Miabot(object):
 
         if leftVel > max_motor_speed:
             leftVel = max_motor_speed
-        elif lefVel < -1*max_motor_speed:
+        elif leftVel < -1*max_motor_speed:
             leftVel = -1*max_motor_speed
 
         if rightVel > max_motor_speed:
