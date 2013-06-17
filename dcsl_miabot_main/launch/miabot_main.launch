@@ -2,33 +2,36 @@
   
   <param name="/n_robots" value="1" />
 
-  <node name="camera" pkg="camera1394" type="camera1394_node" >
-    <rosparam file="$(find dcsl_vision_tracker)/config/miabot_camera.yaml" />
-  </node>
+   <!-- Launch cameras and processors -->
+  <include file="$(find dcsl_vision_tracker)/launch/miabot_camera_only.launch" />
 
-  <node name="image_proc" pkg="image_proc" type="image_proc" ns="camera" >
-    <remap from="image" to="camera/image_raw" />
-  </node>
+  <!-- Launch tracking -->
+  <include file="$(find dcsl_vision_tracker)/launch/miabot_tracker.launch" />
+  
+  <!-- Launch image viewer -->
+  <include file="$(find dcsl_vision_tracker)/launch/miabot_view_tracking.launch" />
 
-  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_miabot_tracker.py" >
-    <param name="background_image" value="$(find dcsl_vision_tracker)/config/miabot_background.png" />
-  </node >
-
-  <node name="tracked_image_viewer" pkg="image_view" type="image_view" >
-    <remap from="image" to="/tracked_image" />
-  </node >
-
-  <group ns="robot" >
-    <include file="$(find dcsl_miabot_main)/launch/miabot0.launch" />
-  </group >    
-
+  <!-- Launch robot -->
+  <include file="$(find dcsl_miabot_main)/launch/miabot0.launch" />
+  
+  <!-- Low level controller -->
   <node name="low_level_controller" pkg="dcsl_low_level_control" 
-    type="dcsl_miabot_low_level_control" args="--way">
+	type="dcsl_miabot_low_level_control" args="--vel">
+    <!--
     <param name="waypoint_gain_1" value="0.3" type="double" />
     <param name="waypoint_gain_2" value="0.1" type="double" />
+    -->
   </node > 
 
-  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
-  </node >
-  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" />
+  <!-- Director -->
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" />
+
+  <!-- Estimator -->
+  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" >
+    <param name="initial_poses" value="[0.0, 0.0, 0.0]" />
+  </node>
+
+  <!-- Websocket bridge -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
 </launch>
