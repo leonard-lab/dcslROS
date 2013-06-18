@@ -40,13 +40,22 @@ class ekf(object):
     #
     #
     def estimate(self, t, z):
-        pass
+        x_hat_minus = self.look_forward(t)
+        P_minus = self._propagate_covariance_estimate(t)
+        K = self._calculate_filter_gain(t, x_hat_minus, P_k_minus)
+        x_hat_plus = self._update_state_estimate(t, x_hat_minus, z, K)
+        P_plus = self._update_covariance(t, x_hat_minus, P_minus, K)
+        self._x_hat_plus = x_hat_plus
+        self._P_plus = P_plus
+        self._t = t
+        self._u = self._u[-1]
+        return x_hat_plus
         
     
     ##
     #
     #
-    def propagate_state(self, t, input_history = None):
+    def look_forward(self, t, input_history = None):
         inputs = self._u
         if input_history is not None:
             inputs.append(input_history)
@@ -63,32 +72,36 @@ class ekf(object):
     ##
     #
     #
-    def _propagate_covariance(self, x, u, t, dt, p):
-        F_t = self.F(x, u, t);
-        p_plus = p + dt*(F_t*p + p*np.transpose(F_t) + obj.Q) #Is this right?
-        return p_plus
+    def _propagate_covariance_estimate(self, t):
+        t_array = np.array([self._t, t])
+        P_k_minus = self._P_plus + odeint(self._covar_propagation_integral_function, self._P_plus, t_array, args=(obj._u,))
+        return P_k_minus[-1]
     
     ##
     #
     #
-    def _calculate_filter_gain(self, p):
-        k = np.inverse(p + self.R)
-        return k
+    def _calculate_filter_gain(self, t, x_hat_minus, P_k_minus):
+        H = self.H(x_hat_minus, t)
+        K = P_k_minus*np.transpose(H)*np.inverse(H*P_k_minus*np.transpose(H) + self.R)
+        return K
 
     ##
     #
     #
-    def _update_state(self, x, y, k):
-        x_plus = x + k*(y - x)
-        return x_plus
+    def _update_state_estimate(self, t, x_hat_minus, z, K):
+        x_hat_plus = x_hat_minus + K*(z - self.h(x_hat_minus, t))
+        return x_hat_plus
     
     ##
     #
     #
-    def _update_covariance(self, p, k):
-        p_plus = (np.identity(k.shape[1]) - k)*p
-        return p_plus
+    def _update_covariance(self, t, x_hat_minus, P_k_minus, K):
+        P_k_plus = (np.identity(K.shape[1]) - K*self.H(x_hat_minus, t))*P_k_minus
+        return P_k_plus
 
+    ##
+    #
+    #
     def _state_propagation_integral_function(self, x, t, input_history):
         # Determine the value of u at t
         u = self._u_at_t(t, input_history)
@@ -97,10 +110,19 @@ class ekf(object):
         x_dot = self.f(x, u, t)
         return x_dot
 
+    ##
+    #
+    #
     def _covar_propagation_integral_function(self, p, t, input_history):
         u = self._u_at_t(t, input_history)
+        x = self.lookforward(t)
+        F = self.F(x, u, t)
+        P_dot = F*self._P_plus + self._P_plus*np.transpose(F) + self.L*self.Q*np.transpose(self.L)
+        return P_dot
         
-
+    ##
+    #
+    #
     def _u_at_t(self, t, input_history):
         if len(input_history) is 1:
             u = input_history[0][1]
