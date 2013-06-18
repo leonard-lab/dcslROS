@@ -1,6 +1,6 @@
 <launch>
   
-  <param name="/n_robots" value="1" />
+  <param name="/n_robots" value="2" />
 
    <!-- Launch cameras and processors -->
   <include file="$(find dcsl_vision_tracker)/launch/miabot_camera_only.launch" />
@@ -13,6 +13,7 @@
 
   <!-- Launch robot -->
   <include file="$(find dcsl_miabot_main)/launch/miabot0.launch" />
+  <include file="$(find dcsl_miabot_main)/launch/miabot1.launch" />
   
   <!-- Low level controller -->
   <node name="low_level_controller" pkg="dcsl_low_level_control" 
@@ -28,7 +29,7 @@
 
   <!-- Estimator -->
   <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" >
-    <param name="initial_poses" value="[0.0, 0.0, 0.0]" />
+    <param name="initial_poses" value="[0.0, 0.0, 0.0, -0.5, 0.0, 0.0]" />
   </node>
 
   <!-- Websocket bridge -->
