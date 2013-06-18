@@ -152,23 +152,22 @@ public:
   /// \param[in] velocityPose          PoseArray of desired robot velocities. Linear velocity is 
   ///                                  stored in position.x of each pose, and angular velocity is
   ///                                  stored in orientation.z of each pose.
- void velocityCallback(const geometry_msgs::PoseArray velocityPose)
+ void velocityCallback(const dcsl_messages::TwistArray velocityIn)
   {
-    if(int(velocityPose.poses.size()) == numRobots)
+    if(int(velocityIn.twists.size()) >= numRobots)
     {
       dcsl_messages::TwistArray velocities;
       geometry_msgs::Twist currentTwist;
       for (int m = 0; m < numRobots; m++)
       {
-        currentTwist.linear.x = velocityPose.poses[m].position.x;
-        currentTwist.angular.z = velocityPose.poses[m].orientation.z;
+        currentTwist = velocityIn.twists[m];
         velocities.twists.push_back(currentTwist);
       }
       Pub_low_level.publish(velocities);
     }
     else
     {
-      ROS_ERROR_STREAM("number of velocity inputs did not match numRobots, skipping...");
+      ROS_ERROR_STREAM("number of velocity inputs less than numRobots, skipping...");
     }
   }
 };
