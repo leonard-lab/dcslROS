@@ -42,7 +42,7 @@ class ekf(object):
     def estimate(self, t, z):
         x_hat_minus = self.look_forward(t)
         P_minus = self._propagate_covariance_estimate(t)
-        K = self._calculate_filter_gain(t, x_hat_minus, P_k_minus)
+        K = self._calculate_filter_gain(t, x_hat_minus, P_minus)
         x_hat_plus = self._update_state_estimate(t, x_hat_minus, z, K)
         P_plus = self._update_covariance(t, x_hat_minus, P_minus, K)
         self._x_hat_plus = x_hat_plus
@@ -74,29 +74,40 @@ class ekf(object):
     #
     def _propagate_covariance_estimate(self, t):
         t_array = np.array([self._t, t])
-        P_k_minus = self._P_plus + odeint(self._covar_propagation_integral_function, self._P_plus, t_array, args=(obj._u,))
+        P_k_minus = self._P_plus + odeint(self._covar_propagation_integral_function, self._P_plus, t_array, args=(self._u,))
         return P_k_minus[-1]
     
     ##
     #
     #
     def _calculate_filter_gain(self, t, x_hat_minus, P_k_minus):
-        H = self.H(x_hat_minus, t)
-        K = P_k_minus*np.transpose(H)*np.inverse(H*P_k_minus*np.transpose(H) + self.R)
+        H = np.asmatrix(self.H(x_hat_minus, t))
+        R = np.asmatrix(self.R)
+        P_k_minus = np.asmatrix(P_k_minus)
+        print "H"
+        print H
+        print "R"
+        print R
+        print "P"
+        print P_k_minus
+        K = P_k_minus*H.T*np.linalg.inv(H*P_k_minus*H.T + R)
         return K
 
     ##
     #
     #
     def _update_state_estimate(self, t, x_hat_minus, z, K):
-        x_hat_plus = x_hat_minus + K*(z - self.h(x_hat_minus, t))
+        K = np.asmatrix(K)
+        x_hat_plus = x_hat_minus + K*np.asmatrix(z - self.h(x_hat_minus, t))
         return x_hat_plus
     
     ##
     #
     #
     def _update_covariance(self, t, x_hat_minus, P_k_minus, K):
-        P_k_plus = (np.identity(K.shape[1]) - K*self.H(x_hat_minus, t))*P_k_minus
+        K = np.asmatrix(K)
+        H = np.asmatrix(self.H(x_hat_minus, t))
+        P_k_plus = (np.eye(K.shape[1]) - K*H)*np.asmatrix(P_k_minus)
         return P_k_plus
 
     ##
@@ -114,10 +125,13 @@ class ekf(object):
     #
     #
     def _covar_propagation_integral_function(self, p, t, input_history):
-        u = self._u_at_t(t, input_history)
-        x = self.lookforward(t)
-        F = self.F(x, u, t)
-        P_dot = F*self._P_plus + self._P_plus*np.transpose(F) + self.L*self.Q*np.transpose(self.L)
+        u = np.asmatrix(self._u_at_t(t, input_history))
+        x = np.asmatrix(self.lookforward(t))
+        F = np.asmatrix(self.F(x, u, t))
+        L = np.asmatrix(self.L)
+        Q = np.asmatrix(self.Q)
+        P_plus = np.asmatrix(self._P_plus)
+        P_dot = F*P_plus + P_plus*F.T + L*Q*L.T # .T is transpose method for numpy matrix objects
         return P_dot
         
     ##
