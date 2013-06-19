@@ -9,7 +9,7 @@
 
 import math as m
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import odeint, quadrature
 
 ########################################
 
@@ -23,24 +23,24 @@ class ekf(object):
     #
     def __init__(self, init_t, init_x, init_P, f, h, F, G, H, L, Q, R):
         self._t = init_t
-        self._x_hat_plus = init_x
-        self._P_plus = init_P
+        self._x_hat_plus = self._ra_to_cm(init_x)
+        self._P_plus = np.asmatrix(init_P)
         self._u = []
 
-        self.f = f
-        self.h = h
-        self.F = F
-        self.G = G
-        self.H = H
-        self.L = L
-        self.Q = Q
-        self.R = R
+        self._f = f
+        self._h = h
+        self._F = F
+        self._G = G
+        self._H = H
+        self._L = L
+        self._Q = np.asmatrix(Q)
+        self._R = np.asmatrix(R)
       
     ##
     #
     #
     def estimate(self, t, z):
-        x_hat_minus = self.look_forward(t)
+        x_hat_minus = self._ra_to_cm(self.look_forward(t))
         P_minus = self._propagate_covariance_estimate(t)
         K = self._calculate_filter_gain(t, x_hat_minus, P_minus)
         x_hat_plus = self._update_state_estimate(t, x_hat_minus, z, K)
@@ -49,18 +49,22 @@ class ekf(object):
         self._P_plus = P_plus
         self._t = t
         self._u = self._u[-1]
-        return x_hat_plus
+        return x_hat_plus # Change to return 1D array
         
     
     ##
     #
     #
     def look_forward(self, t, input_history = None):
+        x_hat_plus = self._cm_to_ra(self._x_hat_plus)
         inputs = self._u
         if input_history is not None:
             inputs.append(input_history)
-        t_array = np.array([self._t, t])
-        x_next = self._x_hat_plus + odeint(self._state_propagation_integral_function, self._x_hat_plus, t_array, args=(inputs,))
+        if t is self._t:
+            x_next = [x_hat_plus]
+        else:
+            t_array = np.array([self._t, t])
+            x_next = x_hat_plus + odeint(self._state_propagation_integral_function, x_hat_plus, t_array, args=(inputs,)) # Check output for x_hat_plus != 0
         return x_next[-1]
 
     ## 
@@ -73,23 +77,16 @@ class ekf(object):
     #
     #
     def _propagate_covariance_estimate(self, t):
-        t_array = np.array([self._t, t])
-        P_k_minus = self._P_plus + odeint(self._covar_propagation_integral_function, self._P_plus, t_array, args=(self._u,))
-        return P_k_minus[-1]
+        # t_array = np.array([self._t, t])
+        P_k_minus = self._P_plus + self._trap_mat(self._covar_propagation_integral_function, self._t, t, args=(self._u,))
+        return P_k_minus
     
     ##
     #
     #
     def _calculate_filter_gain(self, t, x_hat_minus, P_k_minus):
-        H = np.asmatrix(self.H(x_hat_minus, t))
-        R = np.asmatrix(self.R)
-        P_k_minus = np.asmatrix(P_k_minus)
-        print "H"
-        print H
-        print "R"
-        print R
-        print "P"
-        print P_k_minus
+        H = np.asmatrix(self._H(x_hat_minus, t))
+        R = self._R
         K = P_k_minus*H.T*np.linalg.inv(H*P_k_minus*H.T + R)
         return K
 
@@ -97,17 +94,16 @@ class ekf(object):
     #
     #
     def _update_state_estimate(self, t, x_hat_minus, z, K):
-        K = np.asmatrix(K)
-        x_hat_plus = x_hat_minus + K*np.asmatrix(z - self.h(x_hat_minus, t))
+        z_hat = np.asmatrix(self._h(self._cm_to_ra(x_hat_minus.T), t)).T
+        x_hat_plus = x_hat_minus + K*np.asmatrix(z - z_hat)
         return x_hat_plus
     
     ##
     #
     #
     def _update_covariance(self, t, x_hat_minus, P_k_minus, K):
-        K = np.asmatrix(K)
-        H = np.asmatrix(self.H(x_hat_minus, t))
-        P_k_plus = (np.eye(K.shape[1]) - K*H)*np.asmatrix(P_k_minus)
+        H = np.asmatrix(self._H(self._cm_to_ra(x_hat_minus), t))
+        P_k_plus = (np.eye(K.shape[1]) - K*H)*P_k_minus
         return P_k_plus
 
     ##
@@ -118,21 +114,24 @@ class ekf(object):
         u = self._u_at_t(t, input_history)
 
         #Determine x_dot
-        x_dot = self.f(x, u, t)
+        x_dot = self._f(x, u, t)
         return x_dot
 
     ##
     #
     #
-    def _covar_propagation_integral_function(self, p, t, input_history):
-        u = np.asmatrix(self._u_at_t(t, input_history))
-        x = np.asmatrix(self.lookforward(t))
-        F = np.asmatrix(self.F(x, u, t))
-        L = np.asmatrix(self.L)
-        Q = np.asmatrix(self.Q)
-        P_plus = np.asmatrix(self._P_plus)
-        P_dot = F*P_plus + P_plus*F.T + L*Q*L.T # .T is transpose method for numpy matrix objects
-        return P_dot
+    def _covar_propagation_integral_function(self, t, input_history):
+        u = self._u_at_t(t, input_history) # row_array
+        x = self.look_forward(t) # row array
+        print "T: " + str(t)
+        print "X: " + str(x)
+        print "U: " + str(u)
+        F = np.asmatrix(self._F(x, u, t))
+        L = np.asmatrix(self._L(x, u, t))
+        Q = self._Q
+        P_plus = self._P_plus
+        integrand = F*P_plus + P_plus*F.T + L*Q*L.T # .T is transpose method for numpy matrix objects
+        return integrand
         
     ##
     #
@@ -150,3 +149,23 @@ class ekf(object):
                     u = input_history[i][1]
         return u
         
+    ## 
+    #
+    #
+    def _cm_to_ra(self, x):
+        return np.squeeze(np.asarray(x.T))
+
+    ##
+    #
+    #
+    def _ra_to_cm(self, x):
+        return np.asmatrix(x).T
+
+    def _trap_mat(self, func, a, b, args=()):
+        steps = 10
+        t_array = np.linspace(a, b, steps)
+        y = 0
+        for i in xrange(0, steps):
+            y = y + (t_array[i+1]-t_array[i])*(func(t_array[i], *args) + func(t_array[i+1], *args))/2.0 
+            print y
+        return y

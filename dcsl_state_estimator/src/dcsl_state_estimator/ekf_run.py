@@ -7,9 +7,9 @@ import math as m
 from random import gauss
 
 def main():
-    init_t = 0
+    init_t = 0.
     init_x = np.zeros(7)
-    init_P = np.ones(7)*0.1
+    init_P = np.ones((7,7))*0.1
     noise = np.array([0.01, 0.01, 0., 0., 0., 0.01, 0.]) 
     R = np.identity(4)
     R[0][0] = noise[0]
@@ -18,7 +18,7 @@ def main():
     R[3][3] = noise[5]
     Q = np.identity(7) * 0.1
     e = ekf(init_t, init_x, init_P, f, h, F, G, H, L, Q, R)
-    t_list = np.linspace(0, 10, 100)
+    t_list = np.linspace(init_t+.1, 10, 101)
     dt = t_list[1] - t_list[0]
     x_hist = []
     x_hat_hist = []
@@ -32,6 +32,7 @@ def main():
         x_hist.append(x)
         y_hist.append(y)
         x_hat_hist.append(x_hat)
+        print "finished loop"
     
     print "Final states: x_hat[0]: " + str(x_hat_hist[-1][0]) + " x[0]: " + str(x_hist[-1][0]) + " y[0] " + str(y_hist[-1][0])
 
@@ -52,6 +53,7 @@ def h(x, t):
     y[1] = x[1]
     y[2] = x[2]
     y[3] = x[5]
+    return y
 
 def F(x, u, t):
     F = np.zeros((7, 7))
@@ -67,11 +69,11 @@ def G(x, u, t):
     return G
 
 def H(x, t):
-    H = np.zeros((7,4))
+    H = np.zeros((4,7))
     H[0][0] = 1.
     H[1][1] = 1.
     H[2][2] = 1.
-    H[5][3] = 1.
+    H[3][5] = 1.
     return H
 
 def L(x, u, t):
@@ -93,9 +95,12 @@ def direct_prop(x, u, dt, noise):
     x_out[6] = u[1]
     x_out[4] = u[2]
     x_out[3] = x[3] + u[2]*dt
-    y_out = np.zeros(7)
-    for index, state in enumerate(x_out):
-        y_out[index] = state + gauss(0, noise[index])
+    y_out = np.zeros(4)
+    
+    y_out[0] = x_out[0] + gauss(0, noise[0])
+    y_out[1] = x_out[1] + gauss(0, noise[1])
+    y_out[2] = x_out[2] + gauss(0, noise[2])
+    y_out[3] = x_out[5] + gauss(0, noise[3])
     return x_out, y_out
 
 if __name__ == "__main__":
