@@ -18,21 +18,22 @@ def main():
     R[3][3] = noise[5]
     Q = np.identity(7) * 0.1
     e = ekf(init_t, init_x, init_P, f, h, F, G, H, L, Q, R)
-    t_list = np.linspace(init_t+.1, 10, 101)
+    t_list = np.linspace(init_t, 10, 101)
     dt = t_list[1] - t_list[0]
     x_hist = []
     x_hat_hist = []
     y_hist = []
     x = init_x
+    u = np.array([0.05, .2, 0.])
+    e.update_u(t_list[0], u)
+    t_list = np.delete(t_list, 0, 0)
     for t in t_list:
-        u = np.array([0.05, .2, 0.])
-        e.update_u(t, u)
         x, y = direct_prop(x, u, dt, noise)
         x_hat = e.estimate(t, y)
+        e.update_u(t, u)
         x_hist.append(x)
         y_hist.append(y)
         x_hat_hist.append(x_hat)
-        print "finished loop"
     
     print "Final states: x_hat[0]: " + str(x_hat_hist[-1][0]) + " x[0]: " + str(x_hist[-1][0]) + " y[0] " + str(y_hist[-1][0])
 
