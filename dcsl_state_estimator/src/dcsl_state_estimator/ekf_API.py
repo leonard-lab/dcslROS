@@ -65,7 +65,7 @@ class ekf(object):
             x_next = [x_hat_plus]
         else:
             t_array = np.array([self._t, t])
-            x_next = x_hat_plus + odeint(self._state_propagation_integral_function, x_hat_plus, t_array, args=(inputs,)) # Check output for x_hat_plus != 0
+            x_next = odeint(self._state_propagation_integral_function, x_hat_plus, t_array, args=(inputs,)) # Check output for x_hat_plus != 0
         return x_next[-1]
 
     ## 
