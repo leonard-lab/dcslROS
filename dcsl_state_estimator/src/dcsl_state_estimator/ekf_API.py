@@ -21,12 +21,11 @@ class ekf(object):
     ##
     #
     #
-    def __init__(self, init_t, init_x, init_P, f, h, F, G, H, L, Q, R):
+    def __init__(self, init_t, init_x, init_P, init_u, f, h, F, G, H, L, Q, R):
         self._t = init_t
         self._x_hat_plus = self._ra_to_cm(init_x)
         self._P_plus = np.asmatrix(init_P)
-        self._u = []
-
+        self._u = [(init_t, init_u)]
         self._f = f
         self._h = h
         self._F = F
@@ -50,7 +49,7 @@ class ekf(object):
         self._P_plus = P_plus
         self._t = t
         self._u = [self._u[-1]]
-        return x_hat_plus # Change to return 1D array
+        return self._cm_to_ra(x_hat_plus)
         
     
     ##

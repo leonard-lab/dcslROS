@@ -10,6 +10,7 @@ def main():
     init_t = 0.
     init_x = np.zeros(7)
     init_P = np.ones((7,7))*0.1
+    init_u = np.zeros(3)
     noise = np.array([0.01, 0.01, 0., 0., 0., 0.01, 0.]) 
     R = np.identity(4)
     R[0][0] = noise[0]
@@ -17,7 +18,7 @@ def main():
     R[2][2] = noise[2]
     R[3][3] = noise[5]
     Q = np.identity(7) * 0.1
-    e = ekf(init_t, init_x, init_P, f, h, F, G, H, L, Q, R)
+    e = ekf(init_t, init_x, init_P, init_u, f, h, F, G, H, L, Q, R)
     t_list = np.linspace(init_t, 10, 101)
     dt = t_list[1] - t_list[0]
     x_hist = []
