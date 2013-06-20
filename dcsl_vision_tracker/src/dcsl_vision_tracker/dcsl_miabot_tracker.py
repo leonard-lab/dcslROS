@@ -11,6 +11,7 @@
 
 import rospy
 from geometry_msgs.msg import PoseArray,Pose
+from dcsl_messages.msg import StateArray
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from dynamic_reconfigure.server import Server
@@ -31,7 +32,7 @@ class miabot_tracker:
         self.image_pub = rospy.Publisher("tracked_image",Image)
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
         self.image_sub = rospy.Subscriber("/camera/image_rect",Image,self.imageCallback)
-        self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
+        self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
         self.bridge = CvBridge()
         self.srv = Server(Config, self.parameter_callback)
 
@@ -47,15 +48,17 @@ class miabot_tracker:
         self.storage = cv.CreateMemStorage()
         self.tracker = DcslMiabotTracker([background], [None], threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale)
 
-    
-        # For testing
-        temp1 = DcslPose()
-        temp1.set_position((0,0,0))
-        temp1.set_quaternion((0,0,0,0))
-        temp2 = DcslPose()
-        temp2.set_position((-1,-1,0))
-        temp2.set_quaternion((0,0,0,0))
-        self.current_states = [temp1,temp2]
+        # Get initial states
+        init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
+        n_robots = rospy.get_param('/n_robots')
+        self.init_states = []
+        for i, pose in enumerate(init_poses):
+            if i < n_robots:
+                temp = DcslPose()
+                temp.set_position((pose[0], pose[1], pose[2]))
+                temp.set_orientation((0., 0., pose[4], 0.))
+                self.init_states.append(temp)
+        self.current_states = self.init_states
         
 
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
@@ -114,13 +117,16 @@ class miabot_tracker:
     # @param data is the message received from the subscriber.
     def stateCallback(self, data):
         self.current_states = []
-        for pose in data.poses:
+        for i, state in enumerate(data.states):
             temp = DcslPose()
-            pos_x = pose.position.x
-            pos_y = pose.position.y
-            theta = pose.orientation.z
-            temp.set_position((pos_x,pos_y,0))
-            temp.set_quaternion((0,0,theta,0))
+            if state.pose.orientation.w == 1:
+                pos_x = state.pose.position.x
+                pos_y = state.pose.position.y
+                theta = state.pose.orientation.z
+                temp.set_position((pos_x,pos_y,0))
+                temp.set_quaternion((0,0,theta,0))
+            else:
+                temp = self.initial_states[i]
             self.current_states.append(temp)
 
     ## Call back function for parameter updates.
