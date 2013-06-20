@@ -13,14 +13,13 @@ import numpy as np
 #
 #
 class Miabot(object):
-    self.max_motor_speed = 1.0 # Maximum motor speed set by miabot_driver in m/s
-    self.d = 0.1 # Distance between the wheels in meters
 
     ##
     #
     #
     def __init__(self):
-        pass
+        self.max_motor_speed = 1.0 # Maximum motor speed set by miabot_driver in m/s
+        self.d = 0.1 # Distance between the wheels in meters
     
     ##
     #
