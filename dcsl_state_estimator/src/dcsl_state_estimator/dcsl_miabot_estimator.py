@@ -35,7 +35,7 @@ class MiabotEstimator:
     ##
     #
     #
-    def measurement_sub(self, data):
+    def measurement_callback(self, data):
         t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10.,-9)
         state_array = StateArray()
         for i, pose in enumerate(data.poses):
@@ -44,7 +44,7 @@ class MiabotEstimator:
                 z = self._pose_to_z_array(pose)
                 # Initialize ekf for robot if necessary
                 if self.ekfs[i] is None:
-                    state_estimate = np.array([z[0] z[1] z[2] 0. 0. z[3] 0.]) #Assume initial velocities are zero
+                    state_estimate = np.array([z[0], z[1], z[2], 0., 0., z[3], 0.]) #Assume initial velocities are zero
                     self.ekfs[i] = ekf(t, state_estimate, self.init_P, 
                                        self.init_u, self.miabot.f, self.miabot.h, 
                                        self.miabot.F, self.miabot.G, self.miabot.H, 
