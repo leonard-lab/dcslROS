@@ -24,7 +24,7 @@ class Miabot(object):
     ##
     #
     #
-    def f(x, u, t):
+    def f(self, x, u, t):
         x_dot = np.zeros(7)
         x_dot[0] = u[0]*m.cos(x[5])
         x_dot[1] = u[0]*m.sin(x[5])
@@ -38,7 +38,7 @@ class Miabot(object):
     ##
     #
     #
-    def h(x, t):
+    def h(self, x, t):
         y = np.zeros(4)
         y[0] = x[0]
         y[1] = x[1]
@@ -49,7 +49,7 @@ class Miabot(object):
     ##
     #
     #
-    def F(x, u, t):
+    def F(self, x, u, t):
         F = np.zeros((7, 7))
         F[0][5] = u[0]*-1.0*m.sin(x[5])
         F[1][5] = u[0]*m.cos(x[5])
@@ -58,7 +58,7 @@ class Miabot(object):
     ##
     #
     #
-    def G(x, u, t):
+    def G(self, x, u, t):
         G = np.zeros((7,3))
         G[0][0] = m.cos(x[5])
         G[1][0] = m.sin(x[5])
@@ -68,7 +68,7 @@ class Miabot(object):
     ##
     #
     #
-    def H(x, t):
+    def H(self, x, t):
         H = np.zeros((4,7))
         H[0][0] = 1.
         H[1][1] = 1.
@@ -79,6 +79,6 @@ class Miabot(object):
     ##
     #
     #
-    def L(x, u, t):
+    def L(self, x, u, t):
         L = np.identity(7)
         return L
