@@ -15,11 +15,7 @@
   <!-- Launch image viewer -->
   <include file="$(find dcsl_vision_tracker)/launch/miabot_view_tracking.launch" />
 
-  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" >
-    <!-- order of initial condition list is [x_1, y_1, theta_1, x_2, y_2, theta_2, etc] -->
-    <!-- so as it is, place the rfcomm0 miabot to the right of rfcomm1 miabot, both facing right -->
-    <param name="initial_poses" value="[0.2, 0.0, 0.0, -0.2, 0.0, 0.0]" />
-  </node>
+  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_estimator.py" />
 
   <node name="high_level_controller" pkg="dcsl_high_level_control"
     type="dcsl_miabot_follower_control" />
