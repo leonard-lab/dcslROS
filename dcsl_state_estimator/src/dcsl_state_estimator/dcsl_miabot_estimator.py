@@ -29,7 +29,10 @@ class MiabotEstimator:
 
         self.init_P = np.ones((7,7))*0.1
         self.init_u = np.array([0., 0., 0.])
-        
+        self.Q = np.identity(7)*0.1
+        self.R = np.identity(4)*0.01
+        self.R[3][3] = 0.05
+
         self.ekfs = [None]*7
         self.miabot = Miabot()
     ##
@@ -40,7 +43,7 @@ class MiabotEstimator:
         state_array = StateArray()
         for i, pose in enumerate(data.poses):
             # If robot was detected:
-            if pose.orientation.w is 1:
+            if (pose.orientation.w == 1.0):
                 z = self._pose_to_z_array(pose)
                 # Initialize ekf for robot if necessary
                 if self.ekfs[i] is None:
