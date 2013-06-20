@@ -56,7 +56,7 @@ class miabot_tracker:
             if i < n_robots:
                 temp = DcslPose()
                 temp.set_position((pose[0], pose[1], pose[2]))
-                temp.set_orientation((0., 0., pose[4], 0.))
+                temp.set_quaternion((0., 0., pose[3], 0.))
                 self.init_states.append(temp)
         self.current_states = self.init_states
         
