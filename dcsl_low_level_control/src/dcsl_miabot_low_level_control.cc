@@ -4,6 +4,7 @@
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseArray.h"
 #include "dcsl_messages/TwistArray.h"
+#include "dcsl_messages/StateArray.h"
 #include "dcsl_miabot_control_math.h"
 
 /// \file dcsl_miabot_low_level_control.cc
@@ -83,12 +84,12 @@ public:
   /// The new message is used in computing velocities towards the latest waypoints, which are
   /// published to the topic "cmd_vel_array" as a TwistArray
   /// \param[in] states          PoseArray of robot states containing position and heading of each robot.
-  void stateCallback(const geometry_msgs::PoseArray states)
+  void stateCallback(const dcsl_messages::StateArray data)
   {
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
     ROS_DEBUG_STREAM("received state message");
-    if(int(states.poses.size()) == numRobots)
+    if(int(data.states.size()) == numRobots)
     {
       dcsl_messages::TwistArray velocities;
       geometry_msgs::Twist currentTwist;
@@ -98,9 +99,9 @@ public:
 
       for (int i = 0; i < numRobots; i++) // loop through the robots
       {
-      	pos[0] = states.poses[i].position.x;
-        pos[1] = states.poses[i].position.y; 
-        pos[2] = states.poses[i].orientation.z;
+      	pos[0] = data.states[i].pose.position.x;
+        pos[1] = data.states[i].pose.position.y; 
+        pos[2] = data.states[i].pose.orientation.z;
         way[0] = waypoints_x[i];
         way[1] = waypoints_y[i];
         way[2] = waypoints_theta[i];
