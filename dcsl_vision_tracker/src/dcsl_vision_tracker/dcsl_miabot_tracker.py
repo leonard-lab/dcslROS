@@ -29,24 +29,6 @@ class miabot_tracker:
     
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
     def __init__(self):
-        self.image_pub = rospy.Publisher("tracked_image",Image)
-        self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        self.image_sub = rospy.Subscriber("/camera/image_rect",Image,self.imageCallback)
-        self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
-        self.bridge = CvBridge()
-        self.srv = Server(Config, self.parameter_callback)
-
-        location = rospy.get_param('/vision_tracker/background_image')
-        background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
-        threshold = 75
-        erode_iterations = 3
-        min_blob_size = 1000
-        max_blob_size = 2000
-        scale = 1.7526/1024.0 #meters/pixel
-        image_width = 1024
-        image_height = 768
-        self.storage = cv.CreateMemStorage()
-        self.tracker = DcslMiabotTracker([background], [None], threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale)
 
         # Get initial states
         init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
@@ -59,6 +41,19 @@ class miabot_tracker:
                 temp.set_quaternion((0., 0., pose[3], 0.))
                 self.init_states.append(temp)
         self.current_states = self.init_states
+
+        self.tracker = None #tracker initialized in parameter server callback to get defaults from server.
+        self.srv = Server(Config, self.parameter_callback)
+        self.image_pub = rospy.Publisher("tracked_image",Image)
+        self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
+        self.image_sub = rospy.Subscriber("/camera/image_rect",Image,self.imageCallback)
+        self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
+        self.bridge = CvBridge()
+        
+
+        
+
+        
         
 
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
@@ -134,7 +129,20 @@ class miabot_tracker:
     # @param config data received for parameter update
     # @param level
     def parameter_callback(self, config, level):
-        if "tracker" in self.__dict__:
+        if self.tracker is None:
+            location = rospy.get_param('/vision_tracker/background_image')
+            background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
+            threshold = int(config["binary_threshold"])
+            erode_iterations = int(config["erode_iterations"])
+            min_blob_size = int(config["min_blob_size"])
+            max_blob_size = int(config["max_blob_size"])
+            scale = config["scale"]
+            image_width = 1024
+            image_height = 768
+            self.storage = cv.CreateMemStorage()
+            self.tracker = DcslMiabotTracker([background], [None], threshold, erode_iterations, min_blob_size, 
+                                             max_blob_size, self.storage, image_width, image_height, scale)
+        else:
             self.tracker.threshold = int(config["binary_threshold"])
             self.tracker.erode_iterations = int(config["erode_iterations"])
             self.tracker.min_blob_size = int(config["min_blob_size"])
