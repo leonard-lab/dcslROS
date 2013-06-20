@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_high_level_control)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS roscpp geometry_msgs)
+set(CATKIN_DEPS roscpp geometry_msgs dcsl_messages)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 ## INCLUDE_DIRS: 
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 catkin_package(
-    DEPENDS roscpp geometry_msgs
+    DEPENDS roscpp geometry_msgs dcsl_messages
     CATKIN_DEPENDS # TODO
     INCLUDE_DIRS # TODO include
     LIBRARIES # TODO

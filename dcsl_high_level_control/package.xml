@@ -15,8 +15,10 @@
 
   <build_depend>roscpp</build_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>dcsl_messages</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>geometry_msgs</run_depend>
+  <run_depend>dcsl_messages</run_depend>
   <!-- <test_depend>roscpp</test_depend> -->
   <!-- <test_depend>geometry_msgs</test_depend> -->
 
