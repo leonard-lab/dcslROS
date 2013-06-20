@@ -33,14 +33,14 @@ class miabot_tracker:
         # Get initial states
         init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
         n_robots = rospy.get_param('/n_robots')
-        self.init_states = []
+        self.initial_states = []
         for i, pose in enumerate(init_poses):
             if i < n_robots:
                 temp = DcslPose()
                 temp.set_position((pose[0], pose[1], pose[2]))
                 temp.set_quaternion((0., 0., pose[3], 0.))
-                self.init_states.append(temp)
-        self.current_states = self.init_states
+                self.initial_states.append(temp)
+        self.current_states = self.initial_states
 
         self.tracker = None #tracker initialized in parameter server callback to get defaults from server.
         self.srv = Server(Config, self.parameter_callback)
@@ -82,6 +82,7 @@ class miabot_tracker:
             pose_array.poses.append(p)
 
         #Publish measuremented poses
+        pose_array.header.stamp = data.header.stamp
         self.measurement_pub.publish(pose_array)
 
         # Create BGR8 image to be output
