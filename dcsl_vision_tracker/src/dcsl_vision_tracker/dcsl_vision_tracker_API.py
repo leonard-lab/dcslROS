@@ -304,7 +304,10 @@ class DcslMiabotTracker(DcslVisionTracker):
                 # Box angle is more accurate than centroid method
                 previous_error = -1.0
                 theta = None
-                step_list = [-m.pi,-m.pi*0.5,0,m.pi*0.5]
+                if box[1][0] > box[1][1]:
+                    step_list = [-m.pi, 0]
+                else:
+                    step_list = [-m.pi*0.5, m.pi*0.5]
                 for step in step_list:
                     theta_test = theta_box+step
                     error = pow(theta_estimate-theta_test,2)
