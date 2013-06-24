@@ -283,54 +283,55 @@ class DcslMiabotTracker(DcslVisionTracker):
     def get_image_poses(self, contours):
         image_poses = [] # List to store measured poses
         cr = contours #Copy contours to not change original variable
-        while cr is not None:
-            # Find area of blob and reject those not the size of a robot
-            ##blob_size = cv.ContourArea(cr)
-            # Contour Area is not robust to concave shapes and can return NaN in this case
-            box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
-            blob_size = box[1][0]*box[1][1]
-            if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
-                moments = cv.Moments(cr, False)
-                # Find center of blob
+        if len(cr) is not 0:
+            while cr is not None:
+                # Find area of blob and reject those not the size of a robot
+                ##blob_size = cv.ContourArea(cr)
+                # Contour Area is not robust to concave shapes and can return NaN in this case
                 box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
-                center = (box[0][0], box[0][1])
-                # Find centroid of blob
-                centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
-                # Estimate heading by drawing line from centroid to center and finding heading of line
-                theta_estimate = -m.atan2(center[1]-centroid[1],center[0]-centroid[0])
-                # Theta is found using the minimum area box from above
-                theta_box = -m.pi/180.0*box[2] #Angle in the first quadrant of the minimum area box with the x-axis
-                # Test angle of box in each quadrant to see which is closest to angle found from centroid
-                # Box angle is more accurate than centroid method
-                previous_error = -1.0
-                theta = None
-                if box[1][0] > box[1][1]:
-                    step_list = [-m.pi, 0, m.pi]
-                else:
-                    step_list = [-m.pi*1.5, -m.pi*0.5, m.pi*0.5]
-                for step in step_list:
-                    theta_test = theta_box+step
-                    error = pow(theta_estimate-theta_test,2)
-                    if previous_error < 0:
-                        theta = theta_test
-                        previous_error = error
-                    elif error < previous_error:
-                        theta = theta_test
-                        previous_error = error
-                # Keep theta between -pi and pi T
-                # The way theta is found can only place it out of this bound by 2pi in either direction.
-                if theta >= m.pi:
-                    theta = theta - 2.*m.pi
-                elif theta < -m.pi:
-                    theta = theta + 2.*m.pi
-                # Append found pose to image_poses list
-                pose = DcslPose()
-                pose.set_position((center[0],center[1],0))
-                pose.set_quaternion((0,0,theta,0))
-                image_poses.append(pose)
-            del box
-            #Cycle to next contour
-            cr=cr.h_next()
+                blob_size = box[1][0]*box[1][1]
+                if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
+                    moments = cv.Moments(cr, False)
+                    # Find center of blob
+                    box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
+                    center = (box[0][0], box[0][1])
+                    # Find centroid of blob
+                    centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
+                    # Estimate heading by drawing line from centroid to center and finding heading of line
+                    theta_estimate = -m.atan2(center[1]-centroid[1],center[0]-centroid[0])
+                    # Theta is found using the minimum area box from above
+                    theta_box = -m.pi/180.0*box[2] #Angle in the first quadrant of the minimum area box with the x-axis
+                    # Test angle of box in each quadrant to see which is closest to angle found from centroid
+                    # Box angle is more accurate than centroid method
+                    previous_error = -1.0
+                    theta = None
+                    if box[1][0] > box[1][1]:
+                        step_list = [-m.pi, 0, m.pi]
+                    else:
+                        step_list = [-m.pi*1.5, -m.pi*0.5, m.pi*0.5]
+                    for step in step_list:
+                        theta_test = theta_box+step
+                        error = pow(theta_estimate-theta_test,2)
+                        if previous_error < 0:
+                            theta = theta_test
+                            previous_error = error
+                        elif error < previous_error:
+                            theta = theta_test
+                            previous_error = error
+                    # Keep theta between -pi and pi T
+                    # The way theta is found can only place it out of this bound by 2pi in either direction.
+                    if theta >= m.pi:
+                        theta = theta - 2.*m.pi
+                    elif theta < -m.pi:
+                        theta = theta + 2.*m.pi
+                    # Append found pose to image_poses list
+                    pose = DcslPose()
+                    pose.set_position((center[0],center[1],0))
+                    pose.set_quaternion((0,0,theta,0))
+                    image_poses.append(pose)
+                del box
+                #Cycle to next contour
+                cr=cr.h_next()
         del cr
         return image_poses
         
