@@ -305,9 +305,9 @@ class DcslMiabotTracker(DcslVisionTracker):
                 previous_error = -1.0
                 theta = None
                 if box[1][0] > box[1][1]:
-                    step_list = [-m.pi, 0]
+                    step_list = [-m.pi, 0, m.pi]
                 else:
-                    step_list = [-m.pi*0.5, m.pi*0.5]
+                    step_list = [-m.pi*1.5, -m.pi*0.5, m.pi*0.5]
                 for step in step_list:
                     theta_test = theta_box+step
                     error = pow(theta_estimate-theta_test,2)
@@ -317,6 +317,12 @@ class DcslMiabotTracker(DcslVisionTracker):
                     elif error < previous_error:
                         theta = theta_test
                         previous_error = error
+                # Keep theta between -pi and pi T
+                # The way theta is found can only place it out of this bound by 2pi in either direction.
+                if theta >= m.pi:
+                    theta = theta - 2.*m.pi
+                elif theta < -m.pi:
+                    theta = theta + 2.*m.pi
                 # Append found pose to image_poses list
                 pose = DcslPose()
                 pose.set_position((center[0],center[1],0))
