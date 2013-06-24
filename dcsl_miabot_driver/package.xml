@@ -34,6 +34,8 @@
   <run_depend>genmsg</run_depend>
   <run_depend>joy</run_depend>
   <run_depend>turtlebot_teleop</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
   <!-- <test_depend>std_msgs</test_depend> -->
   <!-- <test_depend>geometry_msgs</test_depend> -->
   <!-- <test_depend>rospy</test_depend> -->
@@ -42,6 +44,6 @@
   <!-- <test_depend>turtlebot_teleop</test_depend> -->
 
   <export>
-
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
 </package>
