@@ -92,13 +92,19 @@ class miabot_tracker:
         # Overlay position, heading, and contour
         length = 15.0
         radius = 5
+        text_offset = (-30, -20)
+        hscale = 0.5
+        vscale = 0.7
+        font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, hscale, vscale)
         cyan = cv.RGB(0,255,255)
-        for point in image_poses:
+        red = cv.RGB(255, 0, 0)
+        for index, point in enumerate(image_poses):
             if point.detected:
                 end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
                 center = (int(point.position_x()), int(point.position_y()))
-                cv.Line(output_image, center, end, cyan)
-                cv.Circle(output_image, center, radius, cyan)
+                cv.Line(output_image, center, end, red)
+                cv.Circle(output_image, center, radius, red)
+                cv.PutText(output_image, str("Robot ")+str(index), (center[0]+text_offset[0], center[1]+text_offset[1]), font, red)
         cv.DrawContours(output_image, contours, cyan, cyan, 2)
         
 
