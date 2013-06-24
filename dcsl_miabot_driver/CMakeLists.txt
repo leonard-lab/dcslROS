@@ -51,6 +51,6 @@ install(TARGETS dcsl_miabot_joy
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_node.py src/dcsl_miabot_driver/dcsl_miabot_API.py
+install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_node.py src/dcsl_miabot_driver/dcsl_miabot_API.py src/dcsl_miabot_driver/miabot_module.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
