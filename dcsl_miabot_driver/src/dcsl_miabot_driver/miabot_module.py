@@ -53,14 +53,38 @@ class MiabotPlugin(Plugin):
 
         # Initialize action client
         self.client = actionlib.SimpleActionClient('miabot0', ConnectMiabotAction)
+        self.client.wait_for_server()
 
     def _r0_clicked(self):
         if self.connected_list[0] is False:
-            self._widget._r0_button.setStyleSheet('QPushButton {color: green}')
-            self.connected_list[0] = True
+            goal = ConnectMiabotGoal(True)
+            self._widget._r0_button.setStyleSheet('QPushButton {color: yellow}')
+            self.client.send_goal(goal) 
+            self.client.wait_for_result() #Add process events to prevent ui freeze
+            response = self.client.get_result()
+            
+            if response.connected is True:
+                self._widget._r0_button.setStyleSheet('QPushButton {color: green}')
+                self._widget._r0_button.setText("Disconnect")
+                self.connected_list[0] = True
+            else:
+                self._widget._r0_button.setStyleSheet('QPushButton {color: red}')
+                self.connected_list[0] = False
+                self._widget._r0_button.setText("Connect")
         else:
-            self._widget._r0_button.setStyleSheet('QPushButton {color: red}')
-            self.connected_list[0] = False
+            goal = ConnectMiabotGoal(False)
+            self._widget._r0_button.setStyleSheet('QPushButton {color: yellow}')
+            self.client.send_goal(goal)
+            self.client.wait_for_result()
+            response = self.client.get_result()
+            if response.connected is False:
+                self._widget._r0_button.setStyleSheet('QPushButton {color: green}')
+                self.connected_list[0] = False
+                self._widget._r0_button.setText("Connect")
+            else:
+                self._widget._r0_button.setStyleSheet('QPushButton {color: red}')
+                self.connected_list[0] = True
+                self._widget._r0_button.setText("Disconnect")
 
     def shutdown_plugin(self):
         pass
