@@ -5,6 +5,8 @@ import os
 import rospy
 import rospkg
 
+import actionlib
+from dcsl_miabot_driver.msg import *
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -48,6 +50,9 @@ class MiabotPlugin(Plugin):
         # Miabot connection parameters
         self.n_robots = 7
         self.connected_list = [False]*self.n_robots
+
+        # Initialize action client
+        self.client = actionlib.SimpleActionClient('miabot0', ConnectMiabotAction)
 
     def _r0_clicked(self):
         if self.connected_list[0] is False:
