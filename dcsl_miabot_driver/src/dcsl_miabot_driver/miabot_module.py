@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
+import os
+
 import rospy
+import rospkg
+
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -10,24 +14,13 @@ class MiabotPlugin(Plugin):
     
     def __init__(self, context):
         super(MiabotPlugin, self).__init__(context)
+        rp = rospkg.RosPack()
+        # Get path to ui file.
+        ui_file = os.path.join(rp.get_path('dcsl_miabot_driver'), 'resource', 'miabot_module.ui')
         self.setObjectName('MiabotPlugin')
-        
-        # Process standalone plugin command-line arguments
-        from argparse import ArgumentParser
-        parser = ArgumentParser()
-        # Add argument(s) to the parser.
-        parser.add_argument("-q", "--quiet", action="store_true",
-                            dest="quiet",
-                            help="Put plugin in silent mode")
-        args, unknowns = parser.parse_known_args(context.argv())
-        if not args.quiet:
-            print 'arguments: ', args
-            print 'unknowns: ', unknowns
 
         # Create QWidget
         self._widget = QWidget()
-        # Get path to UI file which is a sibling of this file
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'miabot_module.ui')
         loadUi(ui_file, self._widget)
         self._widget.setObjectName('MiabotPluginUi')
         # Show _widget.windowTitle on left-top of each plugin (when 
@@ -36,6 +29,33 @@ class MiabotPlugin(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         # Add widget to the user interface
         context.add_widget(self._widget) 
+
+        # Set up button callbacks
+        self._widget._r0_button.clicked.connect(self._r0_clicked)
+        '''
+        self._widget._r1_button.clicked[bool].connect(self._r1_clicked)
+        self._widget._r2_button.clicked[bool].connect(self._r2_clicked)
+        self._widget._r3_button.clicked[bool].connect(self._r3_clicked)
+        self._widget._r4_button.clicked[bool].connect(self._r4_clicked)
+        self._widget._r5_button.clicked[bool].connect(self._r5_clicked)
+        self._widget._r6_button.clicked[bool].connect(self._r6_clicked)
+        
+        self.closeEvent = self.handle_close
+        self.keyPressEvent = self.on_key_press
+        self.destroyed.connect(self.handle_destroy)
+        '''
+
+        # Miabot connection parameters
+        self.n_robots = 7
+        self.connected_list = [False]*self.n_robots
+
+    def _r0_clicked(self):
+        if self.connected_list[0] is False:
+            self._widget._r0_button.setStyleSheet('QPushButton {color: green}')
+            self.connected_list[0] = True
+        else:
+            self._widget._r0_button.setStyleSheet('QPushButton {color: red}')
+            self.connected_list[0] = False
 
     def shutdown_plugin(self):
         pass
