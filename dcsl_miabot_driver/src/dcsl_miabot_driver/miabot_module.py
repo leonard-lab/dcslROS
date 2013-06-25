@@ -15,6 +15,18 @@ from python_qt_binding.QtGui import QWidget
 class MiabotPlugin(Plugin):
     
     def __init__(self, context):
+
+        # Miabot connection parameters
+        self.n_robots = rospy.get_param('n_robots')
+        self.connected_list = [False]*self.n_robots
+
+        # Initialize action clients
+        self.client = []
+        for i in xrange(0, self.n_robots):
+            name = 'miabot' + str(i)
+            self.client.append(actionlib.SimpleActionClient(name, ConnectMiabotAction))
+            self.client[i].wait_for_server()
+
         super(MiabotPlugin, self).__init__(context)
         rp = rospkg.RosPack()
         # Get path to ui file.
@@ -33,58 +45,51 @@ class MiabotPlugin(Plugin):
         context.add_widget(self._widget) 
 
         # Set up button callbacks
-        self._widget._r0_button.clicked.connect(self._r0_clicked)
+        self._widget._r0_button.clicked.connect(lambda: self._r_clicked(self._widget._r0_button, 0))      
+        self._widget._r1_button.clicked.connect(lambda: self._r_clicked(self._widget._r1_button, 1))
+        self._widget._r2_button.clicked.connect(lambda: self._r_clicked(self._widget._r2_button, 2))
+        self._widget._r3_button.clicked.connect(lambda: self._r_clicked(self._widget._r3_button, 3))
+        self._widget._r4_button.clicked.connect(lambda: self._r_clicked(self._widget._r4_button, 4))
+        self._widget._r5_button.clicked.connect(lambda: self._r_clicked(self._widget._r5_button, 5))
+        self._widget._r6_button.clicked.connect(lambda: self._r_clicked(self._widget._r6_button, 6))
         '''
-        self._widget._r1_button.clicked[bool].connect(self._r1_clicked)
-        self._widget._r2_button.clicked[bool].connect(self._r2_clicked)
-        self._widget._r3_button.clicked[bool].connect(self._r3_clicked)
-        self._widget._r4_button.clicked[bool].connect(self._r4_clicked)
-        self._widget._r5_button.clicked[bool].connect(self._r5_clicked)
-        self._widget._r6_button.clicked[bool].connect(self._r6_clicked)
-        
         self.closeEvent = self.handle_close
         self.keyPressEvent = self.on_key_press
         self.destroyed.connect(self.handle_destroy)
         '''
 
-        # Miabot connection parameters
-        self.n_robots = 7
-        self.connected_list = [False]*self.n_robots
+        
 
-        # Initialize action client
-        self.client = actionlib.SimpleActionClient('miabot0', ConnectMiabotAction)
-        self.client.wait_for_server()
-
-    def _r0_clicked(self):
-        if self.connected_list[0] is False:
+    def _r_clicked(self, button, robot_ID):
+        if self.connected_list[robot_ID] is False:
             goal = ConnectMiabotGoal(True)
-            self._widget._r0_button.setStyleSheet('QPushButton {color: yellow}')
-            self.client.send_goal(goal) 
-            self.client.wait_for_result() #Add process events to prevent ui freeze
-            response = self.client.get_result()
+            button.setStyleSheet('QPushButton {color: yellow}')
+            self.client[robot_ID].send_goal(goal) # Thread this to improve performance
+            self.client[robot_ID].wait_for_result()
+            response = self.client[robot_ID].get_result()
             
             if response.connected is True:
-                self._widget._r0_button.setStyleSheet('QPushButton {color: green}')
-                self._widget._r0_button.setText("Disconnect")
-                self.connected_list[0] = True
+                button.setStyleSheet('QPushButton {color: green}')
+                button.setText("Disconnect")
+                self.connected_list[robot_ID] = True
             else:
-                self._widget._r0_button.setStyleSheet('QPushButton {color: red}')
-                self.connected_list[0] = False
-                self._widget._r0_button.setText("Connect")
+                button.setStyleSheet('QPushButton {color: red}')
+                self.connected_list[robot_ID] = False
+                button.setText("Connect")
         else:
             goal = ConnectMiabotGoal(False)
-            self._widget._r0_button.setStyleSheet('QPushButton {color: yellow}')
-            self.client.send_goal(goal)
-            self.client.wait_for_result()
-            response = self.client.get_result()
+            button.setStyleSheet('QPushButton {color: yellow}')
+            self.client[robot_ID].send_goal(goal)
+            self.client[robot_ID].wait_for_result()
+            response = self.client[robot_ID].get_result()
             if response.connected is False:
-                self._widget._r0_button.setStyleSheet('QPushButton {color: green}')
-                self.connected_list[0] = False
-                self._widget._r0_button.setText("Connect")
+                button.setStyleSheet('QPushButton {color: green}')
+                self.connected_list[robot_ID] = False
+                button.setText("Connect")
             else:
-                self._widget._r0_button.setStyleSheet('QPushButton {color: red}')
-                self.connected_list[0] = True
-                self._widget._r0_button.setText("Disconnect")
+                button.setStyleSheet('QPushButton {color: red}')
+                self.connected_list[robot_ID] = True
+                button.setText("Disconnect")
 
     def shutdown_plugin(self):
         pass
