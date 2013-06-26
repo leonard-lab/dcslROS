@@ -26,6 +26,10 @@ add_action_files(
 
 catkin_python_setup()
 
+generate_messages(
+  DEPENDENCIES actionlib_msgs
+)
+
 #add dynamic reconfigure api
 generate_dynamic_reconfigure_options(cfg/dcsl_beluga_tracker_config.cfg cfg/dcsl_miabot_tracker_config.cfg)
 
