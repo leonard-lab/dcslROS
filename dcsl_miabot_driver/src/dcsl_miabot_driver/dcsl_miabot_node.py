@@ -63,7 +63,7 @@ class MiabotNode(object):
     #
     def connect(self, goal):
         if goal.connect is True:
-            self._feedback.in_progress = True;
+            self._feedback.in_progress = True
             self.server.publish_feedback(self._feedback)
             if self.bdaddr is None:
                 rospy.loginfo("Scanning for devices...")
