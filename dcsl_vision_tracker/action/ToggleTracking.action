@@ -1,8 +1,8 @@
 # Indicate what state of tracking should be
 bool track # True = tracking should be on, False = tracking should be off
 ---
-# Indicate if successfully completed
-bool executing # True = action currently in progress, False = not in progress
----
 # Indicate if tracking is on
 bool tracking # True if tracker is tracking, False if not
+---
+# Indicate if successfully completed
+bool executing # True = action currently in progress, False = not in progress

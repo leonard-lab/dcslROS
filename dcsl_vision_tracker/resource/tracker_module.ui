@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>TrackerPlugin</class>
+ <widget class="QWidget" name="TrackerPlugin">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -9,6 +9,9 @@
     <width>200</width>
     <height>150</height>
    </rect>
+  </property>
+  <property name="acceptDrops">
+    <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>dcsl_vision_tracker</string>
@@ -56,17 +59,6 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>200</width>
-     <height>25</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

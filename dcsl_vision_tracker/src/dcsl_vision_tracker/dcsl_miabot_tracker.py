@@ -118,9 +118,12 @@ class miabot_tracker:
                 cv.PutText(output_image, str("Robot ")+str(index), (center[0]+text_offset[0], center[1]+text_offset[1]), font, red)
         cv.DrawContours(output_image, contours, cyan, cyan, 2)
         if self.output_measurements:
-            cv.PutText(output_image, str("Currently outputting pose measurements"), (5, 5), font, green)
+            status = "Currently outputting pose measurements"
+            color = green
         else:
-            cv.PutText(output_image, str("Not outputting pose measurements to system"), (5, 5), font, red)
+            status = "Not outputting pose measurements to system"
+            color = red
+        cv.PutText(output_image, status, (5, 25), font, color)
 
         # Publish image with overlay
         try:
