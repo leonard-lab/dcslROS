@@ -4,7 +4,7 @@ project(dcsl_vision_tracker)
 
 # Load catkin and all dependencies required for this package
 set(SYS_DEPS opencv2 python-munkres)
-set(CATKIN_DEPS sensor_msgs cv_bridge rospy std_msgs rosunit dynamic_reconfigure roscpp)
+set(CATKIN_DEPS sensor_msgs cv_bridge rospy std_msgs rosunit dynamic_reconfigure roscpp genmsg actionlib actionlib_msgs)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
@@ -15,6 +15,12 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
+
+# Add action files
+add_action_files(
+  DIRECTORY action
+  FILES ToggleTracking.action
+)
 
 # catkin_add_nosetests(test/test_dcsl_vision_tracker.py)
 

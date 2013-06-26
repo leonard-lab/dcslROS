@@ -9,6 +9,7 @@
 # import roslib
 # roslib.load_manifest('dcsl_vision_tracker')
 
+import actionlib
 import rospy
 from geometry_msgs.msg import PoseArray,Pose
 from dcsl_messages.msg import StateArray
@@ -16,6 +17,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from dynamic_reconfigure.server import Server
 from dcsl_vision_tracker.cfg import dcsl_miabot_tracker_configConfig as Config
+from dcsl_vision_tracker.msg import *
 
 import cv
 import math as m
@@ -27,8 +29,11 @@ from dcsl_vision_tracker_API import DcslMiabotTracker, DcslPose
 ## This class allows detection of robots in an image,  orders these readings based on state estimates, and publishes them as a PoseArray.
 class miabot_tracker:
     
+    _feedback = ToggleTrackingFeedback()
+    _result = ToggleTrackingResult()
+
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
-    def __init__(self):
+    def __init__(self, name):
 
         # Get initial states
         init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
@@ -41,7 +46,7 @@ class miabot_tracker:
                 temp.set_quaternion((0., 0., pose[3], 0.))
                 self.initial_states.append(temp)
         self.current_states = self.initial_states
-
+        self.output_measurements = False
         self.tracker = None #tracker initialized in parameter server callback to get defaults from server.
         self.srv = Server(Config, self.parameter_callback)
         self.image_pub = rospy.Publisher("tracked_image",Image)
@@ -50,6 +55,9 @@ class miabot_tracker:
         self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
         self.bridge = CvBridge()
         
+        self._action_name = name
+        self.server = actionlib.SimpleActionServer(self._action_name, ToggleTrackingAction, self.toggle_tracking, False)
+        self.server.start()
 
         
 
@@ -69,21 +77,23 @@ class miabot_tracker:
         
         # Find poses and place into a message
         measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, 0)
-        pose_array = PoseArray()
-        for dcsl_pose in measurements:
-            p = Pose()
-            if dcsl_pose.detected:
-                p.position.x = dcsl_pose.position_x()
-                p.position.y = dcsl_pose.position_y()
-                p.orientation.z = dcsl_pose.quaternion_z()
-                p.orientation.w = 1
-            else:
-                p.orientation.w = 0
-            pose_array.poses.append(p)
+        # Only output_measurements if output_measurements is true (set by action server)
+        if self.output_measurements:
+            pose_array = PoseArray()
+            for dcsl_pose in measurements:
+                p = Pose()
+                if dcsl_pose.detected:
+                    p.position.x = dcsl_pose.position_x()
+                    p.position.y = dcsl_pose.position_y()
+                    p.orientation.z = dcsl_pose.quaternion_z()
+                    p.orientation.w = 1
+                else:
+                    p.orientation.w = 0
+                pose_array.poses.append(p)
 
-        #Publish measuremented poses
-        pose_array.header.stamp = data.header.stamp
-        self.measurement_pub.publish(pose_array)
+            # Publish measuremented poses
+            pose_array.header.stamp = data.header.stamp
+            self.measurement_pub.publish(pose_array)
 
         # Create BGR8 image to be output
         output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
@@ -98,6 +108,7 @@ class miabot_tracker:
         font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, hscale, vscale)
         cyan = cv.RGB(0,255,255)
         red = cv.RGB(255, 0, 0)
+        green = cv.RGB(0, 255, 0)
         for index, point in enumerate(image_poses):
             if point.detected:
                 end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
@@ -106,7 +117,10 @@ class miabot_tracker:
                 cv.Circle(output_image, center, radius, red)
                 cv.PutText(output_image, str("Robot ")+str(index), (center[0]+text_offset[0], center[1]+text_offset[1]), font, red)
         cv.DrawContours(output_image, contours, cyan, cyan, 2)
-        
+        if self.output_measurements:
+            cv.PutText(output_image, str("Currently outputting pose measurements"), (5, 5), font, green)
+        else:
+            cv.PutText(output_image, str("Not outputting pose measurements to system"), (5, 5), font, red)
 
         # Publish image with overlay
         try:
@@ -160,12 +174,24 @@ class miabot_tracker:
             self.background_list = [background]
         rospy.logdebug("""Reconfigure Request: {background_file}, {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}, {scale}""".format(**config))
         return config
-    
+
+    ##
+    #
+    #
+    def toggle_tracking(self, goal):
+        self._feedback.executing = True
+        self.server.publish_feedback(self._feedback)
+        self.output_measurements = goal.track
+        self._result.tracking = goal.track
+        self._feedback.executing = False
+        self.server.publish_feedback(self._feedback)
+        self.server.set_succeeded(self._result)
 
 ## Runs on the startup of the node. Initializes the node and creates the MiabotTracker object.
 def main():
     rospy.init_node('dcsl_miabot_tracker')
-    tracker = miabot_tracker()
+    name = rospy.get_name()
+    tracker = miabot_tracker(name)
     
     try:
         rospy.spin()
