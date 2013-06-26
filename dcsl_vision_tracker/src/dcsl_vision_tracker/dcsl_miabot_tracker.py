@@ -33,7 +33,7 @@ class miabot_tracker:
     _result = ToggleTrackingResult()
 
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
-    def __init__(self, name):
+    def __init__(self):
 
         # Get initial states
         init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
@@ -55,7 +55,7 @@ class miabot_tracker:
         self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
         self.bridge = CvBridge()
         
-        self._action_name = name
+        self._action_name = "dcsl_vision_tracker"
         self.server = actionlib.SimpleActionServer(self._action_name, ToggleTrackingAction, self.toggle_tracking, False)
         self.server.start()
 
@@ -190,8 +190,7 @@ class miabot_tracker:
 ## Runs on the startup of the node. Initializes the node and creates the MiabotTracker object.
 def main():
     rospy.init_node('dcsl_miabot_tracker')
-    name = rospy.get_name()
-    tracker = miabot_tracker(name)
+    tracker = miabot_tracker()
     
     try:
         rospy.spin()

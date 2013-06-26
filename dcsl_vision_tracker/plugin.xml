@@ -1,0 +1,20 @@
+<library path="src">
+  <class name="TrackerPlugin" type="dcsl_vision_tracker.tracker_module.TrackerPlugin" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      An rqt plugin for toggling dcsl_vision_tracker on and off.
+    </description>
+    <qtgui>
+      <!-- optional grouping...
+      <group>
+        <label>Group</label>
+      </group>
+      <group>
+        <label>Subgroup</label>
+      </group>
+      -->
+      <label>DCSL Tracker Plugin </label>
+      <icon type="theme">system-help</icon>
+      <statustip>Toggle publishing of measurements from vision tracker.</statustip>
+    </qtgui>
+  </class>
+</library>

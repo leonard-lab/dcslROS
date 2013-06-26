@@ -47,6 +47,6 @@
   <!-- <test_depend>roscpp</test_depend> -->
 
   <export>
-
+    <rqt_gui plugin="${prefix}/plugin.xml" />
   </export>
 </package>
