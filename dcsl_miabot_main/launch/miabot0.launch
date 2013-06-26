@@ -5,7 +5,4 @@
     <remap from="cmd_vel" to="cmd_vel0" />
   </node>
 
-  <!--Action Client Node -->
-  <node name="miabot0_action_client" pkg="actionlib" type="axclient.py" args="/miabot0" />
-
 </launch>

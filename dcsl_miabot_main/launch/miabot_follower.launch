@@ -11,10 +11,8 @@
 
   <!-- Launch tracking -->
   <include file="$(find dcsl_vision_tracker)/launch/miabot_tracker.launch" />
-  
-  <!-- Launch image viewer -->
-  <include file="$(find dcsl_vision_tracker)/launch/miabot_view_tracking.launch" />
 
+  <!-- Launch control nodes -->
   <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_estimator.py" />
 
   <node name="high_level_controller" pkg="dcsl_high_level_control"
@@ -34,6 +32,10 @@
   <include file="$(find dcsl_miabot_main)/launch/miabot0.launch"/>
   <include file="$(find dcsl_miabot_main)/launch/miabot1.launch"/>
     
+  <!-- Launch GUI -->
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" />
+
+  <!-- Launch joystick -->
   <node pkg="dcsl_miabot_driver" type="dcsl_miabot_joy" name="teleop">
     <remap from="cmd_vel" to="cmd_vel0" />
   </node>    

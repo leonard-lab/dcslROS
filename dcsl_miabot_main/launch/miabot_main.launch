@@ -7,11 +7,8 @@
 
   <!-- Launch tracking -->
   <include file="$(find dcsl_vision_tracker)/launch/miabot_tracker.launch" />
-  
-  <!-- Launch image viewer -->
-  <include file="$(find dcsl_vision_tracker)/launch/miabot_view_tracking.launch" />
 
-  <!-- Launch robot -->
+  <!-- Launch robots -->
   <include file="$(find dcsl_miabot_main)/launch/miabot0.launch" />
   <include file="$(find dcsl_miabot_main)/launch/miabot1.launch" />
   
@@ -32,5 +29,8 @@
 
   <!-- Websocket bridge -->
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+  <!-- GUI -->
+  <node name="rqt_gui" type="rqt_gui" pkg="rqt_gui" />
 
 </launch>
