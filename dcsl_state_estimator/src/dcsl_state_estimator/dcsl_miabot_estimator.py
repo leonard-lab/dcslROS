@@ -57,9 +57,10 @@ class MiabotEstimator:
             
             #On no measurement
             else:
-                #If estimator initialized
+                #If estimator initialized, just propagate state
                 if self.ekfs[i] is not None:
                     state_estimate = self.ekfs[i].look_forward(t)
+                # Otherwise  estimate is zeros.
                 else:
                     state_estimate = np.zeros(7)
             
