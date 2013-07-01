@@ -67,8 +67,8 @@ class Miabot(object):
     #
     def sendMotorCommand(self, lin_vel, ang_vel):
         # Parameters
-        diffConversionFactor = 0.1 # Distance between the wheels in meters
-        motorScaleFactor = 1000 # Commands are received in the Twist message in meters and the robot accepts them in mm. This is the scale factor.
+        diffConversionFactor = 0.0667 # Distance between the wheels in meters
+        motorScaleFactor = 501 # 1000 # Commands are received in the Twist message in meters and the robot accepts them in mm. This is the scale factor.
         max_motor_speed = 1000
 
         targetTransVel = lin_vel
@@ -95,7 +95,7 @@ class Miabot(object):
             rightVel = -1*max_motor_speed
 
         # Create string for commanding wheel speed and write it to the serial port.
-        motorCommand = '[=<' + str(leftVel) + '><' + str(rightVel) + '>]' + '\n'
+        motorCommand = '[=<' + str(leftVel) + '>,<' + str(rightVel) + '>]' + '\n'
         self.send(motorCommand)
 
     ##
