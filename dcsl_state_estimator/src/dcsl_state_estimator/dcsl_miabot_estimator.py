@@ -12,7 +12,7 @@ from dcsl_state_estimator.ekf_API import ekf
 from dcsl_miabot_main.miabot import Miabot
 
 import numpy as np
-
+import math as m
 ##
 #
 #
@@ -62,10 +62,14 @@ class MiabotEstimator:
                     state_estimate = self.ekfs[i].look_forward(t)
                 else:
                     state_estimate = np.zeros(7)
-                
+            
+            #Wrap theta angle to pi
+            if state_estimate[5] >= m.pi or state_estimate[5] < -m.pi:
+                state_estimate[5] = state_estimate[5] - m.floor(state_estimate[5]/(2.*m.pi)+0.5)*2.*m.pi
+                    
             state = self._x_array_to_state(state_estimate)
 
-            #Signify no estimate
+            #Signify no estimate (due to tracking not started)
             if pose.orientation.w is not 1 and self.ekfs[i] is None:
                 state.pose.orientation.w = 0
             else:
