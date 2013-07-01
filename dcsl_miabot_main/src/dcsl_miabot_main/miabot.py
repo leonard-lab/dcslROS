@@ -19,12 +19,13 @@ class Miabot(object):
     #
     def __init__(self):
         self.max_motor_speed = 1.0 # Maximum motor speed set by miabot_driver in m/s
-        self.d = 0.1 # Distance between the wheels in meters
+        self.d = 0.0667 # Distance between the wheels in meters
     
     ##
     #
     #
     def f(self, x, u, t):
+        u = self._constrain_u(u)
         x_dot = np.zeros(7)
         x_dot[0] = u[0]*m.cos(x[5])
         x_dot[1] = u[0]*m.sin(x[5])
@@ -50,6 +51,7 @@ class Miabot(object):
     #
     #
     def F(self, x, u, t):
+        u = self._constain_u(u)
         F = np.zeros((7, 7))
         F[0][5] = u[0]*-1.0*m.sin(x[5])
         F[1][5] = u[0]*m.cos(x[5])
@@ -82,3 +84,24 @@ class Miabot(object):
     def L(self, x, u, t):
         L = np.identity(7)
         return L
+
+    def _constrain_u(self, u):
+        diffConversionFactor = self.d # meters
+        max_motor_speed = self.max_motor_speed # m/s
+        v_right = u[0] + u[1]*diffConversionFactor/2.
+        v_left = u[0] - u[1]*diffConversionFactor/2.
+        
+        if v_right > max_motor_speed:
+            v_right = max_motor_speed
+        elif v_right < -max_motor_speed:
+            v_right = -max_motor_speed
+
+        if v_left > max_motor_speed:
+            v_left = max_motor_speed
+        elif v_left < -max_motor_speed:
+            v_left = -max_motor_speed
+
+        u[0] = (v_left + v_right)/2.
+        u[1] = (v_right - v_left)/diffConversionFactor
+        
+        return u
