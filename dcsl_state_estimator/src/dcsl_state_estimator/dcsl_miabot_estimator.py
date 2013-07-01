@@ -31,7 +31,7 @@ class MiabotEstimator:
         self.init_u = np.array([0., 0., 0.])
         self.Q = np.identity(7)*0.1
         self.R = np.identity(4)*0.01
-        self.R[3][3] = 0.05
+        self.R[3][3] = 0.1
 
         self.ekfs = [None]*7
         self.miabot = Miabot()
