@@ -182,9 +182,17 @@ class miabot_tracker:
     #
     #
     def toggle_tracking(self, goal):
+        # Publish feedback
         self._feedback.executing = True
         self.server.publish_feedback(self._feedback)
+        
+        if goal.reset == True:
+            self.current_states = self.initial_states
+        
+        # Turn tracking on or off
         self.output_measurements = goal.track
+        
+        # Send result
         self._result.tracking = goal.track
         self._feedback.executing = False
         self.server.publish_feedback(self._feedback)

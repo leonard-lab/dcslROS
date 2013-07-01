@@ -41,6 +41,7 @@ class TrackerPlugin(Plugin):
 
         # Set up button callbacks
         self._widget.tracker_checkBox.toggled[bool].connect(self._check_callback)      
+        self._widget.reset_pushButton.clicked.connect(self._reset_callback)
         '''
         self.closeEvent = self.handle_close
         self.keyPressEvent = self.on_key_press
@@ -48,12 +49,19 @@ class TrackerPlugin(Plugin):
         '''
 
     def _check_callback(self, state):
-        goal = ToggleTrackingGoal(state)
+        goal = ToggleTrackingGoal(state,False)
         self.client.send_goal(goal)
         self.client.wait_for_result()
         response = self.client.get_result()
         if response.tracking is not state:
             self._widget.tracker_checkBox.setCheckState(Qt.Checked if state else Qt.Unchecked)
+
+    def _reset_callback(self):
+        goal = ToggleTrackingGoal(False,False)
+        self.client.send_goal(goal)
+        self.client.wait_for_result()
+        response = self.client.get_result()
+        self._widget.tracker_checkBox.setCheckState(Qt.Checked if response.tracking else Qt.Unchecked)
 
     def shutdown_plugin(self):
         pass
