@@ -20,8 +20,8 @@
   
   <node name="low_level_controller" pkg="dcsl_low_level_control" 
     type="dcsl_miabot_low_level_control" args="--way">
-    <param name="waypoint_gain_1" value="0.3" type="double" />
-    <param name="waypoint_gain_2" value="0.1" type="double" />
+    <param name="waypoint_gain_1" value="0.5" type="double" />
+    <param name="waypoint_gain_2" value="0.2" type="double" />
   </node > 
 
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
@@ -49,7 +49,7 @@
  <!-- Axes -->
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="0" type="int"/>
-  <param name="scale_linear" value="0.2" type="double"/>
-  <param name="scale_angular" value="0.5" type="double"/>
+  <param name="scale_linear" value="0.25" type="double"/>
+  <param name="scale_angular" value="1.5" type="double"/>
 
 </launch>

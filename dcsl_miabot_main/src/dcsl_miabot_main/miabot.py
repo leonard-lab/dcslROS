@@ -51,7 +51,7 @@ class Miabot(object):
     #
     #
     def F(self, x, u, t):
-        u = self._constain_u(u)
+        u = self._constrain_u(u)
         F = np.zeros((7, 7))
         F[0][5] = u[0]*-1.0*m.sin(x[5])
         F[1][5] = u[0]*m.cos(x[5])
