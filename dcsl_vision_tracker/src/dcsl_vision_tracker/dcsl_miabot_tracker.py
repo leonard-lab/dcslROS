@@ -47,6 +47,7 @@ class miabot_tracker:
                 self.initial_states.append(temp)
         self.current_states = self.initial_states
         self.output_measurements = False
+        self.receive_states = True
         self.tracker = None #tracker initialized in parameter server callback to get defaults from server.
         self.srv = Server(Config, self.parameter_callback)
         self.image_pub = rospy.Publisher("tracked_image",Image)
@@ -135,18 +136,19 @@ class miabot_tracker:
     #
     # @param data is the message received from the subscriber.
     def stateCallback(self, data):
-        self.current_states = []
-        for i, state in enumerate(data.states):
-            temp = DcslPose()
-            if state.pose.orientation.w == 1:
-                pos_x = state.pose.position.x
-                pos_y = state.pose.position.y
-                theta = state.pose.orientation.z
-                temp.set_position((pos_x,pos_y,0))
-                temp.set_quaternion((0,0,theta,0))
-            else:
-                temp = self.initial_states[i]
-            self.current_states.append(temp)
+        if self.receive_states:
+            self.current_states = []
+            for i, state in enumerate(data.states):
+                temp = DcslPose()
+                if state.pose.orientation.w == 1:
+                    pos_x = state.pose.position.x
+                    pos_y = state.pose.position.y
+                    theta = state.pose.orientation.z
+                    temp.set_position((pos_x,pos_y,0))
+                    temp.set_quaternion((0,0,theta,0))
+                else:
+                    temp = self.initial_states[i]
+                self.current_states.append(temp)
 
     ## Call back function for parameter updates.
     #
@@ -187,7 +189,10 @@ class miabot_tracker:
         self.server.publish_feedback(self._feedback)
         
         if goal.reset == True:
-            self.current_states = self.initial_states
+            self.receive_states = False
+            self.current_states = self.initial_states   
+        else:
+            self.receive_states = True
         
         # Turn tracking on or off
         self.output_measurements = goal.track

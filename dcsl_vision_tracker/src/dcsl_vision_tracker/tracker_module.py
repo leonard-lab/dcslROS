@@ -57,7 +57,7 @@ class TrackerPlugin(Plugin):
             self._widget.tracker_checkBox.setCheckState(Qt.Checked if state else Qt.Unchecked)
 
     def _reset_callback(self):
-        goal = ToggleTrackingGoal(False,False)
+        goal = ToggleTrackingGoal(False, True)
         self.client.send_goal(goal)
         self.client.wait_for_result()
         response = self.client.get_result()
