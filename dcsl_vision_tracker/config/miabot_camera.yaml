@@ -5,10 +5,10 @@ frame_id: frame0
 auto_brightness: 3
 brightness: 25
 auto_exposure: 3
-exposure: 100
+exposure: 205
 auto_gain: 3
-gain: 680
+gain: 500
 auto_gamma: 0
 auto_shutter: 3
-shutter: 3000
+shutter: 3500
 camera_info_url: package://dcsl_vision_tracker/config/000a47010f0940ba.yaml
