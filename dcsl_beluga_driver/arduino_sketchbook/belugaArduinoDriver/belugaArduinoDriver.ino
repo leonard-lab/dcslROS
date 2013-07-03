@@ -13,6 +13,7 @@
 
 #include <ros.h>
 #include <ros/console.h>
+#include <std_msgs/Float32.h>
 #include <std_msgs/Int16.h>
 #include <dcsl_messages/belugaInput.h> //For adding custom messages see http://www.ros.org/wiki/rosserial_arduino/Tutorials/Adding%20Custom%20Messages
 
@@ -33,12 +34,20 @@ int dir2Pin = 13; //Direction pin for motor 2
 //Create servo object
 Servo servo;
 
+//Depth calibration values
+int air;
+int bottom;
+
 //Declare NodeHandle and Int16 message objects
 ros::NodeHandle nh;
-std_msgs::Int16 rawDepth;
+std_msgs::Float32 cal_depth;
+std_msgs::Int16 raw_depth;
 
 //Declare Publisher object
-ros::Publisher depth("depth_measurement", &rawDepth);
+ros::Publisher depth("depth_measurement", &cal_depth);
+ros::Publisher rdepth("raw_depth", &raw_depth);
+
+unsigned long last_cmd;
 
 //Callback function for receiving motor inputs
 void command( const dcsl_messages::belugaInput& input){
@@ -60,6 +69,8 @@ void command( const dcsl_messages::belugaInput& input){
   
   int pos = input.servo + 90;
   servo.write(pos);
+  
+  last_cmd = millis();
 }
 
 //Declare Subscriber object
@@ -69,15 +80,21 @@ ros::Subscriber<dcsl_messages::belugaInput> sub("cmd_inputs", &command);
 const int numReadings = 10; //Number of analog readings for the running average
 RunningAverage RA(numReadings);
 
+
+
 void setup()
 {
   delay(250);
   nh.initNode(); //Initialized the node
   delay(250);
   nh.advertise(depth); //Advertise the topic
+  nh.advertise(rdepth);
   delay(250);
   nh.subscribe(sub);
   delay(250);
+  
+  nh.getParam("~air_reading", &air);
+  nh.getParam("~bottom_reading", &bottom);
   
   RA.clear(); //Clear the running average
   
@@ -95,12 +112,22 @@ void setup()
   analogWrite(en2Pin, 0);
 }
 
+float z_reading_air = 2.3876; //meters
+float z_reading_water = z_reading_air - 2.0066; //meters
+
 void loop() {
   RA.addValue(analogRead(sensorPin)); //Add depth sensor reading to the running average
-  rawDepth.data = RA.getAverage(); //Output current average reading to message
-  depth.publish( &rawDepth); //Publish current running average depth reading  
-  
+  cal_depth.data = (z_reading_air - z_reading_water)/(float(air) - float(bottom))*(float(RA.getAverage()) - float(air)) + z_reading_air; //Output current average reading to message
+  raw_depth.data = RA.getAverage();
+  depth.publish( &cal_depth); //Publish current running average depth reading  
+  rdepth.publish( &raw_depth);
   //ROS_DEBUG_STREAM_THROTTLE_NAMED(5, "beluga", "Thruster Current = " << analogRead(current1Pin) << "; Vertical Current = " << analogRead(current2Pin));
+  
+  //Stop motors if no commands have been received for 1 second
+  if (millis() - last_cmd > 1000){
+    analogWrite(en1Pin, 0);
+    analogWrite(en2Pin, 0);
+  }
   
   nh.spinOnce();
 }

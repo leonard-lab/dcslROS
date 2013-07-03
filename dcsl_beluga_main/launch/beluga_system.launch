@@ -1,0 +1,29 @@
+<launch>
+  
+  <!-- Parameters -->
+  <arg name="N_ROBOTS" value="1" />
+
+  <!-- Launch image viewers -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_view_tracking.launch" />
+
+  <!-- Launch cameras and processors -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_cameras_only.launch" />
+
+  <!-- Launch tracking -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_tracker.launch" />
+
+  <!-- Launch rosbridge (websocket) -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+  <!-- Launch robots -->
+  <include ns="robot0" file="$(find dcsl_beluga_main)/launch/beluga0.launch" />
+  <!--
+  <include if="$(arg N_ROBOTS)>=2" file="$(find dcsl_beluga_main)/launch/beluga1.launch" />
+  <include if="$(arg N_ROBOTS)>=3" file="$(find dcsl_beluga_main)/launch/beluga2.launch" />
+  <include if="$(arg N_ROBOTS)>=4" file="$(find dcsl_beluga_main)/launch/beluga3.launch" />
+  -->
+
+  <!-- Estimator -->
+  <node name="state_estimator" pkg="dcsl_state_estimator" type="dcsl_beluga_estimator.py" args="$(arg N_ROBOTS)" />
+
+</launch>
