@@ -4,4 +4,13 @@ frame_rate: 30.0
 bayer_pattern: "rggb"
 bayer_method: "HQ"
 frame_id: frame2
+auto_brightness: 3
+brightness: 16
+auto_exposure: 3
+exposure: 125
+auto_gain: 3
+gain: 1
+auto_gamma: 0
+auto_shutter: 3
+shutter: 3000
 camera_info_url: package://dcsl_vision_tracker/config/000a47010f094079.yaml
