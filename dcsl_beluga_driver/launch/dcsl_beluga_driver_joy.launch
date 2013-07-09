@@ -24,6 +24,8 @@
   <param name="scale_vertical" value="255" type="double"/>
 
  <!-- Need to change this node -->
-  <node pkg="dcsl_beluga_driver" type="dcsl_beluga_joy" name="teleop"/>
+  <node pkg="dcsl_beluga_driver" type="dcsl_beluga_joy" name="teleop" >
+    <remap from="cmd_inputs" to="/robot0/cmd_inputs"/>
+  </node >
 
 </launch>
