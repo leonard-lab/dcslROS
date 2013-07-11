@@ -29,7 +29,14 @@ void miabot_waypoint(double* output, double* pose, double* waypoint, double k1, 
 	if (distance > min_dist)
 	{
 		// continue moving towards waypoint
-		output[1] = -k2*sin(pose[2]-phi);		
+	  if (phi <= 3.141592/2 && phi > -3.141592/2)
+	    {
+	      output[1] = -k2*sin(pose[2]-phi);		
+	    }
+	  else
+	    {
+	      output[1] = k2*sin(pose[2]-phi);
+	    }
 	}
 	else
 	{
