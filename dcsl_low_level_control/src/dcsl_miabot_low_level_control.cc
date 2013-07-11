@@ -60,23 +60,18 @@ public:
   /// \param[in] use_waypoint        When true, subscribers are created to listen on "waypoint_input" 
   ///                                and "state_estimate" topics. When false, subscriber is created
   ///                                for "velocity_input"
-  void init(bool use_waypoint)
+  void init()
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
     Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel_array", 1);
 
-    if (use_waypoint)
-    {
-      // create Subscriber objects to collect states and new waypoint commands
-      Sub_state    = n.subscribe("state_estimate",1,&MiabotLowLevelController::stateCallback,this);
-      Sub_waypoint = n.subscribe("waypoint_input",1,&MiabotLowLevelController::waypointCallback,this);      
-    }
-    else
-    {
-      // create subscriber for velocity inputs
-      Sub_velocity = n.subscribe("velocity_input",1,&MiabotLowLevelController::velocityCallback,this);
-    }
+    // create Subscriber objects to collect states and new waypoint commands
+    Sub_state    = n.subscribe("state_estimate",1,&MiabotLowLevelController::stateCallback,this);
+    Sub_waypoint = n.subscribe("waypoint_input",1,&MiabotLowLevelController::waypointCallback,this);
+
+    // create subscriber for velocity inputs
+    Sub_velocity = n.subscribe("velocity_input",1,&MiabotLowLevelController::velocityCallback,this);
   }
 
   /// Callback function for topic "state_estimate".
@@ -194,25 +189,9 @@ int main(int argc, char **argv)
   n.param<double>("waypoint_gain_1", k1, 0.7);
   n.param<double>("waypoint_gain_2", k2, 0.5);
 
-  // check command line args to see whether to use waypoint or velocity control
-  bool use_waypoint;
-  if (argc > 1 && std::string(argv[1])=="--way")
-  {
-    use_waypoint = true;
-  }
-  else if (argc > 1 && std::string(argv[1])=="--vel")
-  {
-    use_waypoint = false; // use velocity control
-  }
-  else
-  {
-    use_waypoint = true; // default for no flag specified
-    ROS_INFO_STREAM("No arg for control type, defaulting to waypoint");
-  }
-
   // create and initialize the controller object
   MiabotLowLevelController mllc(n, numRobots, k1, k2);
-  mllc.init(use_waypoint);
+  mllc.init();
 
   // loop through callback queue until node is closed
   ros::spin();
