@@ -33,6 +33,7 @@ private:
   std::vector<double> waypoints_theta;
   const double k1;
   const double k2;
+  bool waypoint_on;
   
 public:
   /// Constructor for MiabotLowLevelController.
@@ -52,7 +53,8 @@ public:
       waypoints_y(numBots),
       waypoints_theta(numBots),
       k1(k1),
-      k2(k2)  
+      k2(k2),
+      waypoint_on(false)
   {}
 
   /// Initialization for MiabotLowLevelController, to be called directly after object creation.
@@ -84,38 +86,41 @@ public:
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
     ROS_DEBUG_STREAM("received state message");
-    if(int(data.states.size()) == numRobots)
-    {
-      dcsl_messages::TwistArray velocities;
-      geometry_msgs::Twist currentTwist;
-      double pos[3];
-      double way[3];
-      double outputVel[2];
-
-      for (int i = 0; i < numRobots; i++) // loop through the robots
+    if (waypoint_on == true)
       {
-      	pos[0] = data.states[i].pose.position.x;
-        pos[1] = data.states[i].pose.position.y; 
-        pos[2] = data.states[i].pose.orientation.z;
-        way[0] = waypoints_x[i];
-        way[1] = waypoints_y[i];
-        way[2] = waypoints_theta[i];
-        
-        // call function to compute outputVel = [v,omega]
-        miabot_waypoint(outputVel,pos,way,k1,k2);
+	if(int(data.states.size()) == numRobots)
+	  {
+	    dcsl_messages::TwistArray velocities;
+	    geometry_msgs::Twist currentTwist;
+	    double pos[3];
+	    double way[3];
+	    double outputVel[2];
 
-        // place that into velocities message
-        currentTwist.linear.x = outputVel[0];
-        currentTwist.angular.z = outputVel[1];
-        velocities.twists.push_back(currentTwist);
-      }
-      ROS_DEBUG_STREAM("  publishing velocity message");
-      Pub_low_level.publish(velocities);
-    }
-    else
-    {
-      ROS_ERROR_STREAM("number of states did not match numRobots, skipping...");
-    }  
+	    for (int i = 0; i < numRobots; i++) // loop through the robots
+	      {
+		pos[0] = data.states[i].pose.position.x;
+		pos[1] = data.states[i].pose.position.y; 
+		pos[2] = data.states[i].pose.orientation.z;
+		way[0] = waypoints_x[i];
+		way[1] = waypoints_y[i];
+		way[2] = waypoints_theta[i];
+        
+		// call function to compute outputVel = [v,omega]
+		miabot_waypoint(outputVel,pos,way,k1,k2);
+
+		// place that into velocities message
+		currentTwist.linear.x = outputVel[0];
+		currentTwist.angular.z = outputVel[1];
+		velocities.twists.push_back(currentTwist);
+	      }
+	    ROS_DEBUG_STREAM("  publishing velocity message");
+	    Pub_low_level.publish(velocities);
+	  }
+	else
+	  {
+	    ROS_ERROR_STREAM("number of states did not match numRobots, skipping...");
+	  }
+      }  
   }
 
   /// Callback function for topic "waypoint_input".
@@ -133,6 +138,7 @@ public:
         waypoints_y[i]     = newWaypoints.poses[i].position.y;
         waypoints_theta[i] = newWaypoints.poses[i].orientation.z;
       }
+      waypoint_on = true;
     }
     else
     {
@@ -160,6 +166,7 @@ public:
         velocities.twists.push_back(currentTwist);
       }
       Pub_low_level.publish(velocities);
+      waypoint_on = false;
     }
     else
     {
