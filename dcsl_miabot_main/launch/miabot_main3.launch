@@ -18,7 +18,7 @@
 	type="dcsl_miabot_low_level_control" args="--vel">
     <!--
     <param name="waypoint_gain_1" value="0.3" type="double" />
-    <param name="waypoint_gain_2" value="0.1" type="double" />
+    <param name="waypoint_gain_2" value="0.2" type="double" />
     -->
   </node > 
 
