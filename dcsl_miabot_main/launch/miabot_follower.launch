@@ -18,11 +18,8 @@
   <node name="high_level_controller" pkg="dcsl_high_level_control"
     type="dcsl_miabot_follower_control" />
   
-  <node name="low_level_controller" pkg="dcsl_low_level_control" 
-    type="dcsl_miabot_low_level_control" args="--way">
-    <param name="waypoint_gain_1" value="0.5" type="double" />
-    <param name="waypoint_gain_2" value="0.2" type="double" />
-  </node > 
+  <!-- Launch low level controller node -->
+  <include file="$(find dcsl_low_level_control)/launch/miabot_low_level.launch" />
 
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--miabot" >
     <remap from="cmd_vel0" to="unused" />
