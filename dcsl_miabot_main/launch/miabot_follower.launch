@@ -24,7 +24,7 @@
     <param name="waypoint_gain_2" value="0.2" type="double" />
   </node > 
 
-  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--miabot" >
     <remap from="cmd_vel0" to="unused" />
   </node>
 
