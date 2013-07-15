@@ -20,7 +20,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 add_message_files(
   DIRECTORY msg
-  FILES belugaInput.msg TwistArray.msg State.msg StateArray.msg
+  FILES belugaInput.msg belugaArray.msg TwistArray.msg State.msg StateArray.msg
 )
 
 
