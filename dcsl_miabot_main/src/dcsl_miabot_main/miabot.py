@@ -26,7 +26,7 @@ class Miabot(object):
     #
     def f(self, x, u, t):
         u = self._constrain_u(u)
-        x_dot = np.zeros(7)
+        x_dot = np.zeros(8)
         x_dot[0] = u[0]*m.cos(m.atan2(x[5],x[6]))
         x_dot[1] = u[0]*m.sin(m.atan2(x[5],x[6]))
         x_dot[2] = u[2]
@@ -41,7 +41,7 @@ class Miabot(object):
     #
     #
     def h(self, x, t):
-        y = np.zeros(4)
+        y = np.zeros(5)
         y[0] = x[0]
         y[1] = x[1]
         y[2] = x[2]
@@ -54,13 +54,13 @@ class Miabot(object):
     #
     def F(self, x, u, t):
         u = self._constrain_u(u)
-        F = np.zeros((7, 7))
+        F = np.zeros((8, 8))
         F[0][5] = u[0]*-1.0*m.tan(m.atan2(x[5],x[6]))
         F[1][5] = u[0]
         F[5][5] = u[1]*-1.0*m.tan(m.atan2(x[5],x[6]))
         F[5][6] = u[1]
         F[6][5] = -1.0*u[1]
-        F[6][6] = u[1]*m.tan(m.atan2(x[5],x[6]))
+        F[6][6] = -1.0*u[1]*m.tan(m.atan2(x[5],x[6]))
         F[0][6] = u[0]
         F[1][6] = u[0]*m.tan(m.atan2(x[5],x[6]))
         return F
@@ -69,18 +69,18 @@ class Miabot(object):
     #
     #
     def G(self, x, u, t):
-        G = np.zeros((7,3))
+        G = np.zeros((8,3))
         G[0][0] = m.cos(m.atan2(x[5],x[6]))
         G[1][0] = m.sin(m.atan2(x[5],x[6]))
-        G[5][1] = 1.
-        G[6][1] = -1.
+        G[5][1] = 1.*m.cos(m.atan2(x[5],x[6]))
+        G[6][1] = -1.*m.sin(m.atan2(x[5],x[6]))
         return G
 
     ##
     #
     #
     def H(self, x, t):
-        H = np.zeros((4,7))
+        H = np.zeros((5,8))
         H[0][0] = 1.
         H[1][1] = 1.
         H[2][2] = 1.
@@ -92,7 +92,7 @@ class Miabot(object):
     #
     #
     def L(self, x, u, t):
-        L = np.identity(7)
+        L = np.identity(8)
         return L
 
     def _constrain_u(self, u):

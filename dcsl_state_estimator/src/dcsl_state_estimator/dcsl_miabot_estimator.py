@@ -32,6 +32,9 @@ class MiabotEstimator:
         self.Q = np.identity(8)*0.1
         self.R = np.identity(5)*0.01
         self.R[3][3] = 0.1
+        self.R[4][4] = 0.1
+
+        self.current_u = np.zeros(3)
 
         self.ekfs = [None]*7
         self.miabot = Miabot()
@@ -65,7 +68,7 @@ class MiabotEstimator:
                     state_estimate = np.zeros(8)
                     state_estimate[6] = 1.0
                     
-            state = self._x_array_to_state(state_estimate)
+            state = self._x_array_to_state(state_estimate, self.current_u)
 
             #Signify no estimate (due to tracking not started)
             if pose.orientation.w is not 1 and self.ekfs[i] is None:
@@ -85,6 +88,7 @@ class MiabotEstimator:
         t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10.,-9)
         for i, twist in enumerate(data.twists):
             u = self._twist_to_u_array(twist)
+            self.current_u = u
             if self.ekfs[i] is not None: #Check if ekf is initialized for robot
                 self.ekfs[i].update_u(t, u)
 
@@ -92,11 +96,12 @@ class MiabotEstimator:
     #
     #
     def _pose_to_z_array(self, pose):
-        z = np.zeros(4)
+        z = np.zeros(5)
         z[0] = pose.position.x
         z[1] = pose.position.y
         z[2] = pose.position.z
-        z[3] = pose.orientation.z
+        z[3] = m.sin(pose.orientation.z)
+        z[4] = m.cos(pose.orientation.z)
         return z
 
     ##
@@ -112,15 +117,15 @@ class MiabotEstimator:
     ##
     #
     #
-    def _x_array_to_state(self, x):
+    def _x_array_to_state(self, x, u):
         state = State()
         state.pose.position.x = x[0]
         state.pose.position.y = x[1]
         state.pose.position.z = x[2]
         state.pose.orientation.z = m.atan2(x[5],x[6])
-        state.twist.linear.x = x[3]
-        state.twist.linear.z = x[4]
-        state.twist.angular.z = x[6]
+        state.twist.linear.x = u[0]
+        state.twist.linear.z = u[2]
+        state.twist.angular.z = u[1]
         return state
     
 def main():
