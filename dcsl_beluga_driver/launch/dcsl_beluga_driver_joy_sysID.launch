@@ -1,8 +1,12 @@
 <launch>
 
  <!-- dcsl_beluga_driver Node-->
-  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node" args="/dev/ttyUSB1" />
-
+ <!--
+  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node" args="/dev/ttyUSB1" >
+    <param name="air_reading" value="70" type="int"/>
+    <param name="bottom_reading" value="541" type="int"/>
+  </node >
+ -->
 
  <!-- joy node -->
   <node respawn="true" pkg="joy"
@@ -20,6 +24,8 @@
   <param name="scale_vertical" value="255" type="double"/>
 
  <!-- Need to change this node -->
-  <node pkg="dcsl_beluga_driver" type="dcsl_beluga_joy_sysID" name="teleop"/>
+  <node pkg="dcsl_beluga_driver" type="dcsl_beluga_joy_sysID" name="teleop">
+    <remap from="cmd_inputs" to="/robot0/cmd_inputs"/>
+  </node >
 
 </launch>

@@ -2,8 +2,8 @@
 
 #include <ros/ros.h>
 #include <dcsl_messages/belugaInput.h>
+#include <dcsl_messages/StateArray.h>
 #include <sensor_msgs/Joy.h>
-#include <geometry_msgs/PoseArray.h>
 
 class TeleopBeluga
 {
@@ -13,7 +13,7 @@ public:
 private:
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
 
-  void stateCallback(const geometry_msgs::PoseArray::ConstPtr& pose_array);
+  void stateCallback(const dcsl_messages::StateArray::ConstPtr& pose_array);
 
   ros::NodeHandle nh_;
 
@@ -45,7 +45,7 @@ TeleopBeluga::TeleopBeluga():
 
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &TeleopBeluga::joyCallback, this);
 
-  state_sub_ = nh_.subscribe<geometry_msgs::PoseArray>("state_estimate", 10, &TeleopBeluga::stateCallback, this);
+  state_sub_ = nh_.subscribe<dcsl_messages::StateArray>("state_estimate", 10, &TeleopBeluga::stateCallback, this);
 
   servo = 0;
   thrust_motor = 0;
@@ -64,7 +64,7 @@ void TeleopBeluga::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
   //vel_pub_.publish(cmd_inputs);
 }
 
-void TeleopBeluga::stateCallback(const geometry_msgs::PoseArray::ConstPtr& pose_array)
+void TeleopBeluga::stateCallback(const dcsl_messages::StateArray::ConstPtr& state_array)
 {
   dcsl_messages::belugaInput cmd_inputs;
   cmd_inputs.servo = servo;
