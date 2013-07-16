@@ -27,10 +27,10 @@ class MiabotEstimator:
         self.input_sub = rospy.Subscriber("cmd_vel_array", TwistArray, self.input_callback)
         self.pub = rospy.Publisher("state_estimate", StateArray)
 
-        self.init_P = np.ones((7,7))*0.1
+        self.init_P = np.ones((8,8))*0.1
         self.init_u = np.array([0., 0., 0.])
-        self.Q = np.identity(7)*0.1
-        self.R = np.identity(4)*0.01
+        self.Q = np.identity(8)*0.1
+        self.R = np.identity(5)*0.01
         self.R[3][3] = 0.1
 
         self.ekfs = [None]*7
@@ -47,7 +47,7 @@ class MiabotEstimator:
                 z = self._pose_to_z_array(pose)
                 # Initialize ekf for robot if necessary
                 if self.ekfs[i] is None:
-                    state_estimate = np.array([z[0], z[1], z[2], 0., 0., z[3], 0.]) #Assume initial velocities are zero
+                    state_estimate = np.array([z[0], z[1], z[2], 0., 0., m.sin(z[3]), m.cos(z[3]), 0.]) #Assume initial velocities are zero
                     self.ekfs[i] = ekf(t, state_estimate, self.init_P, 
                                        self.init_u, self.miabot.f, self.miabot.h, 
                                        self.miabot.F, self.miabot.G, self.miabot.H, 
@@ -62,11 +62,8 @@ class MiabotEstimator:
                     state_estimate = self.ekfs[i].look_forward(t)
                 # Otherwise  estimate is zeros.
                 else:
-                    state_estimate = np.zeros(7)
-            
-            #Wrap theta angle to pi
-            if state_estimate[5] >= m.pi or state_estimate[5] < -m.pi:
-                state_estimate[5] = state_estimate[5] - m.floor(state_estimate[5]/(2.*m.pi)+0.5)*2.*m.pi
+                    state_estimate = np.zeros(8)
+                    state_estimate[6] = 1.0
                     
             state = self._x_array_to_state(state_estimate)
 
@@ -120,7 +117,7 @@ class MiabotEstimator:
         state.pose.position.x = x[0]
         state.pose.position.y = x[1]
         state.pose.position.z = x[2]
-        state.pose.orientation.z = x[5]
+        state.pose.orientation.z = m.atan2(x[5],x[6])
         state.twist.linear.x = x[3]
         state.twist.linear.z = x[4]
         state.twist.angular.z = x[6]
