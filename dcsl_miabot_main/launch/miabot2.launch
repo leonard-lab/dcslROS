@@ -1,0 +1,8 @@
+<launch>
+
+  <!-- Miabot Robot Node -->
+  <node name="miabot2" pkg="dcsl_miabot_driver" type="dcsl_miabot_node.py" output="screen" >
+    <remap from="cmd_vel" to="cmd_vel2" />
+  </node>
+
+</launch>

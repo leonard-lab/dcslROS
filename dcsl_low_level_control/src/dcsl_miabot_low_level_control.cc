@@ -4,6 +4,7 @@
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseArray.h"
 #include "dcsl_messages/TwistArray.h"
+#include "dcsl_messages/StateArray.h"
 #include "dcsl_miabot_control_math.h"
 
 /// \file dcsl_miabot_low_level_control.cc
@@ -32,6 +33,7 @@ private:
   std::vector<double> waypoints_theta;
   const double k1;
   const double k2;
+  bool waypoint_on;
   
 public:
   /// Constructor for MiabotLowLevelController.
@@ -51,7 +53,8 @@ public:
       waypoints_y(numBots),
       waypoints_theta(numBots),
       k1(k1),
-      k2(k2)  
+      k2(k2),
+      waypoint_on(false)
   {}
 
   /// Initialization for MiabotLowLevelController, to be called directly after object creation.
@@ -59,23 +62,18 @@ public:
   /// \param[in] use_waypoint        When true, subscribers are created to listen on "waypoint_input" 
   ///                                and "state_estimate" topics. When false, subscriber is created
   ///                                for "velocity_input"
-  void init(bool use_waypoint)
+  void init()
   {
     // create Publisher object where output will be advertised
     // template type in < > is the message type to be published
     Pub_low_level =  n.advertise<dcsl_messages::TwistArray>("cmd_vel_array", 1);
 
-    if (use_waypoint)
-    {
-      // create Subscriber objects to collect states and new waypoint commands
-      Sub_state    = n.subscribe("state_estimate",1,&MiabotLowLevelController::stateCallback,this);
-      Sub_waypoint = n.subscribe("waypoint_input",1,&MiabotLowLevelController::waypointCallback,this);      
-    }
-    else
-    {
-      // create subscriber for velocity inputs
-      Sub_velocity = n.subscribe("velocity_input",1,&MiabotLowLevelController::velocityCallback,this);
-    }
+    // create Subscriber objects to collect states and new waypoint commands
+    Sub_state    = n.subscribe("state_estimate",1,&MiabotLowLevelController::stateCallback,this);
+    Sub_waypoint = n.subscribe("waypoint_input",1,&MiabotLowLevelController::waypointCallback,this);
+
+    // create subscriber for velocity inputs
+    Sub_velocity = n.subscribe("velocity_input",1,&MiabotLowLevelController::velocityCallback,this);
   }
 
   /// Callback function for topic "state_estimate".
@@ -83,43 +81,46 @@ public:
   /// The new message is used in computing velocities towards the latest waypoints, which are
   /// published to the topic "cmd_vel_array" as a TwistArray
   /// \param[in] states          PoseArray of robot states containing position and heading of each robot.
-  void stateCallback(const geometry_msgs::PoseArray states)
+  void stateCallback(const dcsl_messages::StateArray data)
   {
     // when new state estimate is made, compute desired velocity from
     // the most recent waypoint info for each robot
     ROS_DEBUG_STREAM("received state message");
-    if(int(states.poses.size()) == numRobots)
-    {
-      dcsl_messages::TwistArray velocities;
-      geometry_msgs::Twist currentTwist;
-      double pos[3];
-      double way[3];
-      double outputVel[2];
-
-      for (int i = 0; i < numRobots; i++) // loop through the robots
+    if (waypoint_on == true)
       {
-      	pos[0] = states.poses[i].position.x;
-        pos[1] = states.poses[i].position.y; 
-        pos[2] = states.poses[i].orientation.z;
-        way[0] = waypoints_x[i];
-        way[1] = waypoints_y[i];
-        way[2] = waypoints_theta[i];
-        
-        // call function to compute outputVel = [v,omega]
-        miabot_waypoint(outputVel,pos,way,k1,k2);
+	if(int(data.states.size()) == numRobots)
+	  {
+	    dcsl_messages::TwistArray velocities;
+	    geometry_msgs::Twist currentTwist;
+	    double pos[3];
+	    double way[3];
+	    double outputVel[2];
 
-        // place that into velocities message
-        currentTwist.linear.x = outputVel[0];
-        currentTwist.angular.z = outputVel[1];
-        velocities.twists.push_back(currentTwist);
-      }
-      ROS_DEBUG_STREAM("  publishing velocity message");
-      Pub_low_level.publish(velocities);
-    }
-    else
-    {
-      ROS_ERROR_STREAM("number of states did not match numRobots, skipping...");
-    }  
+	    for (int i = 0; i < numRobots; i++) // loop through the robots
+	      {
+		pos[0] = data.states[i].pose.position.x;
+		pos[1] = data.states[i].pose.position.y; 
+		pos[2] = data.states[i].pose.orientation.z;
+		way[0] = waypoints_x[i];
+		way[1] = waypoints_y[i];
+		way[2] = waypoints_theta[i];
+        
+		// call function to compute outputVel = [v,omega]
+		miabot_waypoint(outputVel,pos,way,k1,k2);
+
+		// place that into velocities message
+		currentTwist.linear.x = outputVel[0];
+		currentTwist.angular.z = outputVel[1];
+		velocities.twists.push_back(currentTwist);
+	      }
+	    ROS_DEBUG_STREAM("  publishing velocity message");
+	    Pub_low_level.publish(velocities);
+	  }
+	else
+	  {
+	    ROS_ERROR_STREAM("number of states did not match numRobots, skipping...");
+	  }
+      }  
   }
 
   /// Callback function for topic "waypoint_input".
@@ -137,6 +138,7 @@ public:
         waypoints_y[i]     = newWaypoints.poses[i].position.y;
         waypoints_theta[i] = newWaypoints.poses[i].orientation.z;
       }
+      waypoint_on = true;
     }
     else
     {
@@ -152,23 +154,23 @@ public:
   /// \param[in] velocityPose          PoseArray of desired robot velocities. Linear velocity is 
   ///                                  stored in position.x of each pose, and angular velocity is
   ///                                  stored in orientation.z of each pose.
- void velocityCallback(const geometry_msgs::PoseArray velocityPose)
+ void velocityCallback(const dcsl_messages::TwistArray velocityIn)
   {
-    if(int(velocityPose.poses.size()) == numRobots)
+    if(int(velocityIn.twists.size()) >= numRobots)
     {
       dcsl_messages::TwistArray velocities;
       geometry_msgs::Twist currentTwist;
       for (int m = 0; m < numRobots; m++)
       {
-        currentTwist.linear.x = velocityPose.poses[m].position.x;
-        currentTwist.angular.z = velocityPose.poses[m].orientation.z;
+        currentTwist = velocityIn.twists[m];
         velocities.twists.push_back(currentTwist);
       }
       Pub_low_level.publish(velocities);
+      waypoint_on = false;
     }
     else
     {
-      ROS_ERROR_STREAM("number of velocity inputs did not match numRobots, skipping...");
+      ROS_ERROR_STREAM("number of velocity inputs less than numRobots, skipping...");
     }
   }
 };
@@ -194,25 +196,9 @@ int main(int argc, char **argv)
   n.param<double>("waypoint_gain_1", k1, 0.7);
   n.param<double>("waypoint_gain_2", k2, 0.5);
 
-  // check command line args to see whether to use waypoint or velocity control
-  bool use_waypoint;
-  if (argc > 1 && std::string(argv[1])=="--way")
-  {
-    use_waypoint = true;
-  }
-  else if (argc > 1 && std::string(argv[1])=="--vel")
-  {
-    use_waypoint = false; // use velocity control
-  }
-  else
-  {
-    use_waypoint = true; // default for no flag specified
-    ROS_INFO_STREAM("No arg for control type, defaulting to waypoint");
-  }
-
   // create and initialize the controller object
   MiabotLowLevelController mllc(n, numRobots, k1, k2);
-  mllc.init(use_waypoint);
+  mllc.init();
 
   // loop through callback queue until node is closed
   ros::spin();

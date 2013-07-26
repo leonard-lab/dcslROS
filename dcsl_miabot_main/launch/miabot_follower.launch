@@ -6,56 +6,35 @@
 -->  
   <param name="/n_robots" value="2" />
 
-  <node name="camera" pkg="camera1394" type="camera1394_node" >
-    <rosparam file="$(find dcsl_vision_tracker)/config/miabot_camera.yaml" />
-  </node>
+  <!-- Launch cameras and processors -->
+  <include file="$(find dcsl_vision_tracker)/launch/miabot_camera_only.launch" />
 
-  <node name="image_proc" pkg="image_proc" type="image_proc" ns="camera" >
-    <remap from="image" to="camera/image_raw" />
-  </node>
+  <!-- Launch tracking -->
+  <include file="$(find dcsl_vision_tracker)/launch/miabot_tracker.launch" />
 
-  <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_miabot_tracker.py" output="screen">
-    <param name="background_image" value="$(find dcsl_vision_tracker)/config/miabot_background.png" />
-  </node >
-  
-  <node name="tracked_image_viewer" pkg="image_view" type="image_view" >
-    <remap from="image" to="/tracked_image" />
-  </node >
-
-  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_state_estimator" >
-    <!-- order of initial condition list is [x_1, y_1, theta_1, x_2, y_2, theta_2, etc] -->
-    <!-- so as it is, place the rfcomm0 miabot to the right of rfcomm1 miabot, both facing right -->
-    <param name="initial_poses" value="[0.2, 0.0, 0.0, -0.2, 0.0, 0.0]" />
-  </node>
+  <!-- Launch control nodes -->
+  <node name="estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_estimator.py" />
 
   <node name="high_level_controller" pkg="dcsl_high_level_control"
     type="dcsl_miabot_follower_control" />
   
-  <node name="low_level_controller" pkg="dcsl_low_level_control" 
-    type="dcsl_miabot_low_level_control" args="--way">
-    <param name="waypoint_gain_1" value="0.3" type="double" />
-    <param name="waypoint_gain_2" value="0.1" type="double" />
-  </node > 
+  <!-- Launch low level controller node -->
+  <include file="$(find dcsl_low_level_control)/launch/miabot_low_level.launch" />
 
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
-    <remap from="cmd_vel1" to="robot/cmd_vel1" />
+    <remap from="cmd_vel0" to="unused" />
   </node>
 
-  <group ns="robot" >
-    <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" args="/dev/rfcomm0" >
-      <param name="serial_port" value="/dev/rfcomm0" />
-      <remap from="cmd_vel" to="cmd_vel0" />
-      <!-- miabot0 will take in "cmd_vel0" from miabot_joy -->
-    </node>
-    <node name="miabot1" pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" output="screen" args="/dev/rfcomm1">
-      <param name="serial_port" value="/dev/rfcomm1" />
-      <remap from="cmd_vel" to="cmd_vel1" />
-      <!-- miabot1 will take in "cmd_vel1" from swarm_director -->
-    </node>
-  </group >    
+  <!-- Launch robots -->
+  <include file="$(find dcsl_miabot_main)/launch/miabot0.launch"/>
+  <include file="$(find dcsl_miabot_main)/launch/miabot1.launch"/>
+    
+  <!-- Launch GUI -->
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" />
 
+  <!-- Launch joystick -->
   <node pkg="dcsl_miabot_driver" type="dcsl_miabot_joy" name="teleop">
-    <remap from="cmd_vel" to="robot/cmd_vel0" />
+    <remap from="cmd_vel" to="cmd_vel0" />
   </node>    
 
   <node respawn="true" pkg="joy"
@@ -67,7 +46,7 @@
  <!-- Axes -->
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="0" type="int"/>
-  <param name="scale_linear" value="0.1" type="double"/>
-  <param name="scale_angular" value="0.2" type="double"/>
+  <param name="scale_linear" value="0.25" type="double"/>
+  <param name="scale_angular" value="1.5" type="double"/>
 
 </launch>

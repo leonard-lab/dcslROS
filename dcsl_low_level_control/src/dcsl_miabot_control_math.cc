@@ -4,6 +4,7 @@
 #include "dcsl_miabot_control_math.h"
 #include <math.h>
 
+static const double _PI = 3.141592;
 
 /// Control law to calculate desired velocity based on current position and desired position.
 /// This is a simple controller for differential-drive robots, as described by Brendan Andrade.
@@ -20,16 +21,33 @@ void miabot_waypoint(double* output, double* pose, double* waypoint, double k1, 
 	// calculate distance from bot to waypoint
 	double distance = sqrt(pow(pose[0]-waypoint[0],2) + pow(pose[1]-waypoint[1],2));
 	// calculate angle of bot relative to line towards waypoint
-	double phi = atan2(waypoint[1]-pose[1], waypoint[0]-pose[0]);
+	double phi = atan2(waypoint[1]-pose[1], waypoint[0]-pose[0])-pose[2];
+	
+	// Wrap to [-pi, pi)
+	while (phi > _PI)
+	  {
+	  phi -= 2.0*_PI;
+	  }
+	while (phi <= -1.0*_PI)
+	  {
+	  phi += 2.0*_PI;
+	  }
 
 	// calculate forward speed v
-	output[0] = k1*distance*cos(pose[2]-phi);
+	output[0] = k1*distance*cos(phi);
 
 	// calculate angular speed omega
 	if (distance > min_dist)
 	{
 		// continue moving towards waypoint
-		output[1] = -k2*sin(pose[2]-phi);		
+	  if (phi <= 3.141592/2 && phi > -3.141592/2)
+	    {
+	      output[1] = k2*sin(phi);		
+	    }
+	  else
+	    {
+	      output[1] = -k2*sin(phi);
+	    }
 	}
 	else
 	{

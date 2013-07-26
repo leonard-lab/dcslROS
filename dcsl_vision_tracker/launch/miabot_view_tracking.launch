@@ -1,0 +1,7 @@
+<launch>
+
+  <node name="tracked_image_viewer" pkg="image_view" type="image_view" >
+    <remap from="image" to="/tracked_image" />
+  </node >
+
+</launch>

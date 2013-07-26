@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_miabot_driver)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS std_msgs geometry_msgs rospy roscpp)
-set(SYS_DEPS python-serial python-sys)
+set(CATKIN_DEPS std_msgs geometry_msgs rospy roscpp genmsg actionlib actionlib_msgs)
+set(SYS_DEPS python-bluez python-sys)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
@@ -15,8 +15,20 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
+# Add action files
+add_action_files(
+  DIRECTORY action
+  FILES ConnectMiabot.action
+)
+
 # Install python scripts using distutils
 catkin_python_setup()
+
+
+# Generate action messages
+generate_messages(
+  DEPENDENCIES actionlib_msgs
+)
 
 ## DEPENDS: system dependencies of this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
@@ -29,6 +41,8 @@ catkin_package(
     LIBRARIES
 )
 
+include_directories(include ${catkin_INCLUDE_DIRS})
+
 add_executable(dcsl_miabot_joy src/dcsl_miabot_joy.cpp)
 target_link_libraries(dcsl_miabot_joy ${catkin_LIBRARIES})
 
@@ -37,6 +51,6 @@ install(TARGETS dcsl_miabot_joy
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_driver.py
+install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_node.py src/dcsl_miabot_driver/dcsl_miabot_API.py src/dcsl_miabot_driver/miabot_module.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )

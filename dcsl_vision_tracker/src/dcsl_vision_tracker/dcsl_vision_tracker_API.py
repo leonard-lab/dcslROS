@@ -144,11 +144,11 @@ class DcslVisionTracker(object):
         # Create a least squares error matrix between sensed poses (rows) and estimated poses (columns)
         cost_matrix = []
         for sensed_pose in sensed_poses:
-            column = []
+            row = []
             for state in estimated_poses:
                 difference = pow(sensed_pose.position_x()-state.position_x(),2)+pow(sensed_pose.position_y()-state.position_y(),2)
-                column.append(difference)                
-            cost_matrix.append(column)
+                row.append(difference)                
+            cost_matrix.append(row)
 
         # Sort readings to match previous pose order
         sorted_measurements = []
@@ -157,11 +157,10 @@ class DcslVisionTracker(object):
             indexes = mun.compute(cost_matrix) # Returns a list of index pairs, 1st index cooresponds to the sensed pose and 2nd is the matched estimated pose
             for i in xrange(0,n_robots):
                 assigned = False
-                for pair in indexes:
-                    if pair[1] == i: # Find estimated pose i in index pairs
-                        sensed_poses_index = pair[0] #Matching sensed pose index is pair[0]
-                        sensed_poses[sensed_poses_index].set_detected(True)
-                        sorted_measurements.append(sensed_poses[sensed_poses_index])
+                for sensed_index, est_index in indexes:
+                    if est_index == i: # Find estimated pose i in index pairs
+                        sensed_poses[sensed_index].set_detected(True)
+                        sorted_measurements.append(sensed_poses[sensed_index])
                         assigned = True
                 if not assigned: # If robot i was not found
                     empty_pose = DcslPose()
@@ -247,10 +246,10 @@ class DcslMiabotTracker(DcslVisionTracker):
         for pose in image_poses:
             sensed_pose = DcslPose()
             if pose.position[0] is not None:
-                sensed_x = (pose.position[0]-0.5*self.image_width)*self.scale
-                sensed_y = -(pose.position[1]-0.5*self.image_height)*self.scale
+                sensed_x = (float(pose.position[0])-0.5*float(self.image_width))*self.scale
+                sensed_y = -(float(pose.position[1])-0.5*float(self.image_height))*self.scale
                 sensed_pose.set_position((sensed_x,sensed_y, None))
-                sensed_pose.set_quaternion((None,None,pose.quaternion[2],None))
+                sensed_pose.set_quaternion((None,None,float(pose.quaternion[2]),None))
                 if pose.detected:
                     sensed_pose.set_detected(True)
             sensed_poses.append(sensed_pose)
@@ -266,10 +265,10 @@ class DcslMiabotTracker(DcslVisionTracker):
         for pose in world_poses:
             image_pose = DcslPose()
             if pose.position[0] is not None:
-                image_x = pose.position[0]*self.scale + 0.5*self.image_width
-                image_y = -1.0*pose.position[1]*self.scale - 0.5*self.image_height
+                image_x = float(pose.position[0])/self.scale + 0.5*float(self.image_width)
+                image_y = -1.0*float(pose.position[1])/self.scale + 0.5*float(self.image_height)
                 image_pose.set_position((image_x, image_y, None))
-                image_pose.set_quaternion((None, None, pose.quaternion[2], None))
+                image_pose.set_quaternion((None, None, float(pose.quaternion[2]), None))
                 if pose.detected:
                     image_pose.set_detected(True)
             image_poses.append(image_pose)
@@ -283,45 +282,55 @@ class DcslMiabotTracker(DcslVisionTracker):
     def get_image_poses(self, contours):
         image_poses = [] # List to store measured poses
         cr = contours #Copy contours to not change original variable
-        while cr is not None:
-            # Find area of blob and reject those not the size of a robot
-            ##blob_size = cv.ContourArea(cr)
-            # Contour Area is not robust to concave shapes and can return NaN in this case
-            box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
-            blob_size = box[1][0]*box[1][1]
-            if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
-                moments = cv.Moments(cr, False)
-                # Find center of blob
+        if len(cr) is not 0:
+            while cr is not None:
+                # Find area of blob and reject those not the size of a robot
+                ##blob_size = cv.ContourArea(cr)
+                # Contour Area is not robust to concave shapes and can return NaN in this case
                 box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
-                center = (box[0][0], box[0][1])
-                # Find centroid of blob
-                centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
-                # Estimate heading by drawing line from centroid to center and finding heading of line
-                theta_estimate = -m.atan2(center[1]-centroid[1],center[0]-centroid[0])
-                # Theta is found using the minimum area box from above
-                theta_box = -m.pi/180.0*box[2] #Angle in the first quadrant of the minimum area box with the x-axis
-                # Test angle of box in each quadrant to see which is closest to angle found from centroid
-                # Box angle is more accurate than centroid method
-                previous_error = -1.0
-                theta = None
-                step_list = [-m.pi,-m.pi*0.5,0,m.pi*0.5]
-                for step in step_list:
-                    theta_test = theta_box+step
-                    error = pow(theta_estimate-theta_test,2)
-                    if previous_error < 0:
-                        theta = theta_test
-                        previous_error = error
-                    elif error < previous_error:
-                        theta = theta_test
-                        previous_error = error
-                # Append found pose to image_poses list
-                pose = DcslPose()
-                pose.set_position((center[0],center[1],0))
-                pose.set_quaternion((0,0,theta,0))
-                image_poses.append(pose)
-            del box
-            #Cycle to next contour
-            cr=cr.h_next()
+                blob_size = box[1][0]*box[1][1]
+                if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
+                    moments = cv.Moments(cr, False)
+                    # Find center of blob
+                    box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
+                    center = (float(box[0][0]), float(box[0][1]))
+                    # Find centroid of blob
+                    centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
+                    # Estimate heading by drawing line from centroid to center and finding heading of line
+                    theta_estimate = -m.atan2(float(center[1])-float(centroid[1]), float(center[0])-float(centroid[0]))
+                    # Theta is found using the minimum area box from above
+                    theta_box = -m.pi/180.0*float(box[2]) #Angle in the first quadrant of the minimum area box with the x-axis
+                    # Test angle of box in each quadrant to see which is closest to angle found from centroid
+                    # Box angle is more accurate than centroid method
+                    previous_error = -1.0
+                    theta = None
+                    if box[1][0] > box[1][1]:
+                        step_list = [-m.pi, 0, m.pi]
+                    else:
+                        step_list = [-m.pi*1.5, -m.pi*0.5, m.pi*0.5]
+                    for step in step_list:
+                        theta_test = theta_box+step
+                        error = pow(theta_estimate-theta_test,2)
+                        if previous_error < 0:
+                            theta = theta_test
+                            previous_error = error
+                        elif error < previous_error:
+                            theta = theta_test
+                            previous_error = error
+                    # Keep theta between -pi and pi T
+                    # The way theta is found can only place it out of this bound by 2pi in either direction.
+                    if theta >= m.pi:
+                        theta = theta - 2.*m.pi
+                    elif theta < -m.pi:
+                        theta = theta + 2.*m.pi
+                    # Append found pose to image_poses list
+                    pose = DcslPose()
+                    pose.set_position((center[0],center[1],0.))
+                    pose.set_quaternion((0.,0.,theta,0.))
+                    image_poses.append(pose)
+                del box
+                #Cycle to next contour
+                cr=cr.h_next()
         del cr
         return image_poses
         

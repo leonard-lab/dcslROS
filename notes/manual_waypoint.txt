@@ -1,1 +1,6 @@
 rostopic pub -r 10 /waypoint_input geometry_msgs/PoseArray '{poses: [position: {x: 0.1, y: 0.1, z: 0.0}]}'
+
+rostopic pub -1 /waypoint_input geometry_msgs/PoseArray '{header: {stamp: now}, poses: [position: {x: 0.1, y: 0.1, z: 0.0}, position: {x: 0., y: 0., z: 0.}]}'
+
+rostopic pub -1 /state_estimate dcsl_messages/StateArray '{header: {stamp: now}, states: [pose: {position: {x: 0.1, y: 0.1, z: 0.0}}, pose: {position: {x: 0., y: 0., z: 0.}}]}'
+

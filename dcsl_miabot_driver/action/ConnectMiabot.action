@@ -1,0 +1,8 @@
+# Determine whether to connect
+bool connect # True = connect miabot, False = Do nothing
+---
+# Determine if successfully connected
+bool connected # True = Connected, False = Not connected
+---
+# Determine if robot is still connecting
+bool in_progress # True = still connecting, False = finished

@@ -9,12 +9,15 @@
 # import roslib
 # roslib.load_manifest('dcsl_vision_tracker')
 
+import actionlib
 import rospy
 from geometry_msgs.msg import PoseArray,Pose
+from dcsl_messages.msg import StateArray
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from dynamic_reconfigure.server import Server
 from dcsl_vision_tracker.cfg import dcsl_miabot_tracker_configConfig as Config
+from dcsl_vision_tracker.msg import *
 
 import cv
 import math as m
@@ -26,36 +29,40 @@ from dcsl_vision_tracker_API import DcslMiabotTracker, DcslPose
 ## This class allows detection of robots in an image,  orders these readings based on state estimates, and publishes them as a PoseArray.
 class miabot_tracker:
     
+    _feedback = ToggleTrackingFeedback()
+    _result = ToggleTrackingResult()
+
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
     def __init__(self):
+
+        # Get initial states
+        init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
+        n_robots = rospy.get_param('/n_robots')
+        self.initial_states = []
+        for i, pose in enumerate(init_poses):
+            if i < n_robots:
+                temp = DcslPose()
+                temp.set_position((pose[0], pose[1], pose[2]))
+                temp.set_quaternion((0., 0., pose[3], 0.))
+                self.initial_states.append(temp)
+        self.current_states = self.initial_states
+        self.output_measurements = False
+        self.receive_states = True
+        self.tracker = None #tracker initialized in parameter server callback to get defaults from server.
+        self.srv = Server(Config, self.parameter_callback)
         self.image_pub = rospy.Publisher("tracked_image",Image)
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
         self.image_sub = rospy.Subscriber("/camera/image_rect",Image,self.imageCallback)
-        self.state_sub = rospy.Subscriber("state_estimate", PoseArray, self.stateCallback)
+        self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
         self.bridge = CvBridge()
-        self.srv = Server(Config, self.parameter_callback)
+        
+        self._action_name = "dcsl_vision_tracker"
+        self.server = actionlib.SimpleActionServer(self._action_name, ToggleTrackingAction, self.toggle_tracking, False)
+        self.server.start()
 
-        location = rospy.get_param('/vision_tracker/background_image')
-        background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
-        threshold = 75
-        erode_iterations = 3
-        min_blob_size = 1000
-        max_blob_size = 2000
-        scale = 1.7526/1024.0 #meters/pixel
-        image_width = 1024
-        image_height = 768
-        self.storage = cv.CreateMemStorage()
-        self.tracker = DcslMiabotTracker([background], [None], threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale)
+        
 
-    
-        # For testing
-        temp1 = DcslPose()
-        temp1.set_position((0,0,0))
-        temp1.set_quaternion((0,0,0,0))
-        temp2 = DcslPose()
-        temp2.set_position((-1,-1,0))
-        temp2.set_quaternion((0,0,0,0))
-        self.current_states = [temp1,temp2]
+        
         
 
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
@@ -71,20 +78,23 @@ class miabot_tracker:
         
         # Find poses and place into a message
         measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, 0)
-        pose_array = PoseArray()
-        for dcsl_pose in measurements:
-            p = Pose()
-            if dcsl_pose.detected:
-                p.position.x = dcsl_pose.position_x()
-                p.position.y = dcsl_pose.position_y()
-                p.orientation.z = dcsl_pose.quaternion_z()
-                p.orientation.w = 1
-            else:
-                p.orientation.w = 0
-            pose_array.poses.append(p)
+        # Only output_measurements if output_measurements is true (set by action server)
+        if self.output_measurements:
+            pose_array = PoseArray()
+            for dcsl_pose in measurements:
+                p = Pose()
+                if dcsl_pose.detected:
+                    p.position.x = dcsl_pose.position_x()
+                    p.position.y = dcsl_pose.position_y()
+                    p.orientation.z = dcsl_pose.quaternion_z()
+                    p.orientation.w = 1
+                else:
+                    p.orientation.w = 0
+                pose_array.poses.append(p)
 
-        #Publish measuremented poses
-        self.measurement_pub.publish(pose_array)
+            # Publish measuremented poses
+            pose_array.header.stamp = data.header.stamp
+            self.measurement_pub.publish(pose_array)
 
         # Create BGR8 image to be output
         output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
@@ -93,15 +103,28 @@ class miabot_tracker:
         # Overlay position, heading, and contour
         length = 15.0
         radius = 5
+        text_offset = (-30, -20)
+        hscale = 0.5
+        vscale = 0.7
+        font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, hscale, vscale)
         cyan = cv.RGB(0,255,255)
-        for point in image_poses:
+        red = cv.RGB(255, 0, 0)
+        green = cv.RGB(0, 255, 0)
+        for index, point in enumerate(image_poses):
             if point.detected:
                 end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
                 center = (int(point.position_x()), int(point.position_y()))
-                cv.Line(output_image, center, end, cyan)
-                cv.Circle(output_image, center, radius, cyan)
+                cv.Line(output_image, center, end, red)
+                cv.Circle(output_image, center, radius, red)
+                cv.PutText(output_image, str("Robot ")+str(index), (center[0]+text_offset[0], center[1]+text_offset[1]), font, red)
         cv.DrawContours(output_image, contours, cyan, cyan, 2)
-        
+        if self.output_measurements:
+            status = "Currently outputting pose measurements"
+            color = green
+        else:
+            status = "Not outputting pose measurements to system"
+            color = red
+        cv.PutText(output_image, status, (5, 25), font, color)
 
         # Publish image with overlay
         try:
@@ -113,22 +136,39 @@ class miabot_tracker:
     #
     # @param data is the message received from the subscriber.
     def stateCallback(self, data):
-        self.current_states = []
-        for pose in data.poses:
-            temp = DcslPose()
-            pos_x = pose.position.x
-            pos_y = pose.position.y
-            theta = pose.orientation.z
-            temp.set_position((pos_x,pos_y,0))
-            temp.set_quaternion((0,0,theta,0))
-            self.current_states.append(temp)
+        if self.receive_states:
+            self.current_states = []
+            for i, state in enumerate(data.states):
+                temp = DcslPose()
+                if state.pose.orientation.w == 1:
+                    pos_x = state.pose.position.x
+                    pos_y = state.pose.position.y
+                    theta = state.pose.orientation.z
+                    temp.set_position((pos_x,pos_y,0))
+                    temp.set_quaternion((0,0,theta,0))
+                else:
+                    temp = self.initial_states[i]
+                self.current_states.append(temp)
 
     ## Call back function for parameter updates.
     #
     # @param config data received for parameter update
     # @param level
     def parameter_callback(self, config, level):
-        if "tracker" in self.__dict__:
+        if self.tracker is None:
+            location = rospy.get_param('/vision_tracker/background_image')
+            background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
+            threshold = int(config["binary_threshold"])
+            erode_iterations = int(config["erode_iterations"])
+            min_blob_size = int(config["min_blob_size"])
+            max_blob_size = int(config["max_blob_size"])
+            scale = config["scale"]
+            image_width = 1024
+            image_height = 768
+            self.storage = cv.CreateMemStorage()
+            self.tracker = DcslMiabotTracker([background], [None], threshold, erode_iterations, min_blob_size, 
+                                             max_blob_size, self.storage, image_width, image_height, scale)
+        else:
             self.tracker.threshold = int(config["binary_threshold"])
             self.tracker.erode_iterations = int(config["erode_iterations"])
             self.tracker.min_blob_size = int(config["min_blob_size"])
@@ -139,7 +179,29 @@ class miabot_tracker:
             self.background_list = [background]
         rospy.logdebug("""Reconfigure Request: {background_file}, {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}, {scale}""".format(**config))
         return config
-    
+
+    ##
+    #
+    #
+    def toggle_tracking(self, goal):
+        # Publish feedback
+        self._feedback.executing = True
+        self.server.publish_feedback(self._feedback)
+        
+        if goal.reset == True:
+            self.receive_states = False
+            self.current_states = self.initial_states   
+        else:
+            self.receive_states = True
+        
+        # Turn tracking on or off
+        self.output_measurements = goal.track
+        
+        # Send result
+        self._result.tracking = goal.track
+        self._feedback.executing = False
+        self.server.publish_feedback(self._feedback)
+        self.server.set_succeeded(self._result)
 
 ## Runs on the startup of the node. Initializes the node and creates the MiabotTracker object.
 def main():

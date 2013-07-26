@@ -1,13 +1,14 @@
 <launch>
 
- <!-- dcsl_miabot_driver Node-->
-  <node pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" name="miabot2"/>
+  <!-- Miabot Robot Node -->
+  <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_node.py" output="screen" />
 
-  <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" />
+  <!--Action Client Node -->
+  <node name="miabot0_action_client" pkg="actionlib" type="axclient.py" args="/miabot0" />
 
  <!-- joy node -->
-  <node respawn="true" pkg="joy"
-        type="joy" name="turtle_joy" >
+ <node respawn="true" pkg="joy"
+        type="joy_node" name="joy_node" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
   </node>
@@ -15,8 +16,8 @@
  <!-- Axes -->
   <param name="axis_linear" value="1" type="int"/>
   <param name="axis_angular" value="0" type="int"/>
-  <param name="scale_linear" value="0.5" type="double"/>
-  <param name="scale_angular" value="1.5" type="double"/>
+  <param name="scale_linear" value="0.25" type="double"/>
+  <param name="scale_angular" value="6" type="double"/>
 
   <node pkg="dcsl_miabot_driver" type="dcsl_miabot_joy" name="teleop"/>
 

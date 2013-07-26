@@ -1,6 +1,6 @@
 <launch>
   
-  <param name="/n_robots" value="2" />
+  <param name="/n_robots" value="3" />
 
    <!-- Launch cameras and processors -->
   <include file="$(find dcsl_vision_tracker)/launch/miabot_camera_only.launch" />
@@ -11,9 +11,10 @@
   <!-- Launch robots -->
   <include file="$(find dcsl_miabot_main)/launch/miabot0.launch" />
   <include file="$(find dcsl_miabot_main)/launch/miabot1.launch" />
+  <include file="$(find dcsl_miabot_main)/launch/miabot2.launch" />
   
   <!-- Launch low level controller node -->
-  <include file="$(find dcsl_low_level_control)/launch/miabot_low_level.launch" />
+  <include file="$(find dcsl_low_level_control)/launch/miabot_low_level.launch" /> 
 
   <!-- Director -->
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" />

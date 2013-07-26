@@ -2,6 +2,8 @@
 #include "ros/console.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseArray.h"
+#include "dcsl_messages/StateArray.h"
+#include "dcsl_messages/State.h"
 #include "dcsl_miabot_high_level_math.h"
 
 /// \file dcsl_miabot_follower_control.cc
@@ -44,10 +46,10 @@ public:
   /// "miabot_follower_control" function in the dcsl_miabot_high_level_math library.
   /// The computed waypoints are published to the topic "waypoint_input" as a PoseArray.
   /// \param[in] states          PoseArray of robot states containing position and heading of each robot.
-  void stateCallback(const geometry_msgs::PoseArray states)
+  void stateCallback(const dcsl_messages::StateArray data)
   {
     ROS_DEBUG_STREAM("received state message");
-    if(int(states.poses.size()) == numRobots)
+    if(int(data.states.size()) == numRobots)
     {
       geometry_msgs::PoseArray waypoints;
       geometry_msgs::Pose currentPose;
@@ -58,9 +60,9 @@ public:
       for (int i = 0; i < numRobots; i++) // loop through the robots
       {
       	// collect all poses into single array
-        pos[3*i + 0] = states.poses[i].position.x;
-        pos[3*i + 1] = states.poses[i].position.y; 
-        pos[3*i + 2] = states.poses[i].orientation.z;
+        pos[3*i + 0] = data.states[i].pose.position.x;
+        pos[3*i + 1] = data.states[i].pose.position.y; 
+        pos[3*i + 2] = data.states[i].pose.orientation.z;
       }
       // call function to compute waypoints as function of current poses
       miabot_follower_control(way,pos,numRobots);

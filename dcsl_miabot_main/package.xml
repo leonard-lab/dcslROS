@@ -22,6 +22,7 @@
   <!-- <build_depend>dcsl_state_estimator</build_depend> -->
   <!-- <build_depend>dcsl_swarm_director</build_depend> -->
   <!-- <build_depend>dcsl_vision_tracker</build_depend> -->
+  <build_depend>python-numpy</build_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>roscpp</run_depend>
@@ -31,6 +32,7 @@
   <run_depend>dcsl_state_estimator</run_depend>
   <run_depend>dcsl_swarm_director</run_depend>
   <run_depend>dcsl_vision_tracker</run_depend>
+  <run_depend>python-numpy</run_depend>
   <!-- <test_depend>std_msgs</test_depend> -->
   <!-- <test_depend>rospy</test_depend> -->
   <!-- <test_depend>roscpp</test_depend> -->
