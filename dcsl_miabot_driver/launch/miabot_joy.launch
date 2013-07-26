@@ -3,6 +3,7 @@
  <!-- dcsl_miabot_driver Node-->
   <node pkg="dcsl_miabot_driver" type="dcsl_miabot_driver.py" name="miabot2"/>
 
+  <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" />
 
  <!-- joy node -->
   <node respawn="true" pkg="joy"
