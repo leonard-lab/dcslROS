@@ -7,19 +7,18 @@
 
 ## @author Brendan Andrade
 
-from ukf_API import ukf
-
 import numpy as np
 import math as m
 import sys
 
 import rospy
-from geometry_msgs.msg import PoseArray, Pose
+from geometry_msgs.msg import PoseArray
 from geometry_msgs.msg import Twist
-from dcsl_messages.msg import TwistArray
+from dcsl_messages.msg import TwistArray, StateArray, State
 from std_msgs.msg import Float32
 
 from dcsl_beluga_main.beluga import Beluga
+from dcsl_state_estimator.ekf_API import ekf
 
 ###############################################
 
@@ -28,19 +27,12 @@ class BelugaEstimator(object):
     
     ##
     def __init__(self, n_robots):
-        
-        self.n = n_robots
 
         self.beluga = Beluga()
-        Q = np.eye(7, dtype=float)
-        R = np.eye(4, dtype=float)
+        self.Q = np.eye(7, dtype=float)
+        self.R = np.eye(4, dtype=float)
+        self.ekfs = [None]*4;
         x_init = np.zeros(7)
-        self.ukfs = []
-        self.Ts = 0.01
-        self.time = 0.0
-        self.time_step = 0
-        for i in range(0, self.n):
-            self.ukfs.append(ukf(self.beluga.f, self.beluga.g, Q, R, x_init, 7, 3, 4, self.Ts))
 
         self.depth = [0]*4
         depth_callback_list = [self.depth0_callback, self.depth1_callback, self.depth2_callback, self.depth3_callback]
@@ -73,45 +65,77 @@ class BelugaEstimator(object):
         self.depth[3] = data.data
     
     def planar_callback(self, data):
-        new_time = data.header.stamp.secs + data.header.stamp.nsecs*pow(10.0,-9) - self.start_time
-        new_time_step = int(new_time/self.Ts)
-        
-        pose_array = PoseArray()
-        
-        for i in range(0, self.n):
-            if new_time_step - self.time_step > 2:
-                Y = np.ma.array([0,0,0,0], mask=[1,1,1,1])
-                U = self.last_cmds[i]
-                for j in range(self.time_step+1, new_time_step):
-                    self.ukfs[i].update(Y, U)
-            
-            if data.poses[i].orientation.w == 1:
-                Y = np.array([data.poses[i].position.x, data.poses[i].position.y, self.depth[i], data.poses[i].orientation.z])
+        t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10.0,-9)
+        state_array = StateArray()
+        for i, pose in enumerate(data.poses):
+            # If robot detected
+            if (pose.orientation.w == 1.0):
+                z = self._pose_to_z_array(pose)
+                # Initialize ekf for robot if necessary
+                if self.ekfs[i] is None:
+                    state_estimate = np.array([z[0], z[1], z[2], 0., 0., z[3], 0.])
+                    self.ekfs[i] = ekf(t, state_estimate, self.init_P,
+                                       self.init_u, self.beluga.f, self.beluga.h, 
+                                       self.beluga.F, self.beluga.G, self.beluga.H,
+                                       self.beluga.L, self.Q, self.R)
+                else:
+                    state_estimate = self.ekfs[i].estimate(t, z);
+
+            # On no measurement
             else:
-                Y = np.ma.array([0,0,0,0], mask=[1,1,1,1])
+                # If estimator initialized, just propagate state
+                if self.ekfs[i] is not None:
+                    state_estimate = self.ekfs[i].look_forward(t)
+                # Otherwise  estimate is zeros.
+                else:
+                    state_estimate = np.zeros(7)
             
-            U = self.cmds[i] #Fix timing of this
-            self.ukfs[i].update(Y,U)            
-            X = self.ukfs[i].estimate()
-            pose = Pose()
-            pose.position.x = X[0]
-            pose.position.y = X[1]
-            pose.position.z = X[2]
-            pose.orientation.z = X[5]
-            pose_array.poses.append(pose)
-            
-        pose_array.header.stamp = rospy.Time.now() #Consider passing original time.
-        self.pub.publish(pose_array)
-            
-        self.time = new_time
-        self.time_step = new_time_step
-        self.last_cmds = self.cmds
+            #Wrap theta angle to pi
+            if state_estimate[5] >= m.pi or state_estimate[5] < -m.pi:
+                state_estimate[5] = state_estimate[5] - m.floor(state_estimate[5]/(2.*m.pi)+0.5)*2.*m.pi
+                    
+            state = self._x_array_to_state(state_estimate)
+
+            #Signify no estimate (due to tracking not started)
+            if pose.orientation.w is not 1 and self.ekfs[i] is None:
+                state.pose.orientation.w = 0
+            else:
+                state.pose.orientation.w = 1
+
+            state_array.states.append(state)
+        #Pass time to state message
+        state_array.header.stamp = data.header.stamp
+        self.pub.publish(state_array)
+        
 
     def cmd_callback(self, data):
         for i, twist in enumerate(data.twists):
             self.cmds[i] = np.array([twist.linear.x, twist.angular.x, twist.linear.z])
             
-        
+    def publish_estimate():
+
+        state_array = StateArray()
+
+        for i, estimator in self.ekfs:
+            # If not initialized
+            if estimator is None:
+                state_estimate = np.zeros(7)
+                
+
+    ##
+    #
+    #
+    def _x_array_to_state(self, x):
+        state = State()
+        state.pose.position.x = x[0]
+        state.pose.position.y = x[1]
+        state.pose.position.z = x[2]
+        state.pose.orientation.z = x[5]
+        state.twist.linear.x = x[3]
+        state.twist.linear.z = x[4]
+        state.twist.angular.z = x[6]
+        return state
+    
     
 def main():
     rospy.init_node('beluga_estimator')
@@ -119,10 +143,13 @@ def main():
     n_robots = int(sys.argv[1])
 
     estimator = BelugaEstimator(n_robots)
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print "Shutting down"
+    
+    
+    r = rospy.Rate(15) # Make this set dynamically or by param
+    while not rospy.is_shutdown():
+        estimator.publish_estimate()
+        r.sleep()
+
 
 if __name__ == '__main__':
     main()
