@@ -36,7 +36,7 @@ class BelugaEstimator(object):
         self.R = np.eye(5, dtype=float)
         self.ekfs = [None]*4;
 
-        self.depth = [0]*4
+        self.depths = [0]*4
         depth_callback_list = [self.depth0_callback, self.depth1_callback, self.depth2_callback, self.depth3_callback]
         self.depth_sub_array = []
         for i in range(0, self.n):
@@ -50,23 +50,25 @@ class BelugaEstimator(object):
 
 
     def depth0_callback(self, data):
-        self.depth[0] = data.data
+        self.depths[0] = data.data
 
     def depth1_callback(self, data):
-        self.depth[1] = data.data
+        self.depths[1] = data.data
 
     def depth2_callback(self, data):
-        self.depth[2] = data.data
+        self.depths[2] = data.data
 
     def depth3_callback(self, data):
-        self.depth[3] = data.data
+        self.depths[3] = data.data
     
     def planar_callback(self, data):
         t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10.0,-9)
         state_array = StateArray()
         for i, pose in enumerate(data.poses):
+            
             # If robot detected
-            if (pose.orientation.w == 1.0):
+            if (pose.orientation.w == 1.0) and self.depths[i] is not None:
+                pose.position.z = self.depths[i]
                 z = self._pose_to_z_array(pose)
                 # Initialize ekf for robot if necessary
                 if self.ekfs[i] is None:
@@ -129,7 +131,17 @@ class BelugaEstimator(object):
         state_array.header.stamp = now
         self.pub.publish(state_array)
             
-                
+    ##
+    #
+    #
+    def _pose_to_z_array(self, pose):
+        z = np.zeros(5)
+        z[0] = pose.position.x
+        z[1] = pose.position.y
+        z[2] = pose.position.z
+        z[3] = m.sin(pose.orientation.z)
+        z[4] = m.cos(pose.orientation.z)
+        return z                
 
     ##
     #
