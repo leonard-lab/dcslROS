@@ -14,9 +14,9 @@ class Beluga(object):
     
     ##
     def __init__(self):
-        self.eta_t = 0.1
-        self.eta_z_up = 0.1
-        self.eta_z_down = 0.1
+        self.eta1 = 0.1
+        self.eta3up = 0.1
+        self.eta3down = 0.1
         self.Kt = 0.2
         self.Kd1 = 50.
         self.Kd3 = 70.
@@ -30,38 +30,103 @@ class Beluga(object):
         self.Ktau = 0.05
     
     ## 
-    def f(self, state, t, command):
-        x = state[0]
-        y = state[1]
-        z = state[2]
-        v1 = state[3]
-        v3 = state[4]
-        theta = state[5]
-        theta_dot = state[6]
-        
-        u_t = command[0]
-        u_phi = command[1]
-        u_z = command[2]
+    def f(self, x, u, t):
+        u = self._constrain_u(u)
+        x_dot = np.zeros(8)
 
-        x_dot = v1*m.cos(theta)
-        y_dot = v1*m.sin(theta)
-        z_dot = v3
+        theta = m.atan2(x[5], x[6])
+
+        F1 = (1.0-self.eta1)*self.Kt*u[0]*m.cos(u[1]) - self.Kd1*x[3]*abs(x[3])
         
-        F1 = (1-self.eta_t)*self.Kt*u_t*m.cos(u_phi) - self.Kd1*v1*abs(v1)
-        if v3 < 0:
-            eta_z = self.eta_z_down
+        if x[4] < 0:
+            eta3 = self.eta3down
         else:
-            eta_z = self.eta_z_up
-        F3 = (1-eta_z)*self.Kt*u_z - self.Kd3*v3*abs(v3) + self.Kg*(self.z_neutral - z)
+            eta3 = self.eta3up
+        F3 = (1.0-eta3)*self.Kt*u[2] - self.Kd3*x[4]*abs(x[4]) + self.Kg*(self.z_neutral-x[2])
         
-        v1_dot = F1/self.m1
-        v3_dot = F3/self.m3
+        Gamma = -1.*(1.0-self.eta1)*self.Kt*u[0]*self.r*m.sin(u[1]) - self.K_omega*x[7]*abs(x[7]) - self.Ktau*u[2]
 
-        gamma = (1-self.eta_t)*self.Kt*m.sin(u_phi)*self.r - self.K_omega*theta_dot*abs(theta_dot) - self.Ktau*u_z
+        x_dot[0] = x[3]*m.cos(theta)
+        x_dot[1] = x[3]*m.sin(theta)
+        x_dot[2] = x[4]
+        x_dot[3] = F1/self.m1
+        x_dot[4] = F3/self.m3
+        x_dot[5] = x[7]*m.cos(theta)
+        x_dot[6] = -x[7]*m.sin(theta)
+        x_dot[7] = Gamma/self.J
 
-        theta_dotdot = gamma/self.J
+    ##
+    def h(self, state, t):
+        return np.array([state[0], state[1], state[2], m.atan2(state[5],state[6])])
 
-        return np.array([x_dot, y_dot, z_dot, v1_dot, v3_dot, theta_dot, theta_dotdot])
+    ##
+    def F(self, x, u, t):
+        u = self._constrain_u(u)
 
-    def g(self, state):
-        return np.array([state[0], state[1], state[2], state[5]])
+        theta = m.atan2(x[5],x[6])
+
+        F = np.zeros((8,8))
+        F[0][3] = m.cos(theta)
+        F[0][5] = x[3]*-tan(theta)
+        F[0][6] = x[3]
+        F[1][3] = m.sin(theta)
+        F[1][5] = x[3]
+        F[1][6] = -x[3]/m.tan(theta)
+        F[2][4] = 1.0
+        F[3][4] = -self.Kd1*2.0*abs(x[3])/self.m1
+        F[4][2] = -self.Kg/self.m3
+        F[4][4] = -self.Kd3*2.0*abs(x[4])/self.m3
+        F[5][5] = x[7]*-m.tan(theta)
+        F[5][6] = x[7]
+        F[5][7] = m.cos(theta)
+        F[6][5] = -x[7]
+        F[6][6] = x[7]/m.tan(theta)
+        F[6][7] = -m.sin(theta)
+        F[7][7] = -self.K_omega*2.0*abs(x[7])
+        return F
+        
+    ##
+    def G(self, x, u, t):
+        u = self._constrain_u(u)
+        
+        theta = m.atan2(x[5],x[6])
+        
+        if x[4] < 0:
+            eta3 = self.eta3down
+        else:
+            eta3 = self.eta3up
+
+        G = np.zeros((8,3))
+        G[3][0] = (1.0-self.eta1)*self.Kt*m.cos(u[1])
+        G[3][1] = (1.0-self.eta1)*self.Kt*u[0]*-m.sin(u[1])
+        G[4][2] = (1.0-eta3)*self.Kt
+        G[7][0] = -1.0*(1.0-self.eta1)*self.Kt*self.r*m.sin(u[1])
+        G[7][1] = -1.0*(1.0-self.eta1)*self.Kt*u[0]*self.r*m.cos(u[1])
+        G[7][2] = -self.Ktau
+        return G
+
+    ##
+    def H(self, x, t):
+        H = np.zeros((5,8))
+        H[0][0] = 1.
+        H[1][1] = 1.
+        H[2][2] = 1.
+        H[3][5] = 1.
+        H[4][6] = 1.
+        return H
+        
+    ##
+    def L(self, x, u, t):
+        L = np.identity(8)
+        return L
+
+    ##
+    def _constrain_u(self, u):
+        if abs(u[1]) > m.pi/2.0:
+            u[1] = m.copysign(m.pi/2.0, u[1])
+
+        if abs(u[0]) > 255:
+            u[0] = m.copysign(255, u[0])
+            
+        if abs(u[2]) > 255:
+            u[2] = m.copysign(255, u[2])
