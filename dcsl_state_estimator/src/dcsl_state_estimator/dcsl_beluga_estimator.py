@@ -26,7 +26,7 @@ from dcsl_state_estimator.ekf_API import ekf
 class BelugaEstimator(object):
     
     ##
-    def __init__(self, n_robots):
+    def __init__(self):
 
         self.beluga = Beluga()
 
@@ -39,14 +39,14 @@ class BelugaEstimator(object):
         self.depths = [0]*4
         depth_callback_list = [self.depth0_callback, self.depth1_callback, self.depth2_callback, self.depth3_callback]
         self.depth_sub_array = []
-        for i in range(0, self.n):
+        for i,depth_callback in enumerate(depth_callback_list):
             name = "robot" + str(i) +"/depth_measurement"
-            subscriber = rospy.Subscriber(name, Float32, depth_callback_list[i])
+            subscriber = rospy.Subscriber(name, Float32, depth_callback)
             self.depth_sub_array.append(subscriber)
 
         self.input_sub = rospy.Subscriber("/cmd_inputs", BelugaArray, self.input_callback)
         self.planar_sub = rospy.Subscriber("/planar_measurements", PoseArray, self.planar_callback)
-        self.pub = rospy.Publisher("state_estimate", PoseArray)
+        self.pub = rospy.Publisher("state_estimate", StateArray)
 
 
     def depth0_callback(self, data):
@@ -111,7 +111,7 @@ class BelugaEstimator(object):
             if self.ekfs[i] is not None:
                 self.ekfs[i].update_u(t, u)
             
-    def publish_estimate():
+    def publish_estimate(self):
 
         state_array = StateArray()
         now = rospy.get_rostime()
@@ -169,10 +169,7 @@ class BelugaEstimator(object):
 def main():
     rospy.init_node('beluga_estimator')
 
-    n_robots = int(sys.argv[1])
-
-    estimator = BelugaEstimator(n_robots)
-    
+    estimator = BelugaEstimator()
     
     r = rospy.Rate(15) # Make this set dynamically or by param
     while not rospy.is_shutdown():
