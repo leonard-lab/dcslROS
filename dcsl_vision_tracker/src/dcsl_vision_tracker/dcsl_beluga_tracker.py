@@ -116,7 +116,8 @@ class BelugaTracker:
         image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
         # Publish measuremented poses
-        self.measurement_pub.publish(world_ros_array)
+        if self.output_measurements:
+            self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
         output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
