@@ -69,7 +69,7 @@ class MiabotNode(object):
                 rospy.loginfo("Scanning for devices...")
                 self.miabot = Miabot()
             else:
-                self.miabot = Miabot(bdaddr)
+                self.miabot = Miabot(self.bdaddr)
             self.miabot.connect(self.port)
             self.connected = True
             self._feedback.in_progress = False;
