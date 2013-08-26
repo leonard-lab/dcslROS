@@ -33,7 +33,9 @@ class BelugaEstimator(object):
         self.init_P = np.ones((8,8))*0.1
         self.init_u = np.array([0., 0., 0.])
         self.Q = np.eye(8, dtype=float)
-        self.R = np.eye(5, dtype=float)
+        self.R = np.eye(5, dtype=float)*0.1
+	self.R[3][3] = 0.01
+	self.R[4][4] = 0.01
         self.ekfs = [None]*4;
 
         self.depths = [0]*4
@@ -80,6 +82,7 @@ class BelugaEstimator(object):
                 else:
                     state_estimate = self.ekfs[i].estimate(t, z);
 
+	"""
             # On no measurement
             else:
                 # If estimator initialized, just propagate state
@@ -102,7 +105,7 @@ class BelugaEstimator(object):
         #Pass time to state message
         state_array.header.stamp = data.header.stamp
         self.pub.publish(state_array)
-        
+        """
 
     def input_callback(self, data):
         t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10.,-9)
@@ -126,7 +129,9 @@ class BelugaEstimator(object):
                 state_estimate = estimator.look_forward(t)
                 state = self._x_array_to_state(state_estimate)
                 state.pose.orientation.w = 1
-            state_array.states.append(state)
+            # TESTING ONLY
+            if i == 1:
+                state_array.states.append(state)
             
         state_array.header.stamp = now
         self.pub.publish(state_array)
