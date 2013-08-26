@@ -14,20 +14,20 @@ class Beluga(object):
     
     ##
     def __init__(self):
-        self.eta1 = 0.1
-        self.eta3up = 0.1
-        self.eta3down = 0.1
-        self.Kt = 0.2
-        self.Kd1 = 50.
-        self.Kd3 = 70.
-        self.K_omega = 12.
-        self.J = 2.5
-        self.Kg = 0.9
-        self.z_neutral = 1.26
-        self.m1 = 6
-        self.m3 = 4
+        self.eta1 = 0.73
+        self.eta3up = 0.92
+        self.eta3down = 0.94
+        self.Kt = 0.17
+        self.Kd1 = 66.
+        self.Kd3 = 60.
+        self.K_omega = 3.3
+        self.J = 1.4
+        self.Kg = 0.6
+        self.z_neutral = 1.5
+        self.m1 = 30.
+        self.m3 = 15.
         self.r = 0.35
-        self.Ktau = 0.05
+        self.Ktau = 0.004
     
     ## 
     def f(self, x, u, t):
@@ -57,7 +57,7 @@ class Beluga(object):
 
     ##
     def h(self, state, t):
-        return np.array([state[0], state[1], state[2], m.atan2(state[5],state[6])])
+        return np.array([state[0], state[1], state[2], state[5], state[6]])
 
     ##
     def F(self, x, u, t):
@@ -67,7 +67,7 @@ class Beluga(object):
 
         F = np.zeros((8,8))
         F[0][3] = m.cos(theta)
-        F[0][5] = x[3]*-tan(theta)
+        F[0][5] = x[3]*-m.tan(theta)
         F[0][6] = x[3]
         F[1][3] = m.sin(theta)
         F[1][5] = x[3]
@@ -130,3 +130,4 @@ class Beluga(object):
             
         if abs(u[2]) > 255:
             u[2] = m.copysign(255, u[2])
+        return u
