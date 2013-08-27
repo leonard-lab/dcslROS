@@ -26,7 +26,9 @@ from dcsl_state_estimator.ekf_API import ekf
 class BelugaEstimator(object):
     
     ##
-    def __init__(self):
+    def __init__(self, n_robots):
+
+        self.n_robots = n_robots
 
         self.beluga = Beluga()
 
@@ -72,6 +74,7 @@ class BelugaEstimator(object):
             if (pose.orientation.w == 1.0) and self.depths[i] is not None:
                 pose.position.z = self.depths[i]
                 z = self._pose_to_z_array(pose)
+                z[2] = self.depths[i]
                 # Initialize ekf for robot if necessary
                 if self.ekfs[i] is None:
                     state_estimate = np.array([z[0], z[1], z[2], 0., 0., m.sin(z[3]), m.cos(z[3]), 0.])
@@ -108,9 +111,11 @@ class BelugaEstimator(object):
         """
 
     def input_callback(self, data):
-        t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10.,-9)
+        now = rospy.get_rostime()
+        t = float(now.secs) + float(now.nsecs)*pow(10.,-9)
         for i, beluga_input in enumerate(data.belugas):
             u = self._BelugaInput_to_u_array(beluga_input)
+            print "Input cb u: " + str(u)
             if self.ekfs[i] is not None:
                 self.ekfs[i].update_u(t, u)
             
@@ -119,19 +124,17 @@ class BelugaEstimator(object):
         state_array = StateArray()
         now = rospy.get_rostime()
         t = float(now.secs) + float(now.nsecs)*pow(10.,-9)
-        for i, estimator in enumerate(self.ekfs):
+        for i in xrange(0, self.n_robots):
             # If not initialized
-            if estimator is None:
-                state_estimate = np.zeros(7)
+            if self.ekfs[i] is None:
+                state_estimate = np.zeros(8)
                 state = self._x_array_to_state(state_estimate)
                 state.pose.orientation.w = 0
             else:
-                state_estimate = estimator.look_forward(t)
+                state_estimate = self.ekfs[i].look_forward(t)
                 state = self._x_array_to_state(state_estimate)
                 state.pose.orientation.w = 1
-            # TESTING ONLY
-            if i == 1:
-                state_array.states.append(state)
+            state_array.states.append(state)
             
         state_array.header.stamp = now
         self.pub.publish(state_array)
@@ -175,9 +178,11 @@ class BelugaEstimator(object):
 def main():
     rospy.init_node('beluga_estimator')
 
-    estimator = BelugaEstimator()
+    n_robots = int(sys.argv[1])
+
+    estimator = BelugaEstimator(n_robots)
     
-    r = rospy.Rate(15) # Make this set dynamically or by param
+    r = rospy.Rate(25) # Make this set dynamically or by param
     while not rospy.is_shutdown():
         estimator.publish_estimate()
         r.sleep()
