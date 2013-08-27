@@ -1,0 +1,15 @@
+<launch>
+  <!-- declare argument to be passed in -->
+  <arg name="n" />
+  
+  <!-- Launch rosbridge -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+  <!-- Estimator -->
+  <node name="state_estimator" pkg="dcsl_state_estimator" type="dcsl_beluga_estimator.py" args="$(arg n)" output="screen" />
+
+  <!-- Low Level Controller -->
+  <node name="low_level_controller" pkg="dcsl_low_level_control" type="dcsl_beluga_low_level_control.py" />
+
+
+</launch >

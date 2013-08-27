@@ -1,15 +1,12 @@
 <launch>
 
-  <!-- Launch rosbridge -->
-  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
-
-  <!-- Estimator -->
-  <node name="state_estimator" pkg="dcsl_state_estimator" type="dcsl_beluga_estimator.py" args="$(arg n)" />
+  <!-- Beluga core -->
+  <include file="$(find dcsl_beluga_main)/launch/core_beluga.launch" >
+    <arg name="n" value="$(arg n)" />
+  </include >
 
   <!-- Simulator -->
   <node name="beluga_swarm_simulator" pkg="dcsl_swarm_simulator" type="beluga_sim.py" args="$(arg n)" />
 
-  <!-- Low Level Controller -->
-  <node name="low_level_controller" pkg="dcsl_low_level_control" type="dcsl_beluga_low_level_control.py" />
 
-</launch>
+</launch >
