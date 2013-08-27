@@ -118,7 +118,7 @@ class BelugaEstimator(object):
 
         state_array = StateArray()
         now = rospy.get_rostime()
-        t = float(now.secs) + float(now.nsecs)*pow(10,-9)
+        t = float(now.secs) + float(now.nsecs)*pow(10.,-9)
         for i, estimator in enumerate(self.ekfs):
             # If not initialized
             if estimator is None:
