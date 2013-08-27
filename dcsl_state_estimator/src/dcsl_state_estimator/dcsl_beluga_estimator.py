@@ -166,6 +166,7 @@ class BelugaEstimator(object):
     #
     #
     def _BelugaInput_to_u_array(self, belugaInput):
+        u = np.zeros(3)
         u[0] = belugaInput.thrust_motor
         u[1] = belugaInput.servo
         u[2] = belugaInput.vertical_motor
