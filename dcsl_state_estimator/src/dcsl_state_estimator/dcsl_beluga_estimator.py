@@ -120,7 +120,7 @@ class BelugaEstimator(object):
                 self.ekfs[i].update_u(t, u)
             
     def publish_estimate(self):
-
+        no_estimates = True
         state_array = StateArray()
         now = rospy.get_rostime()
         t = float(now.secs) + float(now.nsecs)*pow(10.,-9)
@@ -131,13 +131,15 @@ class BelugaEstimator(object):
                 state = self._x_array_to_state(state_estimate)
                 state.pose.orientation.w = 0
             else:
+                no_estimates = False
                 state_estimate = self.ekfs[i].look_forward(t)
                 state = self._x_array_to_state(state_estimate)
                 state.pose.orientation.w = 1
             state_array.states.append(state)
             
         state_array.header.stamp = now
-        self.pub.publish(state_array)
+        if not no_estimates:
+            self.pub.publish(state_array)
             
     ##
     #
