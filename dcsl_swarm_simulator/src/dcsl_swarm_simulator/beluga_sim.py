@@ -50,7 +50,8 @@ class BelugaSimulator(object):
     ##
     def input_callback(self, data):
         # Get ROS time
-        new_t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10., -9)
+        now = rospy.get_rostime()
+        new_t = float(now.secs) + float(now.nsecs)*pow(10., -9)
         t_array = np.array([self.t, new_t])
         for i in xrange(0, self.n_robots):
             # Advance states to current time with old inputs
@@ -95,7 +96,7 @@ def main():
 
     simulator = BelugaSimulator(n_robots)
     
-    r = rospy.Rate(50)
+    r = rospy.Rate(55)
     while not rospy.is_shutdown():
         simulator.publish_state()
         r.sleep()
