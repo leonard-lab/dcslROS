@@ -72,7 +72,13 @@ class Beluga(object):
         F[0][6] = x[3]
         F[1][3] = m.sin(theta)
         F[1][5] = x[3]
-        F[1][6] = -x[3]/m.tan(theta)
+	if theta == 0 and x[7] >= 0:
+	    tan_theta = m.tan(theta+0.001)
+	elif theta == 0 and x[7] < 0:
+	    tan_theta = m.tan(theta-0.001)
+	else:
+	    tan_theta = m.tan(theta)
+        F[1][6] = -x[3]/tan_theta
         F[2][4] = 1.0
         F[3][4] = -self.Kd1*2.0*abs(x[3])/self.m1
         F[4][2] = -self.Kg/self.m3
@@ -81,7 +87,7 @@ class Beluga(object):
         F[5][6] = x[7]
         F[5][7] = m.cos(theta)
         F[6][5] = -x[7]
-        F[6][6] = x[7]/m.tan(theta)
+        F[6][6] = x[7]/tan_theta
         F[6][7] = -m.sin(theta)
         F[7][7] = -self.K_omega*2.0*abs(x[7])
         return F
