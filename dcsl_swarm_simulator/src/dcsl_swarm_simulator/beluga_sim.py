@@ -85,6 +85,8 @@ class BelugaSimulator(object):
             self.depth_pub_array[i].publish(self.state_array[i][2])
         #Publish pose_array
         self.planar_pub.publish(pose_array)
+        # Update current time
+        self.t = new_t
 
 def main():
     rospy.init_node('beluga_swarm_simulator')
