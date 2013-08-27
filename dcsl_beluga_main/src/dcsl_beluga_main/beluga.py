@@ -54,6 +54,7 @@ class Beluga(object):
         x_dot[5] = x[7]*m.cos(theta)
         x_dot[6] = -x[7]*m.sin(theta)
         x_dot[7] = Gamma/self.J
+	return x_dot
 
     ##
     def h(self, state, t):
