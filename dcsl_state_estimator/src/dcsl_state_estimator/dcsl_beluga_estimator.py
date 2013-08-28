@@ -115,7 +115,6 @@ class BelugaEstimator(object):
         t = float(now.secs) + float(now.nsecs)*pow(10.,-9)
         for i, beluga_input in enumerate(data.belugas):
             u = self._BelugaInput_to_u_array(beluga_input)
-            print "Input cb u: " + str(u)
             if self.ekfs[i] is not None:
                 self.ekfs[i].update_u(t, u)
             
