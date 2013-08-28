@@ -17,9 +17,16 @@
   <!-- Launch robots -->
   <include ns="robot0" file="$(find dcsl_beluga_main)/launch/beluga0.launch" />
 
+  <!-- Swarm Director -->
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--beluga"/>
+
   <!-- Beluga core -->
   <include file="$(find dcsl_beluga_main)/launch/core_beluga.launch" >
     <arg name="n" value="$(arg n)" />
   </include >
+
+  <!-- Joystick -->
+  <include file="$(find dcsl_beluga_driver)/launch/dcsl_beluga_driver_joy.launch" />
+
 
 </launch>
