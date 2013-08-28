@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_low_level_control)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS dcsl_messages roscpp geometry_msgs)
+set(CATKIN_DEPS dcsl_messages roscpp geometry_msgs dynamic_reconfigure rospy)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
@@ -13,6 +13,10 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 #  RelWithDebInfo : w/ debug symbols, w/ optimization
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
+
+catkin_python_setup()
+
+generate_dynamic_reconfigure_options(cfg/dcsl_beluga_low_level_control_config.cfg)
 
 ## DEPENDS: system dependencies of this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
