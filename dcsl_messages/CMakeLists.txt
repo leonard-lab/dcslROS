@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_messages)
 # Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS geometry_msgs genmsg)
+find_package(catkin REQUIRED COMPONENTS geometry_msgs std_msgs genmsg)
 
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage

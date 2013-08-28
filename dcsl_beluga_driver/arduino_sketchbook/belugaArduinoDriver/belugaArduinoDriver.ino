@@ -67,7 +67,8 @@ void command( const dcsl_messages::belugaInput& input){
   }  
   analogWrite(en1Pin, abs(input.thrust_motor));
   
-  int pos = input.servo + 90;
+  int servo_deg = int(input.servo * 180.0/3.1415926);
+  int pos = servo_deg + 90;
   servo.write(pos);
   
   last_cmd = millis();
