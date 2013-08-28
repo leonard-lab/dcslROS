@@ -33,7 +33,7 @@ class SwarmDirector:
             pub_base_start = "robot"
             pub_base_end = "/cmd_inputs"
             pub_type = belugaInput
-            sub_name = "cmd_input_array"
+            sub_name = "cmd_inputs"
             sub_type = BelugaArray
         elif robot_type == 1: # Miabot
             pub_base_start = "cmd_vel"

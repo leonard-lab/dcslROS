@@ -12,7 +12,7 @@ from std_msgs.msg import Float32
 class PassthroughEstimator:
 
     def __init__(self):
-        self.depth_sub = rospy.Subscriber("depth_meters", Float32, self.depth_callback)
+        self.depth_sub = rospy.Subscriber("/robot0/depth_measurement", Float32, self.depth_callback)
         self.planar_sub = rospy.Subscriber("planar_measurements", PoseArray, self.planar_callback)
         self.pub = rospy.Publisher("state_estimate", StateArray)
 
