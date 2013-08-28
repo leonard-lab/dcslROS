@@ -51,23 +51,48 @@ unsigned long last_cmd;
 
 //Callback function for receiving motor inputs
 void command( const dcsl_messages::belugaInput& input){
-  if (input.vertical_motor > 0){
+  int vm;
+  int tm;
+  float sv;
+  
+  // Constrain commands to realizable values
+  if (abs(input.vertical_motor) > 255){
+    vm = 255 * signum(input.vertical_motor);
+  }
+  else{
+    vm = input.vertical_motor;
+  }
+  if (abs(input.thrust_motor) > 255){
+    tm = 255 * signum(input.thrust_motor);
+  }
+  else{
+    tm = input.thrust_motor;
+  }
+  if (abs(input.servo) > 3.1415926/2.0){
+    sv = 3.1415926/2.0 * float(signum(input.servo));
+  }
+  else{
+    sv = input.servo;
+  }
+  
+  // Do commands
+  if (vm > 0){
     digitalWrite(dir2Pin, LOW);
   }
   else {
     digitalWrite(dir2Pin, HIGH);
   }
-  analogWrite(en2Pin, abs(input.vertical_motor));
+  analogWrite(en2Pin, abs(vm));
   
-  if(input.thrust_motor > 0){
+  if(tm > 0){
     digitalWrite(dir1Pin, HIGH);
   }
   else{
     digitalWrite(dir1Pin, LOW);
   }  
-  analogWrite(en1Pin, abs(input.thrust_motor));
+  analogWrite(en1Pin, abs(tm));
   
-  int servo_deg = int(input.servo * 180.0/3.1415926);
+  int servo_deg = int(sv * 180.0/3.1415926);
   int pos = servo_deg + 90;
   servo.write(pos);
   
@@ -132,3 +157,11 @@ void loop() {
   
   nh.spinOnce();
 }
+
+//Signum function
+static inline int8_t signum(int val) {
+  if (val < 0) return -1;
+  if (val==0) return 0;
+  return 1;
+}
+
