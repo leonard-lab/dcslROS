@@ -15,7 +15,7 @@
   <node name="BelugaGUI" pkg="rqt_gui" type="rqt_gui" />
 
   <!-- Launch robots -->
-  <include ns="robot0" file="$(find dcsl_beluga_main)/launch/beluga0.launch" />
+  <include file="$(find dcsl_beluga_main)/launch/$(arg n)robots.launch" />
 
   <!-- Swarm Director -->
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--beluga"/>

@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find dcsl_beluga_main)/launch/robot0.launch" />
+  <include file="$(find dcsl_beluga_main)/launch/robot1.launch" />
+</launch>
