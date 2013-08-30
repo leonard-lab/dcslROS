@@ -9,7 +9,6 @@
 
 import math as m
 import numpy as np
-from scipy.integrate import odeint, quadrature
 
 ########################################
 
@@ -64,8 +63,8 @@ class ekf(object):
             x_next = [x_hat_plus]
         else:
             t_array = np.array([self._t, t])
-            x_next = odeint(self._state_propagation_integral_function, x_hat_plus, t_array, args=(inputs,)) # Check output for x_hat_plus != 0
-        return x_next[-1]
+            x_next = self._rkf4(self._state_propagation_integral_function, x_hat_plus, self._t, t, args=(inputs,))
+        return x_next
 
     ## 
     #
@@ -161,10 +160,31 @@ class ekf(object):
     def _ra_to_cm(self, x):
         return np.asmatrix(x).T
 
-    def _trap_mat(self, func, a, b, args=()):
-        steps = 10
+    ##
+    #
+    #
+    def _trap_mat(self, func, a, b, args=(), steps = 10):
         t_array = np.linspace(a, b, steps)
         y = 0
         for i in xrange(0, steps-1):
             y = y + (t_array[i+1]-t_array[i])*(func(t_array[i], *args) + func(t_array[i+1], *args))/2.0 
         return y
+
+    ##
+    #
+    #
+    def _rkf4(self, func, y0, t0, tf, args=(), steps = 10):
+        if t0 == tf:
+            return y0
+        else:
+            t_array = np.linspace(t0, tf, steps)
+            y_n = y0
+            for i in xrange(0, steps-1):
+                t_n = t_array[i]
+                h = t_array[i+1] - t_n
+                k1 = func(y_n, t_n, *args)
+                k2 = func(y_n + h/2.0*k1, t_n+h/2.0, *args)
+                k3 = func(y_n + h/2.0*k2, t_n+h/2.0, *args)
+                k4 = func(y_n + h*k3, t_n+h, *args)
+                y_n = y_n + 1/6.0*h*(k1 + 2.0*k2 + 2.0*k3 + k4)
+            return y_n
