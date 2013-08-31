@@ -186,5 +186,5 @@ class ekf(object):
                 k2 = func(y_n + h/2.0*k1, t_n+h/2.0, *args)
                 k3 = func(y_n + h/2.0*k2, t_n+h/2.0, *args)
                 k4 = func(y_n + h*k3, t_n+h, *args)
-                y_n = y_n + 1/6.0*h*(k1 + 2.0*k2 + 2.0*k3 + k4)
+                y_n = y_n + 1.0/6.0*h*(k1 + 2.0*k2 + 2.0*k3 + k4)
             return y_n
