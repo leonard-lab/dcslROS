@@ -37,7 +37,7 @@ class Beluga(object):
         theta = m.atan2(x[5], x[6])
 
         F1 = (1.0-self.eta1)*self.Kt*u[0]*m.cos(u[1]) - self.Kd1*x[3]*abs(x[3])
-        
+   
         if x[4] < 0:
             eta3 = self.eta3down
         else:
@@ -80,7 +80,7 @@ class Beluga(object):
 	    tan_theta = m.tan(theta)
         F[1][6] = -x[3]/tan_theta
         F[2][4] = 1.0
-        F[3][4] = -self.Kd1*2.0*abs(x[3])/self.m1
+        F[3][3] = -self.Kd1*2.0*abs(x[3])/self.m1
         F[4][2] = -self.Kg/self.m3
         F[4][4] = -self.Kd3*2.0*abs(x[4])/self.m3
         F[5][5] = x[7]*-m.tan(theta)
