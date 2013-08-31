@@ -34,7 +34,7 @@ class BelugaTracker:
     def __init__(self):
         
         # Get initial states
-        init_poses = rospy.get_param('initial_poses', [[0., -1., 1.75, 0.], [-1., 0., 1.75, 0.], [-1., .5, 1.75, 0.], [1., 0., 1.75, 0.]])
+        init_poses = rospy.get_param('initial_poses', [[-2., -0.5, 1.75, 0.], [-0.5, -2.0, 1.75, 0.], [2.0, 0.0, 1.75, 0.], [1., 0., 1.75, 0.]])
         n_robots = rospy.get_param('/n_robots')
 
         self.initial_states = []
@@ -117,6 +117,7 @@ class BelugaTracker:
 
         # Publish measuremented poses
         if self.output_measurements:
+            world_ros_array.header.stamp = data.header.stamp
             self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
@@ -147,6 +148,7 @@ class BelugaTracker:
 
         # Publish measuremented poses
         if self.output_measurements:
+            world_ros_array.header.stamp = data.header.stamp
             self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
@@ -177,6 +179,7 @@ class BelugaTracker:
 
         # Publish measuremented poses
         if self.output_measurements:
+            world_ros_array.header.stamp = data.header.stamp
             self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
@@ -207,6 +210,7 @@ class BelugaTracker:
 
         # Publish measuremented poses
         if self.output_measurements:
+            world_ros_array.header.stamp = data.header.stamp
             self.measurement_pub.publish(world_ros_array)
 
         # Overlay tracking information
