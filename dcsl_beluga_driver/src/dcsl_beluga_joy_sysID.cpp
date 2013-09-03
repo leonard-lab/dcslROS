@@ -23,7 +23,8 @@ private:
   ros::Subscriber joy_sub_;
   ros::Subscriber state_sub_;
 
-  int servo, thrust_motor, vertical_motor;
+  double servo;
+  int thrust_motor, vertical_motor;
 
 };
 
@@ -47,7 +48,7 @@ TeleopBeluga::TeleopBeluga():
 
   state_sub_ = nh_.subscribe<dcsl_messages::StateArray>("state_estimate", 10, &TeleopBeluga::stateCallback, this);
 
-  servo = 0;
+  servo = 0.0;
   thrust_motor = 0;
   vertical_motor = 0;
 
@@ -58,7 +59,7 @@ TeleopBeluga::TeleopBeluga():
 void TeleopBeluga::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   //dcsl_messages::belugaInput cmd_inputs;
-  servo = a_scale_*joy->axes[angular_];
+  servo = a_scale_*double(joy->axes[angular_]);
   thrust_motor = l_scale_*joy->axes[linear_];
   vertical_motor = v_scale_*joy->axes[vertical_];
   //vel_pub_.publish(cmd_inputs);

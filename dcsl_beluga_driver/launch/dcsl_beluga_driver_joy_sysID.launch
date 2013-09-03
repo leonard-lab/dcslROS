@@ -25,7 +25,7 @@
 
  <!-- Need to change this node -->
   <node pkg="dcsl_beluga_driver" type="dcsl_beluga_joy_sysID" name="teleop">
-    <remap from="cmd_inputs" to="/robot0/cmd_inputs"/>
+    <remap from="cmd_inputs" to="/joy_cmd"/>
   </node >
 
 </launch>

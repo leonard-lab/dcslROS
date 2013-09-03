@@ -44,7 +44,7 @@ TeleopBeluga::TeleopBeluga():
 void TeleopBeluga::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   dcsl_messages::belugaInput cmd_inputs;
-  cmd_inputs.servo = a_scale_*joy->axes[angular_];
+  cmd_inputs.servo = a_scale_*double(joy->axes[angular_]);
   cmd_inputs.thrust_motor = l_scale_*joy->axes[linear_];
   cmd_inputs.vertical_motor = v_scale_*joy->axes[vertical_];
   vel_pub_.publish(cmd_inputs);
