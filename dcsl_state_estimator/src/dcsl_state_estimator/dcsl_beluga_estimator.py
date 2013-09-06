@@ -34,8 +34,9 @@ class BelugaEstimator(object):
 
         self.init_P = np.ones((8,8))*0.1
         self.init_u = np.array([0., 0., 0.])
-        self.Q = np.eye(8, dtype=float)
-        self.R = np.eye(5, dtype=float)*0.1
+        self.Q = np.eye(8, dtype=float)*0.01
+        self.R = np.eye(5, dtype=float)*0.001
+        self.R[2][2] = 0.0001
 	self.R[3][3] = 0.01
 	self.R[4][4] = 0.01
         self.ekfs = [None]*4;
@@ -45,11 +46,11 @@ class BelugaEstimator(object):
         self.depth_sub_array = []
         for i,depth_callback in enumerate(depth_callback_list):
             name = "robot" + str(i) +"/depth_measurement"
-            subscriber = rospy.Subscriber(name, Float32, depth_callback)
+            subscriber = rospy.Subscriber(name, Float32, depth_callback, queue_size = 1)
             self.depth_sub_array.append(subscriber)
 
         self.input_sub = rospy.Subscriber("/cmd_inputs", BelugaArray, self.input_callback)
-        self.planar_sub = rospy.Subscriber("/planar_measurements", PoseArray, self.planar_callback)
+        self.planar_sub = rospy.Subscriber("/planar_measurements", PoseArray, self.planar_callback, queue_size = 1)
         self.pub = rospy.Publisher("state_estimate", StateArray)
 
 
@@ -163,7 +164,7 @@ class BelugaEstimator(object):
         state.pose.orientation.z = m.atan2(x[5],x[6])
         state.twist.linear.x = x[3]
         state.twist.linear.z = x[4]
-        state.twist.angular.z = x[6]
+        state.twist.angular.z = x[7]
         return state
     
     ##
