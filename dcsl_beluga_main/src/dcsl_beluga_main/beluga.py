@@ -34,7 +34,6 @@ class Beluga(object):
         u = self._constrain_u(u)
         x_dot = np.zeros(8)
 
-        theta = m.atan2(x[5], x[6])
 
         F1 = (1.0-self.eta1)*self.Kt*u[0]*m.cos(u[1]) - self.Kd1*x[3]*abs(x[3])
    
@@ -46,13 +45,13 @@ class Beluga(object):
         
         Gamma = -1.*(1.0-self.eta1)*self.Kt*u[0]*self.r*m.sin(u[1]) - self.K_omega*x[7]*abs(x[7]) - self.Ktau*u[2]
 
-        x_dot[0] = x[3]*m.cos(theta)
-        x_dot[1] = x[3]*m.sin(theta)
+        x_dot[0] = x[3]*x[6]
+        x_dot[1] = x[3]*x[5]
         x_dot[2] = x[4]
         x_dot[3] = F1/self.m1
         x_dot[4] = F3/self.m3
-        x_dot[5] = x[7]*m.cos(theta)
-        x_dot[6] = -x[7]*m.sin(theta)
+        x_dot[5] = x[7]*x[6]
+        x_dot[6] = -x[7]*x[5]
         x_dot[7] = Gamma/self.J
 	return x_dot
 
@@ -64,39 +63,25 @@ class Beluga(object):
     def F(self, x, u, t):
         u = self._constrain_u(u)
 
-        theta = m.atan2(x[5],x[6])
-
         F = np.zeros((8,8))
-        F[0][3] = m.cos(theta)
-        F[0][5] = x[3]*-m.tan(theta)
+        F[0][3] = x[6]
         F[0][6] = x[3]
-        F[1][3] = m.sin(theta)
+        F[1][3] = x[5]
         F[1][5] = x[3]
-	if theta == 0 and x[7] >= 0:
-	    tan_theta = m.tan(theta+0.001)
-	elif theta == 0 and x[7] < 0:
-	    tan_theta = m.tan(theta-0.001)
-	else:
-	    tan_theta = m.tan(theta)
-        F[1][6] = -x[3]/tan_theta
         F[2][4] = 1.0
         F[3][3] = -self.Kd1*2.0*abs(x[3])/self.m1
         F[4][2] = -self.Kg/self.m3
         F[4][4] = -self.Kd3*2.0*abs(x[4])/self.m3
-        F[5][5] = x[7]*-m.tan(theta)
         F[5][6] = x[7]
-        F[5][7] = m.cos(theta)
+        F[5][7] = x[6]
         F[6][5] = -x[7]
-        F[6][6] = x[7]/tan_theta
-        F[6][7] = -m.sin(theta)
+        F[6][7] = -x[5]
         F[7][7] = -self.K_omega*2.0*abs(x[7])
         return F
         
     ##
     def G(self, x, u, t):
         u = self._constrain_u(u)
-        
-        theta = m.atan2(x[5],x[6])
         
         if x[4] < 0:
             eta3 = self.eta3down
