@@ -134,6 +134,7 @@ class BelugaLowLevelController(object):
         if self.active_joy >= 0 and self.active_joy < self.n_robots and self.joy_command is not None:
             beluga_input_array.belugas[self.active_joy] = self.joy_command
         # Publish
+        beluga_input_array.header.stamp = rospy.get_rostime()
         self.input_pub.publish(beluga_input_array)
         self.last_pub = rospy.get_time()
             
