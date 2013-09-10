@@ -12,11 +12,11 @@
 #include <Servo.h>
 
 #include <ros.h>
-#include <ros/console.h>
+//#include <ros/console.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int16.h>
 #include <dcsl_messages/belugaInput.h> //For adding custom messages see http://www.ros.org/wiki/rosserial_arduino/Tutorials/Adding%20Custom%20Messages
-
+#include <std_srvs/Empty.h>
 
 int sensorPin = 5; //Analog pin to which the depth sensor is attached
 int servoPin = 9; //PWM pin for to which servo is attached
@@ -40,6 +40,7 @@ int bottom;
 
 //Declare NodeHandle and Int16 message objects
 ros::NodeHandle nh;
+using std_srvs::Empty;
 std_msgs::Float32 cal_depth;
 std_msgs::Int16 raw_depth;
 
@@ -47,7 +48,8 @@ std_msgs::Int16 raw_depth;
 ros::Publisher depth("depth_measurement", &cal_depth);
 ros::Publisher rdepth("raw_depth", &raw_depth);
 
-unsigned long last_cmd;
+unsigned long last_cmd; //time the last command was sent. for timeout of motors
+int current_reading; //global for the current depth reading
 
 //Callback function for receiving motor inputs
 void command( const dcsl_messages::belugaInput& input){
@@ -106,7 +108,20 @@ ros::Subscriber<dcsl_messages::belugaInput> sub("cmd_inputs", &command);
 const int numReadings = 10; //Number of analog readings for the running average
 RunningAverage RA(numReadings);
 
+//Callback function for air calibration service
+void air_callback(const Empty::Request& req, Empty::Response& res)
+{
+  air = current_reading;
+}
+//Callback function for bottom calibration service
+void bottom_callback(const Empty::Request& req, Empty::Response& res)
+{
+  bottom = current_reading;
+}
 
+//Declare ROS service objects
+ros::ServiceServer<Empty::Request, Empty::Response> air_server("set_air_calibration", &air_callback);
+ros::ServiceServer<Empty::Request, Empty::Response> bottom_server("set_bottom_calibration", &bottom_callback);
 
 void setup()
 {
@@ -115,6 +130,8 @@ void setup()
   delay(250);
   nh.advertise(depth); //Advertise the topic
   nh.advertise(rdepth);
+  nh.advertiseService(air_server);
+  nh.advertiseService(bottom_server);
   delay(250);
   nh.subscribe(sub);
   delay(250);
@@ -144,6 +161,7 @@ float z_reading_water = z_reading_air - 2.0066; //meters
 void loop() {
   RA.addValue(analogRead(sensorPin)); //Add depth sensor reading to the running average
   cal_depth.data = (z_reading_air - z_reading_water)/(float(air) - float(bottom))*(float(RA.getAverage()) - float(air)) + z_reading_air; //Output current average reading to message
+  current_reading = RA.getAverage();
   raw_depth.data = RA.getAverage();
   depth.publish( &cal_depth); //Publish current running average depth reading  
   rdepth.publish( &raw_depth);
