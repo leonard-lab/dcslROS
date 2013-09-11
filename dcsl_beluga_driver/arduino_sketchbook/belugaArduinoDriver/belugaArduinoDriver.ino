@@ -11,12 +11,16 @@
 
 #include <Servo.h>
 
+#include <EEPROM.h>
+
 #include <ros.h>
 //#include <ros/console.h>
 #include <std_msgs/Float32.h>
 //#include <std_msgs/Int16.h>
 #include <dcsl_messages/belugaInput.h> //For adding custom messages see http://www.ros.org/wiki/rosserial_arduino/Tutorials/Adding%20Custom%20Messages
 #include <std_srvs/Empty.h>
+
+const byte eeprom_block = 1;
 
 const byte sensorPin = 5; //Analog pin to which the depth sensor is attached
 const byte servoPin = 9; //PWM pin for to which servo is attached
@@ -112,11 +116,15 @@ RunningAverage RA(numReadings);
 void air_callback(const Empty::Request& req, Empty::Response& res)
 {
   air = current_depth;
+  EEPROM.write(eeprom_block, highByte(air));
+  EEPROM.write(eeprom_block+1, lowByte(air));
 }
 //Callback function for bottom calibration service
 void bottom_callback(const Empty::Request& req, Empty::Response& res)
 {
   bottom = current_depth;
+  EEPROM.write(eeprom_block+2, highByte(bottom));
+  EEPROM.write(eeprom_block+3, lowByte(bottom));
 }
 
 //Declare ROS service objects
@@ -125,6 +133,13 @@ ros::ServiceServer<Empty::Request, Empty::Response> bottom_server("set_bottom_ca
 
 void setup()
 {
+  
+  air = EEPROM.read(eeprom_block)*256 + EEPROM.read(eeprom_block+1);
+  bottom = EEPROM.read(eeprom_block+2)*256 + EEPROM.read(eeprom_block+3);
+  if(air == bottom){
+     air -= 1;
+  }
+  
   delay(250);
   nh.initNode(); //Initialized the node
   //delay(250);
@@ -137,9 +152,6 @@ void setup()
   //delay(250);
   nh.subscribe(sub);
   //delay(250);
-  
-  nh.getParam("~air_reading", &air);
-  nh.getParam("~bottom_reading", &bottom);
   
   RA.clear(); //Clear the running average
   
