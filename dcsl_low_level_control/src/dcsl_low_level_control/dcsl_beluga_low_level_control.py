@@ -17,6 +17,8 @@ from dcsl_messages.msg import TwistArray, StateArray, State, BelugaArray, beluga
 from dynamic_reconfigure.server import Server
 from dcsl_low_level_control.cfg import dcsl_beluga_low_level_control_configConfig as Config
 
+from dcsl_low_level_control.beluga_velocity_controller import BelugaVelocityController
+
 ##
 #
 #
@@ -27,12 +29,25 @@ class BelugaLowLevelController(object):
     #
     def __init__(self, n_robots):
 
-        self.n_robots = n_robots
+        self.n_robots = int(n_robots)
 
         self.mode = None
         self.current_commands = None
         self.state_data = None
         self.last_pub = -10000000
+
+        # Get parameters
+        vc_axis_1 = np.array(rospy.get_param('~axis_1_coordinates'))
+        vc_axis_2 = np.array(rospy.get_param('~axis_2_coordinates'))
+        vc_axis_3 = np.array(rospy.get_param('~axis_3_coordinates'))
+        vc_axis_4 = np.array(rospy.get_param('~axis_4_coordinates'))
+        Ki = np.array(rospy.get_param('~Ki'))
+        K_shape = tuple(rospy.get_param('~K_shape'))
+        K = np.array(rospy.get_param('~K_flat')).reshape(K_shape, order='F') #MATLAB uses fortran order
+
+        # Define velocity control law
+        self.velocity_controller = BelugaVelocityController(K, vc_axis_1, vc_axis_2, vc_axis_3, vc_axis_4, Ki)
+        self.velocity_control_law = self.velocity_controller.control_law
 
         # Setup publisher for commands to belugas
         self.input_pub = rospy.Publisher("cmd_inputs", BelugaArray)
@@ -78,7 +93,10 @@ class BelugaLowLevelController(object):
     #
     def velocity_callback(self, data):
         self.mode = 1
-        self.current_commands = data
+        commands = np.zeros((self.n_robots, 3))
+        for i in xrange(0, self.n_robots):
+            commands[i] = np.array([data.twists[i].linear.x, data.twists[i].linear.z, data.twists[i].angular.z])
+        self.current_commands = commands
         self.publish_inputs()
 
     ##
@@ -114,10 +132,11 @@ class BelugaLowLevelController(object):
         elif self.state_data is not None:
             beluga_input_array = BelugaArray()
             # Consider service call here to get most recent state data
+            t = float(self.state_data.header.stamp.secs) + float(self.state_data.header.stamp.nsecs)*pow(10.0, -9)
             for i, state in enumerate(self.state_data.states):
                 x = self._state_to_mat(state)
                 if self.mode == 1:
-                    u_direct = self.velocity_controller(x, self.current_commands)
+                    u_direct = self.velocity_control_law(x, np.zeros(3), self.current_commands[i])
                 elif self.mode == 2:
                     u_direct = self.wp_controller(x, self.current_commands)
                 else:
