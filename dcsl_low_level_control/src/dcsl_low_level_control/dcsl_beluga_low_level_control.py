@@ -58,7 +58,7 @@ class BelugaLowLevelController(object):
         self.joy_command = None
 
         # Subscribe to current state information
-        self.estimate_sub = rospy.Subscriber("state_estimate", StateArray, self.estimate_callback)
+        self.estimate_sub = rospy.Subscriber("state_estimate", StateArray, self.estimate_callback, queue_size = 1)
 
         # Subscribe to possible high level input streams
         self.direct_sub = rospy.Subscriber("direct_input", BelugaArray, self.direct_callback)
