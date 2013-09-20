@@ -38,7 +38,7 @@ class BelugaVelocityController(object):
     def control_law(self, x, xi, vel_goal):
         vel_goal = np.insert(vel_goal, 0, x[2]) # Pad with z goal = z current
         x_goal_reduced = np.asmatrix(vel_goal).transpose()
-        x_reduced = np.matrix([[x[2]], [x[3]], [x[4]], [x[6]]])
+        x_reduced = np.matrix([[x[2]], [x[3]], [x[4]], [x[7]]])
         xi_col = np.asmatrix(xi).transpose()
         u_nominal = np.asmatrix(self._calc_u_nominal(vel_goal)).transpose()
         K_star = np.asmatrix(self._interpolate_K(vel_goal))
@@ -63,7 +63,7 @@ class BelugaVelocityController(object):
         norm_x = np.zeros(4)
         grid = np.array([self.x3_array, self.x4_array, self.x5_array, self.x7_array])
         for i, entry in enumerate(x_reduced):
-            norm_x[i] = entry/(grid[i,-1]-grid[i,0])*(len(grid[i])-1)
+            norm_x[i] = (entry-grid[i,0])/(grid[i,-1]-grid[i,0])*(len(grid[i])-1)
         return norm_x
 
     ##
