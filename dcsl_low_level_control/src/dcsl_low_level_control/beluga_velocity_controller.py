@@ -21,7 +21,7 @@ class BelugaVelocityController(object):
     ##
     #
     #
-    def __init__(self, K_array, x3_array, x4_array, x5_array, x7_array, Ki):
+    def __init__(self, K_array, x3_array, x4_array, x5_array, x7_array):
         self.beluga = Beluga()
         self.n_states = 4
         self.n_inputs = 3
@@ -30,7 +30,6 @@ class BelugaVelocityController(object):
         self.x4_array = x4_array 
         self.x5_array = x5_array
         self.x7_array = x7_array
-        self.Ki = np.asmatrix(Ki)
 
     ##
     #
@@ -42,7 +41,7 @@ class BelugaVelocityController(object):
         xi_col = np.asmatrix(xi).transpose()
         u_nominal = np.asmatrix(self._calc_u_nominal(vel_goal)).transpose()
         K_star = np.asmatrix(self._interpolate_K(vel_goal))
-        u_out = -K_star*(x_reduced - x_goal_reduced) + u_nominal - self.Ki*xi_col
+        u_out = -K_star*(x_reduced - x_goal_reduced) + u_nominal
         return u_out
 
     ##

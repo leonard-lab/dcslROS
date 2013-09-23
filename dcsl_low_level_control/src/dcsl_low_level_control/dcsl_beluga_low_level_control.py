@@ -41,12 +41,12 @@ class BelugaLowLevelController(object):
         vc_axis_2 = np.array(rospy.get_param('~axis_2_coordinates'))
         vc_axis_3 = np.array(rospy.get_param('~axis_3_coordinates'))
         vc_axis_4 = np.array(rospy.get_param('~axis_4_coordinates'))
-        Ki = np.array(rospy.get_param('~Ki'))
+        #Ki = np.array(rospy.get_param('~Ki'))
         K_shape = tuple(rospy.get_param('~K_shape'))
         K = np.array(rospy.get_param('~K_flat')).reshape(K_shape, order='F') #MATLAB uses fortran order
 
         # Define velocity control law
-        self.velocity_controller = BelugaVelocityController(K, vc_axis_1, vc_axis_2, vc_axis_3, vc_axis_4, Ki)
+        self.velocity_controller = BelugaVelocityController(K, vc_axis_1, vc_axis_2, vc_axis_3, vc_axis_4)
         self.velocity_control_law = self.velocity_controller.control_law
 
         # Setup publisher for commands to belugas
