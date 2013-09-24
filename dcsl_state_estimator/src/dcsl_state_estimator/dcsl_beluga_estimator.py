@@ -35,8 +35,8 @@ class BelugaEstimator(object):
         self.init_P = np.ones((8,8))*0.1
         self.init_u = np.array([0., 0., 0.])
         self.Q = np.eye(8, dtype=float)*0.001
-        self.R = np.eye(5, dtype=float)*0.001
-        self.R[2][2] = 0.0001
+        self.R = np.eye(5, dtype=float)*0.005
+        self.R[2][2] = 0.005
 	self.R[3][3] = 0.01
 	self.R[4][4] = 0.01
         self.ekfs = [None]*4;
