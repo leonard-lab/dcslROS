@@ -7,6 +7,37 @@
 
   <node name="image_proc1" pkg="image_proc" type="image_proc" ns="camera1" >
     <remap from="image" to="camera1/image_raw" />
+    <remap from="/camera" to="/camera1" />
+  </node>
+
+  <node name="camera2" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/miabot_camera2.yaml" />
+    <remap from="/camera" to="/camera2" />
+  </node >
+
+  <node name="image_proc2" pkg="image_proc" type="image_proc" ns="camera2" >
+    <remap from="image" to="camera2/image_raw" />
+    <remap from="/camera" to="/camera2" />
+  </node>
+
+  <node name="camera3" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/miabot_camera3.yaml" />
+    <remap from="/camera" to="/camera3" />
+  </node >
+
+  <node name="image_proc3" pkg="image_proc" type="image_proc" ns="camera3" >
+    <remap from="image" to="camera3/image_raw" />
+    <remap from="/camera" to="/camera3" />
+  </node>
+
+  <node name="camera4" pkg="camera1394" type="camera1394_node">
+    <rosparam file="$(find dcsl_vision_tracker)/config/miabot_camera4.yaml" />
+    <remap from="/camera" to="/camera4" />
+  </node >
+
+  <node name="image_proc4" pkg="image_proc" type="image_proc" ns="camera4" >
+    <remap from="image" to="camera4/image_raw" />
+    <remap from="/camera" to="/camera4" />
   </node>
 
 </launch >
