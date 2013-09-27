@@ -39,8 +39,8 @@ const byte dir2Pin = 13; //Direction pin for motor 2
 Servo servo;
 
 //Depth calibration values
-int air = 130;
-int bottom = 640;
+int air;
+int bottom;
 
 //Declare NodeHandle and Int16 message objects
 ros::NodeHandle nh;
