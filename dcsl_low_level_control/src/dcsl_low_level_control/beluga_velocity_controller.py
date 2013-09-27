@@ -42,6 +42,7 @@ class BelugaVelocityController(object):
         u_nominal = np.asmatrix(self._calc_u_nominal(vel_goal)).transpose()
         K_star = np.asmatrix(self._interpolate_K(vel_goal))
         u_out = -K_star*(x_reduced - x_goal_reduced) + u_nominal
+        u_out = self._limit_u(u_out)
         return u_out
 
     ##
@@ -92,3 +93,14 @@ class BelugaVelocityController(object):
 
         return np.array([u1, u2, u3])
         
+
+    ##
+    #
+    #
+    def _limit_u(self, u):
+        if abs(u[0]) > 255:
+            u[0] = m.copysign(255, u[0])
+        if abs(u[2]) > 255:
+            u[2] = m.copysign(255, u[2])
+        return u
+                            

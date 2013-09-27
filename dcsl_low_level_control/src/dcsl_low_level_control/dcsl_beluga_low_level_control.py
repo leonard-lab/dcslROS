@@ -177,9 +177,9 @@ class BelugaLowLevelController(object):
     #
     def _u_direct_to_beluga_input(self, u):
         b = belugaInput()
-        b.thrust_motor = u[0]
+        b.thrust_motor = int(u[0])
         b.servo = u[1]
-        b.vertical_motor = u[2]
+        b.vertical_motor = int(u[2])
         return b
 
 def main():
