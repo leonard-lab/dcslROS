@@ -1,8 +1,11 @@
 <launch>
 
+  <!-- Declare argument -->
+  <arg name="id" /> <!-- id number for the robot -->
+
   <!-- Miabot Robot Node -->
   <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_node.py" output="screen" >
-    <remap from="cmd_vel" to="cmd_vel0" />
+    <remap from="cmd_vel" to="cmd_vel$(arg id)" />
   </node>
 
 </launch>

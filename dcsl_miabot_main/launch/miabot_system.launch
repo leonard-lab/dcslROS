@@ -1,0 +1,31 @@
+<launch>
+  
+  <!--Declare arguments -->
+  <arg name="n" /> <!-- Number of robots in use -->
+  <!-- Assign parameter values -->
+  <param name="/n_robots" value="$(arg n)" />
+
+  <!-- Launch cameras and processors -->
+  <include file="$(find dcsl_vision_tracker)/launch/miabot_cameras_only.launch" />
+
+  <!-- Launch tracking -->
+  <include file="$(find dcsl_vision_tracker)/launch/miabot_tracker.launch" />
+
+  <!-- Launch robots -->
+  <include file="$(find dcsl_miabot_main)/launch/$(arg n)miabots.launch" />
+
+  <!-- Director -->
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--miabot"/>
+
+  <!-- GUI -->
+  <node name="rqt_gui" type="rqt_gui" pkg="rqt_gui" />
+
+  <!-- Miabot core -->
+  <include file="$(find dcsl_miabot_main)/launch/core_miabot.launch" >
+    <arg name="n" value="$(arg n)" />
+  </include >
+
+  <!-- Joystick -->
+  <include file="$(find dcsl_miabot_driver)/launch/dcsl_miabot_driver_joy.launch" />
+
+</launch>

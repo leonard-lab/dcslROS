@@ -1,0 +1,9 @@
+<launch>  
+
+  <include file="$(find dcsl_miabot_main)/launch/3miabots.launch" />
+
+  <include file="$(find dcsl_miabot_main)/launch/miabot_robot.launch" >
+    <arg name="id" value="3" />
+  </include>
+  
+</launch>

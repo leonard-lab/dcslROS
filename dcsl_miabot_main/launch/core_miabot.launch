@@ -1,0 +1,15 @@
+<launch>
+
+  <!-- Declare argument to be passed in -->
+  <arg name="n" />
+
+  <!-- Launch rosbridge -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+  <!-- Estimator -->
+  <node name="state_estimator" pkg="dcsl_state_estimator" type="dcsl_miabot_estimator.py" args="$(arg n)" output="screen" />
+
+  <!-- Launch low level controller node -->
+  <include file="$(find dcsl_low_level_control)/launch/miabot_low_level.launch" />
+
+</launch>

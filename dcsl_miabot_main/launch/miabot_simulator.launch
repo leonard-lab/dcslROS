@@ -1,0 +1,16 @@
+<launch>
+  
+  <!--Declare arguments -->
+  <arg name="n" /> <!-- Number of robots in use -->
+  <!-- Assign parameter values -->
+  <param name="/n_robots" value="$(arg n)" />
+
+  <!-- Miabot core -->
+  <include file="$(find dcsl_miabot_main)/launch/core_miabot.launch" >
+    <arg name="n" value="$(arg n)" />
+  </include >
+
+  <!-- Simulator -->
+  <node name="miabot_swarm_simulator" pkg="dcsl_swarm_simulator" type="miabot_sim.py" args="$(arg n)" />
+
+</launch>
