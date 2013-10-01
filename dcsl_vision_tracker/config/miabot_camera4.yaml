@@ -4,12 +4,12 @@ video_mode: 1280x960_mono8
 frame_rate: 15.0
 frame_id: frame0
 auto_brightness: 3
-brightness: 100
+brightness: 50
 auto_exposure: 3
 exposure: 205
 auto_gain: 3
-gain: 500
+gain: 100
 auto_gamma: 0
 auto_shutter: 3
-shutter: 2000
+shutter: 100
 camera_info_url: package://dcsl_vision_tracker/config/000a4701120aaae2.yaml
