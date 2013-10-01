@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- Beluga core -->
+  <include file="$(find dcsl_beluga_main)/launch/core_beluga.launch" >
+    <arg name="n" value="$(arg n)" />
+  </include >
+
+  <!-- Simulator -->
+  <node name="beluga_swarm_simulator" pkg="dcsl_swarm_simulator" type="beluga_sim.py" args="$(arg n)" />
+
+
+</launch >

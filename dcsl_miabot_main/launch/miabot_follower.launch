@@ -21,7 +21,7 @@
   <!-- Launch low level controller node -->
   <include file="$(find dcsl_low_level_control)/launch/miabot_low_level.launch" />
 
-  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" >
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--miabot" >
     <remap from="cmd_vel0" to="unused" />
   </node>
 

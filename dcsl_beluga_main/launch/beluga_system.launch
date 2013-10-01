@@ -1,0 +1,32 @@
+<launch>
+  
+  <!-- Declare arguments -->
+  <arg name="n" />
+  <!-- Assign parameter values -->
+  <param name="/n_robots" value="$(arg n)" />
+
+  <!-- Launch cameras and processors -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_cameras_only.launch" />
+
+  <!-- Launch tracking -->
+  <include file="$(find dcsl_vision_tracker)/launch/beluga_tracker.launch" />
+
+  <!-- GUI -->
+  <node name="BelugaGUI" pkg="rqt_gui" type="rqt_gui" />
+
+  <!-- Launch robots -->
+  <include file="$(find dcsl_beluga_main)/launch/$(arg n)robots.launch" />
+
+  <!-- Swarm Director -->
+  <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--beluga"/>
+
+  <!-- Beluga core -->
+  <include file="$(find dcsl_beluga_main)/launch/core_beluga.launch" >
+    <arg name="n" value="$(arg n)" />
+  </include >
+
+  <!-- Joystick -->
+  <include file="$(find dcsl_beluga_driver)/launch/dcsl_beluga_driver_joy.launch" />
+
+
+</launch>

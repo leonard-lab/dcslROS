@@ -1,0 +1,12 @@
+<launch>
+  
+  <group ns="robot1" >
+    <!-- dcsl_beluga_driver Node-->
+    <node pkg="rosserial_python" type="serial_node.py" name="robot1" args="/dev/ttyUSB3" >
+      <!-- USB3 means this robot is connected to tether 3 -->
+      <param name="air_reading" value="140" type="int"/>
+      <param name="bottom_reading" value="613" type="int"/>
+    </node>
+  </group >
+
+</launch >

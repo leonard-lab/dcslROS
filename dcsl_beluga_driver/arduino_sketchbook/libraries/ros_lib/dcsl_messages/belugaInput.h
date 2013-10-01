@@ -16,7 +16,7 @@ namespace dcsl_messages
       std_msgs::Header header;
       int16_t vertical_motor;
       int16_t thrust_motor;
-      int16_t servo;
+      float servo;
 
     virtual int serialize(unsigned char *outbuffer) const
     {
@@ -39,12 +39,14 @@ namespace dcsl_messages
       *(outbuffer + offset + 1) = (u_thrust_motor.base >> (8 * 1)) & 0xFF;
       offset += sizeof(this->thrust_motor);
       union {
-        int16_t real;
-        uint16_t base;
+        float real;
+        uint32_t base;
       } u_servo;
       u_servo.real = this->servo;
       *(outbuffer + offset + 0) = (u_servo.base >> (8 * 0)) & 0xFF;
       *(outbuffer + offset + 1) = (u_servo.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_servo.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_servo.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->servo);
       return offset;
     }
@@ -72,19 +74,21 @@ namespace dcsl_messages
       this->thrust_motor = u_thrust_motor.real;
       offset += sizeof(this->thrust_motor);
       union {
-        int16_t real;
-        uint16_t base;
+        float real;
+        uint32_t base;
       } u_servo;
       u_servo.base = 0;
-      u_servo.base |= ((uint16_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      u_servo.base |= ((uint16_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_servo.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_servo.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_servo.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_servo.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->servo = u_servo.real;
       offset += sizeof(this->servo);
      return offset;
     }
 
     const char * getType(){ return "dcsl_messages/belugaInput"; };
-    const char * getMD5(){ return "83c876f8078f787034407a9f5bafba00"; };
+    const char * getMD5(){ return "98ee24dec3cd4bf4c1d9f2fb5e13d622"; };
 
   };
 
