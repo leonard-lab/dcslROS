@@ -1,7 +1,7 @@
 guid: 000a4701120aaae2
 iso_speed: 800
 video_mode: 1280x960_mono8
-frame_rate: 30.0
+frame_rate: 15.0
 frame_id: frame0
 auto_brightness: 3
 brightness: 100
