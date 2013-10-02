@@ -8,7 +8,7 @@ brightness: 50
 auto_exposure: 3
 exposure: 205
 auto_gain: 3
-gain: 100
+gain: 300
 auto_gamma: 0
 auto_shutter: 3
 shutter: 100
