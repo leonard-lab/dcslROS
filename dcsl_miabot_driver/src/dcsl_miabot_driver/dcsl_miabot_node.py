@@ -35,6 +35,7 @@ class MiabotNode(object):
         self.server.start()
         self.connected = False
         self.bdaddr = bdaddr
+        self.bdaddr_dictionary = rospy.get_param('~miabot_dictionary', None)
         self.sub = rospy.Subscriber("cmd_vel", Twist, self.callback)
         
 
@@ -65,11 +66,19 @@ class MiabotNode(object):
         if goal.connect is True:
             self._feedback.in_progress = True
             self.server.publish_feedback(self._feedback)
-            if self.bdaddr is None:
-                rospy.loginfo("Scanning for devices...")
-                self.miabot = Miabot()
+            if goal.miabot_id is None:
+                if self.bdaddr is None:
+                    rospy.loginfo("Scanning for devices...")
+                    self.miabot = Miabot()
+                else:
+                    rospy.loginfo("Connecting to bdaddr: " + str(self.bdaddr))
+                    self.miabot = Miabot(self.bdaddr)
             else:
-                self.miabot = Miabot(self.bdaddr)
+                if self.bdaddr_dictionary is not None:
+                    rospy.loginfo("Connecting to Miabot #" + str(goal.miabot_id))
+                    self.miabot = Miabot(self.bdaddr_dictionary[str(goal.miabot_id)])
+                else:
+                    rospy.logerr("Goal contained Miabot ID to connect to but miabot_dictionary parameter was not set.")
             self.miabot.connect(self.port)
             self.connected = True
             self._feedback.in_progress = False;

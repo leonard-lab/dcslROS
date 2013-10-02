@@ -9,7 +9,7 @@ import actionlib
 from dcsl_miabot_driver.msg import *
 
 from qt_gui.plugin import Plugin
-from python_qt_binding import loadUi
+from python_qt_binding import loadUi, QtCore
 from python_qt_binding.QtGui import QWidget
 
 class MiabotPlugin(Plugin):
@@ -19,6 +19,7 @@ class MiabotPlugin(Plugin):
         # Miabot connection parameters
         self.n_robots = rospy.get_param('n_robots')
         self.connected_list = [False]*self.n_robots
+        self.miabot_assignments = [None]*7
 
         # Initialize action clients
         self.client = []
@@ -52,6 +53,16 @@ class MiabotPlugin(Plugin):
         self._widget._r4_button.clicked.connect(lambda: self._r_clicked(self._widget._r4_button, 4))
         self._widget._r5_button.clicked.connect(lambda: self._r_clicked(self._widget._r5_button, 5))
         self._widget._r6_button.clicked.connect(lambda: self._r_clicked(self._widget._r6_button, 6))
+
+        # Set up combo box callbacks
+        items = ['', '0', '1', '2', '3', '4', '5', '6']
+        self.comboBoxList = [self._widget._r0_comboBox, self._widget._r1_comboBox, self._widget._r2_comboBox,
+                        self._widget._r3_comboBox, self._widget._r4_comboBox, self._widget._r5_comboBox, 
+                        self._widget._r6_comboBox]
+        for i, cb in enumerate(self.comboBoxList):
+            cb.addItems(items)
+            
+
         '''
         self.closeEvent = self.handle_close
         self.keyPressEvent = self.on_key_press
@@ -61,8 +72,13 @@ class MiabotPlugin(Plugin):
         
 
     def _r_clicked(self, button, robot_ID):
+
         if self.connected_list[robot_ID] is False:
-            goal = ConnectMiabotGoal(True)
+            if str(self.comboBoxList[robot_ID].currentText()) is '':
+                button.setStyleSheet('QPushButton {color: red}')
+                return
+
+            goal = ConnectMiabotGoal(True, int(self.comboBoxList[robot_ID].currentText()))
             button.setStyleSheet('QPushButton {color: yellow}')
             self.client[robot_ID].send_goal(goal) # Thread this to improve performance
             self.client[robot_ID].wait_for_result()
@@ -77,7 +93,7 @@ class MiabotPlugin(Plugin):
                 self.connected_list[robot_ID] = False
                 button.setText("Connect")
         else:
-            goal = ConnectMiabotGoal(False)
+            goal = ConnectMiabotGoal(False, -1)
             button.setStyleSheet('QPushButton {color: yellow}')
             self.client[robot_ID].send_goal(goal)
             self.client[robot_ID].wait_for_result()

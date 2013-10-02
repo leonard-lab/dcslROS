@@ -6,6 +6,7 @@
   <!-- Miabot Robot Node -->
   <node name="miabot0" pkg="dcsl_miabot_driver" type="dcsl_miabot_node.py" output="screen" >
     <remap from="cmd_vel" to="cmd_vel$(arg id)" />
+    <rosparam command="load" file="$(find dcsl_miabot_driver)/config/miabot_dictionary.yaml" />
   </node>
 
 </launch>

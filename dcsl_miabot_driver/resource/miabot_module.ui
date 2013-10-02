@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>200</width>
+    <width>230</width>
     <height>400</height>
    </rect>
   </property>
@@ -21,11 +21,20 @@
     <rect>
      <x>0</x>
      <y>40</y>
-     <width>201</width>
+     <width>231</width>
      <height>361</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="2">
+     <widget class="QComboBox" name="_r1_comboBox"/>
+    </item>
+    <item row="2" column="2">
+     <widget class="QComboBox" name="_r2_comboBox"/>
+    </item>
+    <item row="0" column="2">
+     <widget class="QComboBox" name="_r0_comboBox"/>
+    </item>
     <item row="3" column="0">
      <widget class="QLabel" name="_r3_label">
       <property name="text">
@@ -136,6 +145,22 @@
       </property>
      </widget>
     </item>
+    <item row="4" column="2">
+     <widget class="QComboBox" name="_r4_comboBox"/>
+    </item>
+    <item row="3" column="2">
+     <widget class="QComboBox" name="_r3_comboBox"/>
+    </item>
+    <item row="6" column="2">
+     <widget class="QComboBox" name="_r6_comboBox">
+      <property name="insertPolicy">
+       <enum>QComboBox::InsertAtBottom</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="2">
+     <widget class="QComboBox" name="_r5_comboBox"/>
+    </item>
    </layout>
   </widget>
   <widget class="QLabel" name="_title_label">
@@ -143,8 +168,8 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>201</width>
-     <height>20</height>
+     <width>231</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -155,6 +180,28 @@
    </property>
    <property name="text">
     <string>Miabot Widget</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="_title_label_2">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>30</y>
+     <width>81</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="text">
+    <string>Miabot #</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
