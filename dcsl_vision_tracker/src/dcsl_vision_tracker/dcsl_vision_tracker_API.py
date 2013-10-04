@@ -226,28 +226,35 @@ class DcslMiabotTracker(DcslVisionTracker):
     # @param storage An OpenCV storage container created with cv.CreateMemStorage.
     # @param image_width Width of the image to be tracked in pixels.
     # @param image_height Height of the image to be tracked in pixels.
-    # @param scale The converstion scale between pixels and meters in meters/pixel.
-    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale):
+    # @param scale The converstion scale between pixels and normalized coordinates in 1/pixel.
+    # @param translation_offset_list A list of vectors from the origin to each camera [[x0, y0, z0], [x1, y1, z1],...]
+    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale, translation_offset_list):
         DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
         self.scale = scale
-        
+        self.translation = translation_offset_list
+
         ## @var scale
         # The conversion scale between pixels and meters in meters/pixel.
-
+        
+        ## @var translation
+        # A list of [x,y,z] lists describing the translation vector from the origin to each camera.
 
     ## Applies coordinate transform from image reference frame into real reference frame to image_poses and returns sensed_poses.
     #
     # Return sensed_poses is a list of DcslPose objects in a right hand coordinate system in meters and radians centered at the center of the image with x up in the image frame and y to the right. Theta measured CCW from x axis.
     # @param image_poses a list of poses in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta measured CCW from x axis.
     # @param estimated_poses (List of DcslPose objects) not required for miabot tracker.
-    # @param camera_id (int) not required for miabot tracker.    
+    # @param camera_id (int) 
     def image_to_world(self, image_poses, estimated_poses = None, camera_id = None):
         sensed_poses = []
+        R1 = self.translation[camera_id][0]
+        R2 = self.translation[camera_id][1]
+        R3 = self.translation[camera_id][2]
         for pose in image_poses:
             sensed_pose = DcslPose()
             if pose.position[0] is not None:
-                sensed_x = (float(pose.position[0])-0.5*float(self.image_width))*self.scale
-                sensed_y = -(float(pose.position[1])-0.5*float(self.image_height))*self.scale
+                sensed_x = (float(pose.position[0])-0.5*float(self.image_width))*self.scale*R3 + R1
+                sensed_y = -(float(pose.position[1])-0.5*float(self.image_height))*self.scale*R3 + R2
                 sensed_pose.set_position((sensed_x,sensed_y, None))
                 sensed_pose.set_quaternion((None,None,float(pose.quaternion[2]),None))
                 if pose.detected:
@@ -259,14 +266,17 @@ class DcslMiabotTracker(DcslVisionTracker):
     #
     # Return image_poses is a list of DcslPose objects in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta is measured CCW from x axis.
     # @param world_poses a list of poses in the world reference frame (meters and radians).
-    # @param camera_id (int) not required for miabot tracker.
-    def world_to_image(self, world_poses, camera_id = None):
+    # @param camera_id (int)
+    def world_to_image(self, world_poses, camera_id):
+        R1 = self.translation[camera_id][0]
+        R2 = self.translation[camera_id][1]
+        R3 = self.translation[camera_id][2]
         image_poses = []
         for pose in world_poses:
             image_pose = DcslPose()
             if pose.position[0] is not None:
-                image_x = float(pose.position[0])/self.scale + 0.5*float(self.image_width)
-                image_y = -1.0*float(pose.position[1])/self.scale + 0.5*float(self.image_height)
+                image_x = (float(pose.position[0])-R1)/(self.scale*R3) + 0.5*float(self.image_width)
+                image_y = (R2-float(pose.position[1]))/(self.scale*R3) + 0.5*float(self.image_height)
                 image_pose.set_position((image_x, image_y, None))
                 image_pose.set_quaternion((None, None, float(pose.quaternion[2]), None))
                 if pose.detected:

@@ -35,6 +35,9 @@ class miabot_tracker:
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
     def __init__(self):
 
+        self.n_cameras = 4
+        self.translation_vectors = [[1.5, -1, 4], [1.5, 1, 4], [-1.5, 1, 4], [-1.5, -1, 4]]
+
         # Get initial states
         init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
         n_robots = rospy.get_param('/n_robots')
@@ -49,26 +52,34 @@ class miabot_tracker:
         self.output_measurements = False
         self.receive_states = True
         self.tracker = None #tracker initialized in parameter server callback to get defaults from server.
+        
+        # Start dynamic reconfigure server
         self.srv = Server(Config, self.parameter_callback)
-        self.image_pub = rospy.Publisher("tracked_image",Image)
-        self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        self.image_sub = rospy.Subscriber("/camera/image_rect",Image,self.imageCallback)
+        
+        # Create publisher and subscriber objects
+        self.image_pub_array = []
+        self.image_sub_array = []
+        for i in xrange(0, self.n_cameras):
+            cam_string = "/camera" + str(i)
+            self.image_pub_array.append(rospy.Publisher(cam_string+"/tracked_image", Image))
+            self.image_sub_array.append(rospy.Subscriber(cam_string+"/image_rect", Image, lambda data, cam_id=i: self.imageCallback(data, cam_id)))
+
+        self.measurement_pub = rospy.Publisher("/planar_measurements", PoseArray)
         self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
+
+        # Create CvBridge object for conversion from ROS message to OpenCV image
         self.bridge = CvBridge()
         
+        # Create actionlib server
         self._action_name = "dcsl_vision_tracker"
         self.server = actionlib.SimpleActionServer(self._action_name, ToggleTrackingAction, self.toggle_tracking, False)
         self.server.start()
 
         
-
-        
-        
-
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
     #
     # @param data is the image data received from the /camera/image_raw topic
-    def imageCallback(self,data):
+    def imageCallback(self,data, camera_id):
         # Bridge image from ROS message to OpenCV
         try:
             working_image = self.bridge.imgmsg_to_cv(data, "mono8")
@@ -77,7 +88,7 @@ class miabot_tracker:
         
         
         # Find poses and place into a message
-        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, 0)
+        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_id)
         # Only output_measurements if output_measurements is true (set by action server)
         if self.output_measurements:
             pose_array = PoseArray()
@@ -128,7 +139,7 @@ class miabot_tracker:
 
         # Publish image with overlay
         try:
-            self.image_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
+            self.image_pub_array[camera_id].publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
             print e        
 
@@ -156,28 +167,31 @@ class miabot_tracker:
     # @param level
     def parameter_callback(self, config, level):
         if self.tracker is None:
-            location = rospy.get_param('/vision_tracker/background_image')
-            background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
+
+            # Load background images
+            background_list = []
+            for i in xrange(0, self.n_cameras):
+                location = rospy.get_param('/vision_tracker/background_image' + str(i))
+                background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
+                background_list.append(background)
+
             threshold = int(config["binary_threshold"])
             erode_iterations = int(config["erode_iterations"])
             min_blob_size = int(config["min_blob_size"])
             max_blob_size = int(config["max_blob_size"])
             scale = config["scale"]
-            image_width = 1024
-            image_height = 768
+            image_width = 1280
+            image_height = 960
             self.storage = cv.CreateMemStorage()
-            self.tracker = DcslMiabotTracker([background], [None], threshold, erode_iterations, min_blob_size, 
-                                             max_blob_size, self.storage, image_width, image_height, scale)
+            self.tracker = DcslMiabotTracker(background_list, [None]*4, threshold, erode_iterations, min_blob_size, 
+                                             max_blob_size, self.storage, image_width, image_height, scale, self.translation_vectors)
         else:
             self.tracker.threshold = int(config["binary_threshold"])
             self.tracker.erode_iterations = int(config["erode_iterations"])
             self.tracker.min_blob_size = int(config["min_blob_size"])
             self.tracker.max_blob_size = int(config["max_blob_size"])
             self.tracker.scale = config["scale"]
-            location = config["background_file"]
-            background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
-            self.background_list = [background]
-        rospy.logdebug("""Reconfigure Request: {background_file}, {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}, {scale}""".format(**config))
+        rospy.logdebug("""Reconfigure Request: {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}, {scale}""".format(**config))
         return config
 
     ##
