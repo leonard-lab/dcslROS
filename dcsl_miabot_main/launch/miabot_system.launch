@@ -18,7 +18,7 @@
   <node name="swarm_director" pkg="dcsl_swarm_director" type="dcsl_swarm_director_node.py" args="--miabot"/>
 
   <!-- GUI -->
-  <node name="rqt_gui" type="rqt_gui" pkg="rqt_gui" />
+  <node name="rqt_gui" type="rqt_gui" pkg="rqt_gui" args="--perspective-file $(find dcsl_miabot_main)/resources/MiabotConsole.perspective" />
 
   <!-- Miabot core -->
   <include file="$(find dcsl_miabot_main)/launch/core_miabot.launch" >

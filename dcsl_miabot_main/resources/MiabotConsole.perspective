@@ -5,28 +5,14 @@
       "keys": {
         "running-plugins": {
           "type": "repr", 
-          "repr": "{u'dcsl_vision_tracker/TrackerPlugin': [1], u'rqt_reconfigure/Param': [1], u'rqt_image_view/ImageView': [1], u'rqt_console/Console': [1], u'dcsl_miabot_driver/MiabotPlugin': [1]}"
+          "repr": "{u'dcsl_vision_tracker/TrackerPlugin': [1], u'rqt_reconfigure/Param': [1], u'rqt_image_view/ImageView': [4, 3, 2, 1], u'dcsl_miabot_driver/MiabotPlugin': [1]}"
         }
       }, 
       "groups": {
-        "plugin__rqt_py_console__PyConsole__1": {
+        "plugin__rqt_image_view__ImageView__4": {
           "keys": {}, 
           "groups": {
-            "plugin": {
-              "keys": {
-                "use_spyderlib": {
-                  "type": "repr", 
-                  "repr": "u'false'"
-                }
-              }, 
-              "groups": {}
-            }
-          }
-        }, 
-        "plugin__rqt_reconfigure__Param__1": {
-          "keys": {}, 
-          "groups": {
-            "dock_widget___plugincontainer_top_widget": {
+            "dock_widget__ImageViewWidget": {
               "keys": {
                 "dockable": {
                   "type": "repr", 
@@ -41,15 +27,99 @@
             }, 
             "plugin": {
               "keys": {
-                "splitter": {
-                  "type": "repr(QByteArray.hex)", 
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000000000002000000c00000025301000000060100000001')", 
-                  "pretty-print": "         S     "
+                "dynamic_range": {
+                  "type": "repr", 
+                  "repr": "False"
                 }, 
-                "_splitter": {
-                  "type": "repr(QByteArray.hex)", 
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000000000002000002340000000001000000090100000002')", 
-                  "pretty-print": "       4       "
+                "max_range": {
+                  "type": "repr", 
+                  "repr": "10.0"
+                }, 
+                "topic": {
+                  "type": "repr", 
+                  "repr": "u'/camera3/tracked_image'"
+                }, 
+                "zoom1": {
+                  "type": "repr", 
+                  "repr": "False"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_image_view__ImageView__2": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }, 
+            "plugin": {
+              "keys": {
+                "dynamic_range": {
+                  "type": "repr", 
+                  "repr": "False"
+                }, 
+                "max_range": {
+                  "type": "repr", 
+                  "repr": "10.0"
+                }, 
+                "topic": {
+                  "type": "repr", 
+                  "repr": "u'/camera1/tracked_image'"
+                }, 
+                "zoom1": {
+                  "type": "repr", 
+                  "repr": "False"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__rqt_image_view__ImageView__3": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }
+              }, 
+              "groups": {}
+            }, 
+            "plugin": {
+              "keys": {
+                "dynamic_range": {
+                  "type": "repr", 
+                  "repr": "False"
+                }, 
+                "max_range": {
+                  "type": "repr", 
+                  "repr": "10.0"
+                }, 
+                "topic": {
+                  "type": "repr", 
+                  "repr": "u'/camera2/tracked_image'"
+                }, 
+                "zoom1": {
+                  "type": "repr", 
+                  "repr": "False"
                 }
               }, 
               "groups": {}
@@ -84,11 +154,11 @@
                 }, 
                 "topic": {
                   "type": "repr", 
-                  "repr": "u'/tracked_image'"
+                  "repr": "u'/camera0/tracked_image'"
                 }, 
                 "zoom1": {
                   "type": "repr", 
-                  "repr": "True"
+                  "repr": "False"
                 }
               }, 
               "groups": {}
@@ -131,10 +201,10 @@
             }
           }
         }, 
-        "plugin__rqt_console__Console__1": {
+        "plugin__rqt_reconfigure__Param__1": {
           "keys": {}, 
           "groups": {
-            "dock_widget__ConsoleWidget": {
+            "dock_widget___plugincontainer_top_widget": {
               "keys": {
                 "dockable": {
                   "type": "repr", 
@@ -149,73 +219,18 @@
             }, 
             "plugin": {
               "keys": {
-                "show_highlighted_only": {
-                  "type": "repr", 
-                  "repr": "False"
-                }, 
-                "exclude_filters": {
-                  "type": "repr", 
-                  "repr": "u'severity'"
-                }, 
-                "table_splitter": {
+                "splitter": {
                   "type": "repr(QByteArray.hex)", 
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000000000020000019b0000000001000000090100000002')", 
-                  "pretty-print": "               "
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000000000002000000c00000006401000000060100000001')", 
+                  "pretty-print": "         d     "
                 }, 
-                "highlight_filters": {
-                  "type": "repr", 
-                  "repr": "u'message'"
-                }, 
-                "paused": {
-                  "type": "repr", 
-                  "repr": "False"
-                }, 
-                "settings_exist": {
-                  "type": "repr", 
-                  "repr": "True"
-                }, 
-                "filter_splitter": {
+                "_splitter": {
                   "type": "repr(QByteArray.hex)", 
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000000000002000000e40000000001000000090100000002')", 
-                  "pretty-print": "               "
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000000000020000013e0000006401000000090100000002')", 
+                  "pretty-print": "       > d     "
                 }
               }, 
-              "groups": {
-                "exclude_filter_0": {
-                  "keys": {
-                    "enabled": {
-                      "type": "repr", 
-                      "repr": "True"
-                    }, 
-                    "displist": {
-                      "type": "repr", 
-                      "repr": "[u'Debug', u'Info', u'Warn', u'Fatal', u'Error']"
-                    }, 
-                    "itemlist": {
-                      "type": "repr", 
-                      "repr": "u''"
-                    }
-                  }, 
-                  "groups": {}
-                }, 
-                "highlight_filter_0": {
-                  "keys": {
-                    "regex": {
-                      "type": "repr", 
-                      "repr": "False"
-                    }, 
-                    "text": {
-                      "type": "repr", 
-                      "repr": "u''"
-                    }, 
-                    "enabled": {
-                      "type": "repr", 
-                      "repr": "True"
-                    }
-                  }, 
-                  "groups": {}
-                }
-              }
+              "groups": {}
             }
           }
         }
@@ -225,16 +240,26 @@
       "keys": {
         "geometry": {
           "type": "repr(QByteArray.hex)", 
-          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb00010000000000960000008c000007300000042700000096000000a80000073000000420000000000000')", 
-          "pretty-print": "         0 '     0     "
+          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb00010000000000370000005a00000733000003b60000003f000000760000072b000003ae000000000000')", 
+          "pretty-print": "     7 Z 3   ? v +     "
         }, 
         "state": {
           "type": "repr(QByteArray.hex)", 
-          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd00000002000000020000069b0000034afc0100000002fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0031005f005f0049006d00610067006500560069006500770057006900640067006500740100000000000004140000041400000414fc00000414000002870000028100fffffffa000000000200000004fb00000066006400630073006c005f006d006900610062006f0074005f006400720069007600650072005f005f004d006900610062006f00740050006c007500670069006e005f005f0031005f005f004d006900610062006f00740050006c007500670069006e005500690100000000ffffffff0000001500fffffffb0000006c006400630073006c005f0076006900730069006f006e005f0074007200610063006b00650072005f005f0054007200610063006b006500720050006c007500670069006e005f005f0031005f005f0054007200610063006b006500720050006c007500670069006e005500690100000000ffffffff0000001500fffffffb0000004c007200710074005f0063006f006e0073006f006c0065005f005f0043006f006e0073006f006c0065005f005f0031005f005f0043006f006e0073006f006c00650057006900640067006500740100000000ffffffff0000018200fffffffb0000006c007200710074005f007200650063006f006e006600690067007500720065005f005f0050006100720061006d005f005f0031005f005f005f0070006c007500670069006e0063006f006e007400610069006e00650072005f0074006f0070005f00770069006400670065007401000000190000034a0000010f00ffffff000000030000069b00000063fc0100000003fb00000030005f005f0044006f0063006b0057006900640067006500740043006f006e007400610069006e00650072005f005f0031010000053a0000007b0000000000000000fb0000003c007200710074005f00700079005f0063006f006e0073006f006c0065005f005f005000790043006f006e0073006f006c0065005f005f0031005f005f010000067b000000c40000000000000000fb00000078007200710074005f00720075006e00740069006d0065005f006d006f006e00690074006f0072005f005f00520075006e00740069006d0065004d006f006e00690074006f0072005f005f0031005f005f00520075006e00740069006d0065004d006f006e00690074006f007200570069006400670065007401000000000000069b00000000000000000000069b0000000000000004000000040000000800000008fc00000000')", 
-          "pretty-print": "                 Zrqt_image_view__ImageView__1__ImageViewWidget                                                                                                                                                                                                                                                                  J         c                               : {                                      {                                                                                           "
+          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd0000000100000003000006ed0000030afc0100000003fc00000000000001b2000000db00fffffffc0200000002fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0033005f005f0049006d00610067006500560069006500770057006900640067006500740100000019000001810000005100fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0034005f005f0049006d006100670065005600690065007700570069006400670065007401000001a0000001830000005100fffffffc000001b8000001b4000000db00fffffffc0200000002fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0032005f005f0049006d00610067006500560069006500770057006900640067006500740100000019000001810000005100fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0031005f005f0049006d006100670065005600690065007700570069006400670065007401000001a0000001830000005100fffffffc000003720000037b0000020500fffffffc0100000002fc000003720000014e000000f800fffffffc0200000002fb0000006c006400630073006c005f0076006900730069006f006e005f0074007200610063006b00650072005f005f0054007200610063006b006500720050006c007500670069006e005f005f0031005f005f0054007200610063006b006500720050006c007500670069006e0055006901000000190000009c0000001500fffffffb00000066006400630073006c005f006d006900610062006f0074005f006400720069007600650072005f005f004d006900610062006f00740050006c007500670069006e005f005f0031005f005f004d006900610062006f00740050006c007500670069006e0055006901000000bb000002680000001500fffffffb0000006c007200710074005f007200650063006f006e006600690067007500720065005f005f0050006100720061006d005f005f0031005f005f005f0070006c007500670069006e0063006f006e007400610069006e00650072005f0074006f0070005f00770069006400670065007401000004c6000002270000010700ffffff000006ed0000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')", 
+          "pretty-print": "                                                                                Q                                                       Q               Zrqt_image_view__ImageView__2__ImageViewWidget          Zrqt_image_view__ImageView__1__ImageViewWidget          r {                    ldcsl_vision_tracker__TrackerPlugin__1__TrackerPluginUi          fdcsl_miabot_driver__MiabotPlugin__1__MiabotPluginUi          lrqt_reconfigure__Param__1___plugincontainer_top_widget                            6MinimizedDockWidgetsToolbar        "
         }
       }, 
-      "groups": {}
+      "groups": {
+        "toolbar_areas": {
+          "keys": {
+            "MinimizedDockWidgetsToolbar": {
+              "type": "repr", 
+              "repr": "8"
+            }
+          }, 
+          "groups": {}
+        }
+      }
     }
   }
 }
