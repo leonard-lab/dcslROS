@@ -13,6 +13,8 @@
   <param name="scale_linear" value="0.25" type="double"/>
   <param name="scale_angular" value="6" type="double"/>
 
-  <node pkg="dcsl_miabot_driver" type="dcsl_miabot_joy" name="teleop"/>
+  <node pkg="dcsl_miabot_driver" type="dcsl_miabot_joy" name="teleop">
+    <remap from="cmd_vel" to="joy_cmd" />
+  </node >
 
 </launch>

@@ -1,9 +1,14 @@
 <launch >
 
+  <!-- Declare argument to be passed in -->
+  <arg name="n" />
+
   <node name="low_level_controller" pkg="dcsl_low_level_control" 
-    type="dcsl_miabot_low_level_control" >
+    type="dcsl_miabot_low_level_control.py" args="$(arg n)" >
+    <!-- Move params to yaml file -->
     <param name="waypoint_gain_1" value="0.3" type="double" />
     <param name="waypoint_gain_2" value="0.2" type="double" />
+    <param name="waypoint_tolerance" value="0.02" type="double" />
   </node > 
 
 </launch>
