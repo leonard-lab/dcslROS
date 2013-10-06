@@ -13,6 +13,7 @@ from dcsl_miabot_main.miabot import Miabot
 
 import numpy as np
 import math as m
+import sys
 ##
 #
 #
@@ -21,7 +22,9 @@ class MiabotEstimator:
     ##
     #
     #
-    def __init__(self):
+    def __init__(self, n_robots):
+        self.n_robots = n_robots
+        
         self.measurement_sub = rospy.Subscriber("planar_measurements", PoseArray, 
                                                 self.measurement_callback)
         self.input_sub = rospy.Subscriber("cmd_vel_array", TwistArray, self.input_callback)
@@ -34,7 +37,7 @@ class MiabotEstimator:
         self.R[3][3] = 0.1
         self.R[4][4] = 0.1
 
-        self.current_u = np.zeros(3)
+        self.current_u = np.zeros((self.n_robots,3))
 
         self.ekfs = [None]*7
         self.miabot = Miabot()
@@ -57,7 +60,7 @@ class MiabotEstimator:
                                        self.miabot.L, self.Q, self.R)
                 else:
                     state_estimate = self.ekfs[i].estimate(t, z)
-            
+        '''
             #On no measurement
             else:
                 #If estimator initialized, just propagate state
@@ -80,7 +83,7 @@ class MiabotEstimator:
         #Pass time to state message
         state_array.header.stamp = data.header.stamp
         self.pub.publish(state_array)
-                    
+        '''
     ##
     #
     #
@@ -88,9 +91,34 @@ class MiabotEstimator:
         t = float(data.header.stamp.secs) + float(data.header.stamp.nsecs)*pow(10.,-9)
         for i, twist in enumerate(data.twists):
             u = self._twist_to_u_array(twist)
-            self.current_u = u
+            self.current_u[i] = u
             if self.ekfs[i] is not None: #Check if ekf is initialized for robot
                 self.ekfs[i].update_u(t, u)
+
+    ##
+    #
+    #
+    def publish_estimate(self):
+        no_estimates = True
+        state_array = StateArray()
+        now = rospy.get_rostime()
+        t = rospy.get_time()
+        for i in xrange(0, self.n_robots):
+            # If not initialized
+            if self.ekfs[i] is None:
+                state_estimate = np.zeros(8)
+                state = self._x_array_to_state(state_estimate, self.current_u[i])
+                state.pose.orientation.w = 0
+            else:
+                no_estimates = False
+                state_estimate = self.ekfs[i].look_forward(t)
+                state = self._x_array_to_state(state_estimate, self.current_u[i])
+                state.pose.orientation.w = 1
+            state_array.states.append(state)
+        
+        state_array.header.stamp = now
+        if not no_estimates:
+            self.pub.publish(state_array)
 
     ##
     #
@@ -130,11 +158,16 @@ class MiabotEstimator:
     
 def main():
     rospy.init_node('dcsl_miabot_estimator')
-    estimator = MiabotEstimator()
-    try:
-        rospy.spin()
-    except KeyboardInterrupt: # Consider switching to on_shutdown
-        print "Shutting down"
+
+    n_robots = int(sys.argv[1])
+
+    estimator = MiabotEstimator(n_robots)
+
+    r = rospy.Rate(25)
+ 
+    while not rospy.is_shutdown():
+        estimator.publish_estimate()
+        r.sleep()
 
 if __name__ == '__main__':
     main()
