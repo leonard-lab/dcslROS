@@ -36,10 +36,9 @@ class miabot_tracker:
     def __init__(self):
 
         self.n_cameras = 4
-        self.translation_vectors = [[1.5, -1, 4], [1.5, 1, 4], [-1.5, 1, 4], [-1.5, -1, 4]]
 
         # Get initial states
-        init_poses = rospy.get_param('initial_poses', [[0.1, 0., 0., 0.],[-0.1, 0., 0., 0.],[0., 0.1, 0., 0.],[0., -0.1, 0., 0.], [0.2, 0., 0., 0.], [-0.2, 0., 0., 0.], [0., 0., 0., 0.]])
+        init_poses = rospy.get_param('~initial_poses')
         n_robots = rospy.get_param('/n_robots')
         self.initial_states = []
         for i, pose in enumerate(init_poses):
@@ -121,6 +120,7 @@ class miabot_tracker:
         cyan = cv.RGB(0,255,255)
         red = cv.RGB(255, 0, 0)
         green = cv.RGB(0, 255, 0)
+        pink = cv.RGB(255, 20, 147)
         for index, point in enumerate(image_poses):
             if point.detected:
                 end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
@@ -136,6 +136,14 @@ class miabot_tracker:
             status = "Not outputting pose measurements to system"
             color = red
         cv.PutText(output_image, status, (5, 25), font, color)
+
+        # Crosshairs
+        length = 20
+        width, height = cv.GetSize(output_image)
+        mid_x = int(width*0.5)
+        mid_y = int(height*0.5)
+        cv.Line(output_image, (mid_x-length/2, mid_y), (mid_x+length/2, mid_y), pink)
+        cv.Line(output_image, (mid_x, mid_y-length/2), (mid_x, mid_y+length/2), pink)
 
         # Publish image with overlay
         try:
@@ -179,19 +187,21 @@ class miabot_tracker:
             erode_iterations = int(config["erode_iterations"])
             min_blob_size = int(config["min_blob_size"])
             max_blob_size = int(config["max_blob_size"])
-            scale = config["scale"]
+            scale = rospy.get_param("~scale")
             image_width = 1280
             image_height = 960
+            
+            translation_vectors = rospy.get_param('~camera_offset_vectors')
+
             self.storage = cv.CreateMemStorage()
             self.tracker = DcslMiabotTracker(background_list, [None]*4, threshold, erode_iterations, min_blob_size, 
-                                             max_blob_size, self.storage, image_width, image_height, scale, self.translation_vectors)
+                                             max_blob_size, self.storage, image_width, image_height, scale, translation_vectors)
         else:
             self.tracker.threshold = int(config["binary_threshold"])
             self.tracker.erode_iterations = int(config["erode_iterations"])
             self.tracker.min_blob_size = int(config["min_blob_size"])
             self.tracker.max_blob_size = int(config["max_blob_size"])
-            self.tracker.scale = config["scale"]
-        rospy.logdebug("""Reconfigure Request: {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}, {scale}""".format(**config))
+        rospy.logdebug("""Reconfigure Request: {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}""".format(**config))
         return config
 
     ##

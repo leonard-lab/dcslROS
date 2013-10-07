@@ -6,6 +6,7 @@
     <param name="background_image1" value="$(find dcsl_vision_tracker)/config/miabot_background1.png" />
     <param name="background_image2" value="$(find dcsl_vision_tracker)/config/miabot_background2.png" />
     <param name="background_image3" value="$(find dcsl_vision_tracker)/config/miabot_background3.png" />
+    <rosparam command="load" file="$(find dcsl_vision_tracker)/config/miabot_tracker_parameters.yaml" />
   </node >
 
 </launch>
