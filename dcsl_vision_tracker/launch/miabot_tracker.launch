@@ -6,6 +6,12 @@
     <param name="background_image1" value="$(find dcsl_vision_tracker)/config/miabot_background1.png" />
     <param name="background_image2" value="$(find dcsl_vision_tracker)/config/miabot_background2.png" />
     <param name="background_image3" value="$(find dcsl_vision_tracker)/config/miabot_background3.png" />
+
+    <param name="mask_image0" value="$(find dcsl_vision_tracker)/config/miabot_mask0.png" />
+    <param name="mask_image1" value="$(find dcsl_vision_tracker)/config/miabot_mask1.png" />
+    <param name="mask_image2" value="$(find dcsl_vision_tracker)/config/miabot_mask2.png" />
+    <param name="mask_image3" value="$(find dcsl_vision_tracker)/config/miabot_mask3.png" />
+
     <rosparam command="load" file="$(find dcsl_vision_tracker)/config/miabot_tracker_parameters.yaml" />
   </node >
 

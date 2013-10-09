@@ -183,6 +183,14 @@ class miabot_tracker:
                 background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
                 background_list.append(background)
 
+            # Load masks
+            mask_list = []
+            for i in xrange(0, self.n_cameras):
+                location = rospy.get_param('~mask_image'+str(i))
+                mask = cv.LoadImageM(location, cv.CV_LOAD_IMAGE_GRAYSCALE)
+                mask_list.append(mask)
+
+
             threshold = int(config["binary_threshold"])
             erode_iterations = int(config["erode_iterations"])
             min_blob_size = int(config["min_blob_size"])
@@ -194,7 +202,7 @@ class miabot_tracker:
             translation_vectors = rospy.get_param('~camera_offset_vectors')
 
             self.storage = cv.CreateMemStorage()
-            self.tracker = DcslMiabotTracker(background_list, [None]*4, threshold, erode_iterations, min_blob_size, 
+            self.tracker = DcslMiabotTracker(background_list, mask_list, threshold, erode_iterations, min_blob_size, 
                                              max_blob_size, self.storage, image_width, image_height, scale, translation_vectors)
         else:
             self.tracker.threshold = int(config["binary_threshold"])

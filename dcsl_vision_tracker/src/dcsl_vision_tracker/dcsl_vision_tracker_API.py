@@ -84,7 +84,9 @@ class DcslVisionTracker(object):
     # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
     # @param camera_id (int) the number of the camera the image comes from. This is used in the coordinate_transform function to chose the correct transform.
     def get_poses(self, image, estimated_poses, camera_id):
-        
+
+        self.id = camera_id
+
         #Convert to greyscale
         grayscale_image = self.convert_to_grayscale(image)
         # Find contours of blobs in the image
@@ -126,6 +128,10 @@ class DcslVisionTracker(object):
 
         # Dilate remaining holes to offset erode
         cv.Dilate(image_mat, image_mat, None, erode_iterations)
+        
+        if self.id is 3:
+            cv.ShowImage('Window1', image_mat)
+            cv.WaitKey(10)
 
         #Find contours
         contours = cv.FindContours(image_mat, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
