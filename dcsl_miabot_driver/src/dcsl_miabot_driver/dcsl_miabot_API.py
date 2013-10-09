@@ -59,7 +59,7 @@ class Miabot(object):
     #
     def send(self, message):
         try:
-            self.socket.send(message)
+            self.socket.sendall(message)
         except:
             raise
     ##
