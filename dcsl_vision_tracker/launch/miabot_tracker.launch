@@ -15,4 +15,6 @@
     <rosparam command="load" file="$(find dcsl_vision_tracker)/config/miabot_tracker_parameters.yaml" />
   </node >
 
+  <node name="tracking_overlay" pkg="dcsl_vision_tracker" type="dcsl_tracking_overlay" args="4" />
+
 </launch>

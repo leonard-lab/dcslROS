@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 #include <cstdlib>
-#include <math.h>
+#include <cmath>
 
 /// \file dcsl_tracking_overlay.cpp
 ///
@@ -27,7 +27,7 @@ private:
   int n_cameras;
   std::vector<double> latest_pose_times;
   std::vector<double> latest_image_times;
-  std::vector<const geometry_msgs::PoseArray*> latest_pose_arrays;
+  std::vector<geometry_msgs::PoseArray> latest_pose_arrays;
   std::vector<cv_bridge::CvImagePtr> latest_images;
 
 public:
@@ -41,8 +41,11 @@ public:
     image_transport::ImageTransport it(nh);
     
     //Initialize subscribers and publishers
+    sub_image_poses = nh.subscribe("/image_poses", 1, &TrackingOverlay::pose_callback, this);
     image_sub_vec.resize(n_cameras);
     image_pub_vec.resize(n_cameras);
+    latest_image_times.resize(n_cameras);
+    latest_pose_times.resize(n_cameras);
     for (int i=0; i<n_cameras; ++i)
       {
 	std::string beginning = "/camera";
@@ -56,12 +59,15 @@ public:
 	image_pub_vec[i] = it.advertise(beginning + std::to_string(i) + pub_end, 1);
 
 	// Initialize values of latest_pose_times and latest_image_times
-	latest_pose_times.push_back(-1);
-	latest_image_times.push_back(-1);
+	latest_pose_times[i] = -1;
+	latest_image_times[i] = -1;
       }
+
+    //Size storage arrays
+    latest_pose_arrays.resize(n_cameras);
+    latest_images.resize(n_cameras);
   };
     
-
   /// Destructor for TrackingOverlay
   ~TrackingOverlay(){
   };
@@ -72,7 +78,6 @@ private:
   /// \param[in] camera_number The camera ID number of the subscribed stream.
   void image_callback(const sensor_msgs::ImageConstPtr& msg, int camera_number)
   {
-    ROS_INFO("%d", camera_number);
     
     //Convert image from message to CvImage
     cv_bridge::CvImagePtr cv_ptr;
@@ -87,16 +92,17 @@ private:
     
     double time = msg->header.stamp.toSec();
     latest_image_times[camera_number] = time;
-
+    
     // If poses for this image have already been received do overlay and publish
-    if (abs(time-latest_pose_times[camera_number]) < 0.005)
+    if (std::abs(time-latest_pose_times[camera_number]) < 0.0005)
       {
-	perform_overlay(cv_ptr, *latest_pose_arrays[camera_number]);
+	perform_overlay(cv_ptr, latest_pose_arrays[camera_number]);
 	image_pub_vec[camera_number].publish(cv_ptr->toImageMsg());
       }
     // Otherwise store image and pose callback will overlay and publish once pose data arrives
     else
       {
+	latest_images[camera_number].reset();
 	latest_images[camera_number] = cv_ptr;
       }
   };
@@ -108,10 +114,16 @@ private:
   {
     double time = data.header.stamp.toSec();
     int camera_number = atoi(data.header.frame_id.c_str());
+
+    if (camera_number >= n_cameras){
+      ROS_WARN("Tracking overlay argument set for %d camera(s) but poses for frame_id %d detected.", n_cameras, camera_number);
+      return;
+    }
+
     latest_pose_times[camera_number] = time;
 
     // If the image for this pose data has arrived, do overlay and publish
-    if (abs(time-latest_image_times[camera_number]) < 0.005)
+    if (std::abs(time-latest_image_times[camera_number]) < 0.0005)
       {
 	perform_overlay(latest_images[camera_number], data);
 	image_pub_vec[camera_number].publish(latest_images[camera_number]->toImageMsg());
@@ -119,8 +131,8 @@ private:
     // Otherwise store pose and image callback will overlay and publish once pose data arrives
     else
       {
-	latest_pose_arrays[camera_number] = &data;
-      }    
+	latest_pose_arrays[camera_number] = data;
+      }
   };
 
 
@@ -132,7 +144,7 @@ private:
 
     double length = 15;
     int radius = 5;
-    cv::Scalar red = cv::Scalar(255, 0, 0);
+    cv::Scalar red = cv::Scalar(0, 0, 255);
     int text_offset[] = {-30, -20};
 
     // For each robot draw circle and arrow and label.
@@ -161,7 +173,7 @@ private:
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "dcsl_tracking_overlay");
-  
+
   ros::NodeHandle nh;
   
   int n_cameras;
