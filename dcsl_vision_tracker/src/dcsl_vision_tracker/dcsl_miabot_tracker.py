@@ -30,6 +30,9 @@ class miabot_tracker:
     _feedback = ToggleTrackingFeedback()
     _result = ToggleTrackingResult()
 
+    _window_feedback = ToggleWindowFeedback()
+    _window_result = ToggleWindowResult()
+
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
     def __init__(self):
 
@@ -68,11 +71,16 @@ class miabot_tracker:
         # Create CvBridge object for conversion from ROS message to OpenCV image
         self.bridge = CvBridge()
         
-        # Create actionlib server
-        self._action_name = "dcsl_vision_tracker"
-        self.server = actionlib.SimpleActionServer(self._action_name, ToggleTrackingAction, self.toggle_tracking, False)
-        self.server.start()
+        # Create actionlib servers
+        tracking_action_name = "dcsl_vt_toggle_tracking"
+        self.track_server = actionlib.SimpleActionServer(tracking_action_name, ToggleTrackingAction, self.toggle_tracking, False)
+        self.track_server.start()
 
+        window_action_name = "dcsl_vt_window"
+        self.window_server = actionlib.SimpleActionServer(window_action_name, ToggleWindowAction, self.toggle_window, False)
+        self.window_server.start()
+        self.debug_windows = []
+        self.window_names = ["Camera 0", "Camera 1", "Camera 2", "Camera 3"]
         
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
     #
@@ -122,61 +130,44 @@ class miabot_tracker:
         image_pose_array.header.frame_id = str(camera_id)
         self.image_pose_pub.publish(image_pose_array)
         
+ 
+
+        if camera_id in self.debug_windows:
+            # Create BGR8 image to be output
+            output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
+            cv.Merge(working_image,working_image,working_image, None, output_image)
+
+            # Overlay position, heading, and contour
+            length = 15.0
+            radius = 5
+            text_offset = (-30, -20)
+            hscale = 0.5
+            vscale = 0.7
+            font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, hscale, vscale)
+            cyan = cv.RGB(0,255,255)
+            red = cv.RGB(255, 0, 0)
+            green = cv.RGB(0, 255, 0)
+            pink = cv.RGB(255, 20, 147)
+            for index, point in enumerate(image_poses):
+                if point.detected:
+                    end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
+                    center = (int(point.position_x()), int(point.position_y()))
+                    cv.Line(output_image, center, end, red)
+                    cv.Circle(output_image, center, radius, red)
+                    cv.PutText(output_image, str("Robot ")+str(index), (center[0]+text_offset[0], center[1]+text_offset[1]), font, red)
+            cv.DrawContours(output_image, contours, cyan, cyan, 2)
+
+            # Crosshairs
+            length = 20
+            width, height = cv.GetSize(output_image)
+            mid_x = int(width*0.5)
+            mid_y = int(height*0.5)
+            cv.Line(output_image, (mid_x-length/2, mid_y), (mid_x+length/2, mid_y), pink)
+            cv.Line(output_image, (mid_x, mid_y-length/2), (mid_x, mid_y+length/2), pink)
+            cv.ShowImage(self.window_names[camera_id], output_image)
+            cv.WaitKey(10)
+
         del contours, storage
-
-        '''
-
-        # Create BGR8 image to be output
-        output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
-        cv.Merge(working_image,working_image,working_image, None, output_image)
-
-        # Overlay position, heading, and contour
-        length = 15.0
-        radius = 5
-        text_offset = (-30, -20)
-        hscale = 0.5
-        vscale = 0.7
-        font = cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, hscale, vscale)
-        cyan = cv.RGB(0,255,255)
-        red = cv.RGB(255, 0, 0)
-        green = cv.RGB(0, 255, 0)
-        pink = cv.RGB(255, 20, 147)
-        for index, point in enumerate(image_poses):
-            if point.detected:
-                end = (int(point.position_x()+m.cos(point.quaternion_z())*length),int(point.position_y()-m.sin(point.quaternion_z())*length))
-                center = (int(point.position_x()), int(point.position_y()))
-                cv.Line(output_image, center, end, red)
-                cv.Circle(output_image, center, radius, red)
-                cv.PutText(output_image, str("Robot ")+str(index), (center[0]+text_offset[0], center[1]+text_offset[1]), font, red)
-        cv.DrawContours(output_image, contours, cyan, cyan, 2)
-        if self.output_measurements:
-            status = "Currently outputting pose measurements"
-            color = green
-        else:
-            status = "Not outputting pose measurements to system"
-            color = red
-        cv.PutText(output_image, status, (5, 25), font, color)
-
-        # Crosshairs
-        length = 20
-        width, height = cv.GetSize(output_image)
-        mid_x = int(width*0.5)
-        mid_y = int(height*0.5)
-        cv.Line(output_image, (mid_x-length/2, mid_y), (mid_x+length/2, mid_y), pink)
-        cv.Line(output_image, (mid_x, mid_y-length/2), (mid_x, mid_y+length/2), pink)
-
-        # Resize images
-        new_width = 640
-        new_height = 480
-        smaller_image = cv.CreateMat(new_height, new_width, output_image.type)
-        cv.Resize(output_image, smaller_image, interpolation=cv.CV_INTER_AREA)
-
-        # Publish image with overlay
-        try:
-            self.image_pub_array[camera_id].publish(self.bridge.cv_to_imgmsg(smaller_image,"bgr8"))
-        except CvBridgeError, e:
-            print e        
-        '''
         
 
     ## Callback function for state estimates. Stores state estimates as self.currentStates.
@@ -251,7 +242,7 @@ class miabot_tracker:
     def toggle_tracking(self, goal):
         # Publish feedback
         self._feedback.executing = True
-        self.server.publish_feedback(self._feedback)
+        self.track_server.publish_feedback(self._feedback)
         
         if goal.reset == True:
             self.receive_states = False
@@ -265,8 +256,39 @@ class miabot_tracker:
         # Send result
         self._result.tracking = goal.track
         self._feedback.executing = False
-        self.server.publish_feedback(self._feedback)
-        self.server.set_succeeded(self._result)
+        self.track_server.publish_feedback(self._feedback)
+        self.track_server.set_succeeded(self._result)
+
+    ##
+    #
+    #
+    def toggle_window(self, goal):
+        # Publish feedback
+        self._window_feedback.executing = True
+        self.window_server.publish_feedback(self._window_feedback)
+        
+        # Open or close window as necessary
+        if goal.show == True and goal.camera_id not in self.debug_windows:
+            self.debug_windows.append(goal.camera_id)
+            cv.NamedWindow(self.window_names[goal.camera_id])
+        elif goal.show == False and goal.camera_id in self.debug_windows:
+            self.debug_windows[:] = (value for value in self.debug_windows if value != goal.camera_id) # Remove goal camera id from list
+            cv.DestroyWindow(self.window_names[goal.camera_id])
+            cv.WaitKey(1)
+
+        # Send result
+        self._window_result.success = True
+        self._window_feedback.executing = False
+        self.window_server.publish_feedback(self._window_feedback)
+        self.window_server.set_succeeded(self._window_result)
+
+    ##
+    #
+    #
+    def generate_background(self, goal):
+        pass
+
+        
 
 ## Runs on the startup of the node. Initializes the node and creates the MiabotTracker object.
 def main():

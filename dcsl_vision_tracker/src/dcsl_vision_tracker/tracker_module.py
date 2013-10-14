@@ -17,11 +17,6 @@ class TrackerPlugin(Plugin):
     
     def __init__(self, context):
         super(TrackerPlugin, self).__init__(context)
-
-        # Initialize action clients
-        name = "dcsl_vision_tracker"
-        self.client = actionlib.SimpleActionClient(name, ToggleTrackingAction)
-        self.client.wait_for_server()
                
         # Get path to ui file.
         rp = rospkg.RosPack()
@@ -39,29 +34,55 @@ class TrackerPlugin(Plugin):
         # Add widget to the user interface
         context.add_widget(self._widget) 
 
-        # Set up button callbacks
+        # Setup button callbacks
         self._widget.tracker_checkBox.toggled[bool].connect(self._check_callback)      
         self._widget.reset_pushButton.clicked.connect(self._reset_callback)
+
+        self._widget.window_pushButton.clicked.connect(self._window_callback)
+
+        # Setup combo box
+        items = ['0', '1', '2', '3']
+        self._widget.comboBox.addItems(items)
+        self.window_states = [False]*4
         '''
         self.closeEvent = self.handle_close
         self.keyPressEvent = self.on_key_press
         self.destroyed.connect(self.handle_destroy)
         '''
 
+        # Initialize action clients
+        name = "dcsl_vt_toggle_tracking"
+        self.tracking_client = actionlib.SimpleActionClient(name, ToggleTrackingAction)
+        self.tracking_client.wait_for_server()
+
+        name = "dcsl_vt_window"
+        self.window_client = actionlib.SimpleActionClient(name, ToggleWindowAction)
+        self.tracking_client.wait_for_server()
+
     def _check_callback(self, state):
         goal = ToggleTrackingGoal(state,False)
-        self.client.send_goal(goal)
-        self.client.wait_for_result()
-        response = self.client.get_result()
+        self.tracking_client.send_goal(goal)
+        self.tracking_client.wait_for_result()
+        response = self.tracking_client.get_result()
         if response.tracking is not state:
             self._widget.tracker_checkBox.setCheckState(Qt.Checked if state else Qt.Unchecked)
 
     def _reset_callback(self):
         goal = ToggleTrackingGoal(False, True)
-        self.client.send_goal(goal)
-        self.client.wait_for_result()
-        response = self.client.get_result()
+        self.tracking_client.send_goal(goal)
+        self.tracking_client.wait_for_result()
+        response = self.tracking_client.get_result()
         self._widget.tracker_checkBox.setCheckState(Qt.Checked if response.tracking else Qt.Unchecked)
+
+    def _window_callback(self):
+        camera_id = int(self._widget.comboBox.currentText())
+        goal = ToggleWindowGoal(not self.window_states[camera_id], camera_id)
+        self.window_client.send_goal(goal)
+        self.window_client.wait_for_result()
+        response = self.window_client.get_result()
+        if response.success:
+            self.window_states[camera_id] = not self.window_states[camera_id]
+                                
 
     def shutdown_plugin(self):
         pass

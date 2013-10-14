@@ -1,0 +1,9 @@
+# Command debugging windows on and off.
+bool show # True = show window, False = hide window
+int16 camera_id # Number of camera to send to window
+---
+# Indicate if command successful
+bool success # True if action worked, false otherwise
+---
+# Indicate if working
+bool executing # True = action currently in progress, False = not in progress

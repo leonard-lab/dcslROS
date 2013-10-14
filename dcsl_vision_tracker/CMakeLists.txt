@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 # Add action files
 add_action_files(
   DIRECTORY action
-  FILES ToggleTracking.action
+  FILES ToggleTracking.action ToggleWindow.action GenerateBackground.action
 )
 
 # catkin_add_nosetests(test/test_dcsl_vision_tracker.py)
