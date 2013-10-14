@@ -33,7 +33,7 @@ class DcslVisionTracker(object):
     # @param storage An OpenCV storage container created with cv.CreateMemStorage.
     # @param image_width Width of the image to be tracked in pixels.
     # @param image_height Height of the image to be tracked in pixels.
-    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height):  
+    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, image_width, image_height):  
         self.background_list = []
         # Convert the given to grayscale in the same way the tracker does. It's better to do it this way than pre-convert.
         for background in background_list:
@@ -44,7 +44,6 @@ class DcslVisionTracker(object):
         self.erode_iterations = erode_iterations
         self.min_blob_size = min_blob_size
         self.max_blob_size = max_blob_size
-        self.storage = storage
         self.image_width = image_width
         self.image_height = image_height
 
@@ -83,14 +82,14 @@ class DcslVisionTracker(object):
     # @param image (CvMat) is the image in which to find the poses of the robots
     # @param estimated_poses (List of DcslPose objects) a guess of where the robots are located
     # @param camera_id (int) the number of the camera the image comes from. This is used in the coordinate_transform function to chose the correct transform.
-    def get_poses(self, image, estimated_poses, camera_id):
+    def get_poses(self, image, estimated_poses, camera_id, storage):
 
         self.id = camera_id
 
         #Convert to greyscale
         grayscale_image = self.convert_to_grayscale(image)
         # Find contours of blobs in the image
-        contours = self.blob_contours(grayscale_image, self.background_list[camera_id], self.threshold, self.erode_iterations, self.storage, self.mask_list[camera_id])
+        contours = self.blob_contours(grayscale_image, self.background_list[camera_id], self.threshold, self.erode_iterations, storage, self.mask_list[camera_id])
         # Find poses of blobs in image reference frame
         sensed_image = self.get_image_poses(contours)
         # Transform estimated poses to image frame
@@ -128,10 +127,6 @@ class DcslVisionTracker(object):
 
         # Dilate remaining holes to offset erode
         cv.Dilate(image_mat, image_mat, None, erode_iterations)
-        
-        if self.id is 3:
-            cv.ShowImage('Window1', image_mat)
-            cv.WaitKey(10)
 
         #Find contours
         contours = cv.FindContours(image_mat, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
@@ -234,10 +229,12 @@ class DcslMiabotTracker(DcslVisionTracker):
     # @param image_height Height of the image to be tracked in pixels.
     # @param scale The converstion scale between pixels and normalized coordinates in 1/pixel.
     # @param translation_offset_list A list of vectors from the origin to each camera [[x0, y0, z0], [x1, y1, z1],...]
-    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale, translation_offset_list):
-        DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
+    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, image_width, image_height, scale, translation_offset_list, black_threshold, dilation_level):
+        DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, image_width, image_height)
         self.scale = scale
         self.translation = translation_offset_list
+        self.black_threshold = black_threshold
+        self.dilations = dilation_level
 
         ## @var scale
         # The conversion scale between pixels and meters in meters/pixel.
@@ -300,56 +297,95 @@ class DcslMiabotTracker(DcslVisionTracker):
         cr = contours #Copy contours to not change original variable
         if len(cr) is not 0:
             while cr is not None:
-                if cr.v_next() is not None: # Check if hole contour exists (contour around black area)
-                    hole_contour = cr.v_next() # Hole contour to do analysis on
-                    # Find area of blob and reject those not the size of a robot
-                    box = cv.MinAreaRect2(hole_contour, cv.CreateMemStorage())
-                    blob_size = box[1][0]*box[1][1]
-                    if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
-                        moments = cv.Moments(hole_contour, False)
-                        # Find center of blob
-                        box = cv.MinAreaRect2(hole_contour, cv.CreateMemStorage())
-                        center = (float(box[0][0]), float(box[0][1]))
-                        # Find centroid of blob
-                        centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
-                        # Estimate heading by drawing line from centroid to center and finding heading of line
-                        theta_estimate = -m.atan2(float(center[1])-float(centroid[1]), float(center[0])-float(centroid[0]))
-                        # Theta is found using the minimum area box from above
-                        theta_box = -m.pi/180.0*float(box[2]) #Angle in the first quadrant of the minimum area box with the x-axis
-                        # Test angle of box in each quadrant to see which is closest to angle found from centroid
-                        # Box angle is more accurate than centroid method
-                        previous_error = -1.0
-                        theta = None
-                        if box[1][0] > box[1][1]:
-                            step_list = [-m.pi, 0, m.pi]
-                        else:
-                            step_list = [-m.pi*1.5, -m.pi*0.5, m.pi*0.5]
-                        for step in step_list:
-                            theta_test = theta_box+step
-                            error = pow(theta_estimate-theta_test,2)
-                            if previous_error < 0:
-                                theta = theta_test
-                                previous_error = error
-                            elif error < previous_error:
-                                theta = theta_test
-                                previous_error = error
-                        # Keep theta between -pi and pi T
-                        # The way theta is found can only place it out of this bound by 2pi in either direction.
-                        if theta >= m.pi:
-                            theta = theta - 2.*m.pi
-                        elif theta < -m.pi:
-                            theta = theta + 2.*m.pi
-                        # Append found pose to image_poses list
-                        pose = DcslPose()
-                        pose.set_position((center[0],center[1],0.))
-                        pose.set_quaternion((0.,0.,theta,0.))
-                        image_poses.append(pose)
+                # Find area of blob and reject those not the size of a robot
+                box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
+                blob_size = box[1][0]*box[1][1]
+                if blob_size > self.min_blob_size and blob_size < self.max_blob_size:
+                    moments = cv.Moments(cr, False)
+                    # Find center of blob
+                    box = cv.MinAreaRect2(cr, cv.CreateMemStorage())
+                    center = (float(box[0][0]), float(box[0][1]))
+                    # Find centroid of blob
+                    centroid = (cv.GetSpatialMoment(moments,1,0)/cv.GetSpatialMoment(moments,0,0),cv.GetSpatialMoment(moments,0,1)/cv.GetSpatialMoment(moments,0,0))
+                    # Estimate heading by drawing line from centroid to center and finding heading of line
+                    theta_estimate = -m.atan2(float(center[1])-float(centroid[1]), float(center[0])-float(centroid[0]))
+                    # Theta is found using the minimum area box from above
+                    theta_box = -m.pi/180.0*float(box[2]) #Angle in the first quadrant of the minimum area box with the x-axis
+                    # Test angle of box in each quadrant to see which is closest to angle found from centroid
+                    # Box angle is more accurate than centroid method
+                    previous_error = -1.0
+                    theta = None
+                    if box[1][0] > box[1][1]:
+                        step_list = [-m.pi, 0, m.pi]
+                    else:
+                        step_list = [-m.pi*1.5, -m.pi*0.5, m.pi*0.5]
+                    for step in step_list:
+                        theta_test = theta_box+step
+                        error = pow(theta_estimate-theta_test,2)
+                        if previous_error < 0:
+                            theta = theta_test
+                            previous_error = error
+                        elif error < previous_error:
+                            theta = theta_test
+                            previous_error = error
+                    # Keep theta between -pi and pi T
+                    # The way theta is found can only place it out of this bound by 2pi in either direction.
+                    if theta >= m.pi:
+                        theta = theta - 2.*m.pi
+                    elif theta < -m.pi:
+                        theta = theta + 2.*m.pi
+                    # Append found pose to image_poses list
+                    pose = DcslPose()
+                    pose.set_position((center[0],center[1],0.))
+                    pose.set_quaternion((0.,0.,theta,0.))
+                    image_poses.append(pose)
                     del box
                 #Cycle to next contour
                 cr=cr.h_next()
         del cr
         return image_poses
         
+
+    ## Detects blobs in an image and returns the OpenCV contours of those blobs. Overrides method from DcslVisionTracker.
+    #
+    # @param image (CvMat) is the image in which to find contours. It should be a CvMat type.
+    # @param backgroundMat (CvMat) is the background image. It should the image the camera sees when no robots are present.
+    # @param binaryThreshold (int) is the value at which to threshold the image.
+    # @param erodeIterations (int) is the number of iterations to erode the binary image. This eliminates small detected blobs.
+    # @param storage (CvMemStorage) is a storage space for the contours.
+    # @param maskMat (CvMat) is a binary mask. Areas to ignore should be black and all other space should be white.
+    def blob_contours(self, image, background_mat, binary_threshold, erode_iterations, storage, mask_mat = None):
+
+        image_mat = cv.CloneMat(image)
+        
+        # Subtract the background image
+        cv.AbsDiff(image_mat, background_mat, image_mat)
+
+        # Convert to binary image by thresholding
+        cv.Threshold(image_mat, image_mat, binary_threshold, 255, cv.CV_THRESH_BINARY)
+
+        # Apply mask
+        if mask_mat:
+            cv.Min(image_mat, mask_mat, image_mat); # mask image should be black (0) where masking should be applied and white (255) in the working area
+
+        # Find black areas on tops of robots
+        black_areas = cv.CloneMat(image)
+        cv.Threshold(black_areas, black_areas, self.black_threshold, 255, cv.CV_THRESH_BINARY_INV)
+        
+        cv.Dilate(image_mat, image_mat, None, self.dilations)
+        cv.And(image_mat, black_areas, image_mat)
+
+        # Erode small holes in binary image
+        cv.Erode(image_mat, image_mat, None, erode_iterations)
+
+        # Dilate remaining holes to offset erode
+        cv.Dilate(image_mat, image_mat, None, erode_iterations)
+
+        #Find contours
+        contours = cv.FindContours(image_mat, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE, (0,0))
+        
+        return contours
+
 #############################################################################
 
 class DcslBelugaTracker(DcslVisionTracker):
@@ -369,8 +405,8 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param translation_offset_list A list of tuples (o_x, o_y) where the ith tuple is the translation offset for camera i in meters.
     # @param camera_height Height of camera above the water surface in meters.
     # @param refraction_ratio (float) The ratio of the index of refraction of air to the index of refraction of water.
-    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio):
-        DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, storage, image_width, image_height)
+    def __init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio):
+        DcslVisionTracker.__init__(self, background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, image_width, image_height)
         self.scale = scale
         self.translation = translation_offset_list
         self.camera_height = camera_height

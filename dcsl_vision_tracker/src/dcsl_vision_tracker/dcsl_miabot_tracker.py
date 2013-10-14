@@ -22,9 +22,7 @@ from dcsl_vision_tracker.msg import *
 import cv
 import math as m
 
-
-
-from dcsl_vision_tracker_API import DcslMiabotTracker, DcslPose
+from dcsl_vision_tracker.dcsl_vision_tracker_API import DcslMiabotTracker, DcslPose
 
 ## This class allows detection of robots in an image,  orders these readings based on state estimates, and publishes them as a PoseArray.
 class miabot_tracker:
@@ -61,10 +59,11 @@ class miabot_tracker:
         for i in xrange(0, self.n_cameras):
             cam_string = "/camera" + str(i)
             self.image_pub_array.append(rospy.Publisher(cam_string+"/tracked_image", Image))
-            self.image_sub_array.append(rospy.Subscriber(cam_string+"/image_rect", Image, lambda data, cam_id=i: self.imageCallback(data, cam_id)))
+            self.image_sub_array.append(rospy.Subscriber(cam_string+"/image_rect", Image, lambda data, cam_id=i: self.imageCallback(data, cam_id), queue_size = 1))
 
         self.measurement_pub = rospy.Publisher("/planar_measurements", PoseArray)
-        self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
+        self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback, queue_size = 1)
+        self.image_pose_pub = rospy.Publisher("/image_poses", PoseArray)
 
         # Create CvBridge object for conversion from ROS message to OpenCV image
         self.bridge = CvBridge()
@@ -79,15 +78,16 @@ class miabot_tracker:
     #
     # @param data is the image data received from the /camera/image_raw topic
     def imageCallback(self,data, camera_id):
+ 
         # Bridge image from ROS message to OpenCV
         try:
             working_image = self.bridge.imgmsg_to_cv(data, "mono8")
         except CvBridgeError, e:
             print e
         
-        
+        storage = cv.CreateMemStorage()
         # Find poses and place into a message
-        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_id)
+        measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_id, storage)
         # Only output_measurements if output_measurements is true (set by action server)
         if self.output_measurements:
             pose_array = PoseArray()
@@ -105,6 +105,26 @@ class miabot_tracker:
             # Publish measuremented poses
             pose_array.header.stamp = data.header.stamp
             self.measurement_pub.publish(pose_array)
+
+        # Publish robot poses in pixel coordinates
+        image_pose_array = PoseArray()
+        for index, point in enumerate(image_poses):
+            p = Pose()
+            if point.detected:
+                p.position.x = point.position_x()
+                p.position.y = point.position_y()
+                p.orientation.z = point.quaternion_z()
+                p.orientation.w = 1
+            else:
+                p.orientation.w = 0
+            image_pose_array.poses.append(p)
+        image_pose_array.header.stamp = data.header.stamp
+        image_pose_array.header.frame_id = str(camera_id)
+        self.image_pose_pub.publish(image_pose_array)
+        
+        del contours, storage
+
+        '''
 
         # Create BGR8 image to be output
         output_image = cv.CreateMat(working_image.height,working_image.width,cv.CV_8UC3)
@@ -145,11 +165,19 @@ class miabot_tracker:
         cv.Line(output_image, (mid_x-length/2, mid_y), (mid_x+length/2, mid_y), pink)
         cv.Line(output_image, (mid_x, mid_y-length/2), (mid_x, mid_y+length/2), pink)
 
+        # Resize images
+        new_width = 640
+        new_height = 480
+        smaller_image = cv.CreateMat(new_height, new_width, output_image.type)
+        cv.Resize(output_image, smaller_image, interpolation=cv.CV_INTER_AREA)
+
         # Publish image with overlay
         try:
-            self.image_pub_array[camera_id].publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
+            self.image_pub_array[camera_id].publish(self.bridge.cv_to_imgmsg(smaller_image,"bgr8"))
         except CvBridgeError, e:
             print e        
+        '''
+        
 
     ## Callback function for state estimates. Stores state estimates as self.currentStates.
     #
@@ -195,21 +223,26 @@ class miabot_tracker:
             erode_iterations = int(config["erode_iterations"])
             min_blob_size = int(config["min_blob_size"])
             max_blob_size = int(config["max_blob_size"])
+            black_threshold = int(config["black_threshold"])
+            dilations = int(config["diff_dilations"])
+
             scale = rospy.get_param("~scale")
             image_width = 1280
             image_height = 960
             
             translation_vectors = rospy.get_param('~camera_offset_vectors')
 
-            self.storage = cv.CreateMemStorage()
             self.tracker = DcslMiabotTracker(background_list, mask_list, threshold, erode_iterations, min_blob_size, 
-                                             max_blob_size, self.storage, image_width, image_height, scale, translation_vectors)
+                                             max_blob_size, image_width, image_height, scale, translation_vectors, 
+                                             black_threshold, dilations)
         else:
             self.tracker.threshold = int(config["binary_threshold"])
             self.tracker.erode_iterations = int(config["erode_iterations"])
             self.tracker.min_blob_size = int(config["min_blob_size"])
             self.tracker.max_blob_size = int(config["max_blob_size"])
-        rospy.logdebug("""Reconfigure Request: {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}""".format(**config))
+            self.tracker.dilations = int(config["diff_dilations"])
+            self.tracker.black_threshold = int(config["black_threshold"])
+        rospy.logdebug("""Reconfigure Request: {binary_threshold}, {erode_iterations}, {min_blob_size}, {max_blob_size}, {black_threshold}, {diff_dilations}""".format(**config))
         return config
 
     ##

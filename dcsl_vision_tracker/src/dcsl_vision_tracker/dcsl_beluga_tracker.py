@@ -111,7 +111,8 @@ class BelugaTracker:
             print e
         
         # Find poses and place into a message
-        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        storage = cv.CreateMemStorage()
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
         world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
         image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
@@ -129,6 +130,8 @@ class BelugaTracker:
         except CvBridgeError, e:
             print e       
 
+        del contours, storage
+
     ## Callback function for when new images are received on camera1. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
     #
     # @param data is the image data received from the /camera/image_raw topic
@@ -142,7 +145,8 @@ class BelugaTracker:
             print e
         
         # Find poses and place into a message
-        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        storage = cv.CreateMemStorage()
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
         world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
         image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
@@ -160,6 +164,8 @@ class BelugaTracker:
         except CvBridgeError, e:
             print e      
 
+        del contours, storage
+
     ## Callback function for when new images are received on camera1. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
     #
     # @param data is the image data received from the /camera/image_raw topic
@@ -173,7 +179,8 @@ class BelugaTracker:
             print e
         
         # Find poses and place into a message
-        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        storage = cv.CreateMemStorage()
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
         world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
         image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
@@ -191,6 +198,8 @@ class BelugaTracker:
         except CvBridgeError, e:
             print e      
 
+        del contours, storage
+
     ## Callback function for when new images are received on camera1. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
     #
     # @param data is the image data received from the /camera/image_raw topic
@@ -204,7 +213,8 @@ class BelugaTracker:
             print e
         
         # Find poses and place into a message
-        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number)
+        storage = cv.CreateMemStorage()
+        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
         world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
         image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
 
@@ -220,7 +230,9 @@ class BelugaTracker:
         try:
             self.image3_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
-            print e  
+            print e 
+        
+        del contours, storage
 
     def _dcsl_pose_to_ros_pose(self, dcsl_poses):
         pose_array = PoseArray()
@@ -332,8 +344,7 @@ class BelugaTracker:
             R_cam3 = (-1.057, -2.005, 5.52)
             R_cam4 = (0.996, -1.908, 5.52)
             translation_offset_list = [R_cam4, R_cam1, R_cam2, R_cam3]
-            self.storage = cv.CreateMemStorage()
-            self.tracker = DcslBelugaTracker(background_list, mask_list, threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
+            self.tracker = DcslBelugaTracker(background_list, mask_list, threshold, erode_iterations, min_blob_size, max_blob_size, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
         else:
             self.tracker.threshold = int(config["binary_threshold"])
             self.tracker.erode_iterations = int(config["erode_iterations"])
