@@ -26,16 +26,16 @@ class MiabotEstimator:
         self.n_robots = n_robots
         
         self.measurement_sub = rospy.Subscriber("planar_measurements", PoseArray, 
-                                                self.measurement_callback)
-        self.input_sub = rospy.Subscriber("cmd_vel_array", TwistArray, self.input_callback)
+                                                self.measurement_callback, queue_size = 1)
+        self.input_sub = rospy.Subscriber("cmd_vel_array", TwistArray, self.input_callback, queue_size = 1)
         self.pub = rospy.Publisher("state_estimate", StateArray)
 
         self.init_P = np.ones((8,8))*0.1
         self.init_u = np.array([0., 0., 0.])
-        self.Q = np.identity(8)*0.1
-        self.R = np.identity(5)*0.01
-        self.R[3][3] = 0.1
-        self.R[4][4] = 0.1
+        self.Q = np.identity(8)*0.001
+        self.R = np.identity(5)*0.001
+        self.R[3][3] = 0.01
+        self.R[4][4] = 0.01
 
         self.current_u = np.zeros((self.n_robots,3))
 
