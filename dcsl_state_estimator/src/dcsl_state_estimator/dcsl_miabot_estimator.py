@@ -163,7 +163,7 @@ def main():
 
     estimator = MiabotEstimator(n_robots)
 
-    r = rospy.Rate(25)
+    r = rospy.Rate(20)
  
     while not rospy.is_shutdown():
         estimator.publish_estimate()
