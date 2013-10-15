@@ -1,0 +1,8 @@
+# Indicate what state of tracking should be
+bool generate # True = tracking should be on, False = tracking should be off
+---
+# Indicate if successful
+bool successful # True if images generated, false otherwise
+---
+# Indicate how much work completed
+float32 progress # Percentage of work accomplished

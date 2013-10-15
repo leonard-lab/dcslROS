@@ -89,6 +89,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QProgressBar" name="background_progressBar">
+       <property name="value">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label_2">
        <property name="font">
         <font>

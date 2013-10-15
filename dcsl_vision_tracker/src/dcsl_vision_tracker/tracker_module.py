@@ -10,7 +10,7 @@ from dcsl_vision_tracker.msg import *
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget
+from python_qt_binding.QtGui import QWidget, qApp
 from python_qt_binding.QtCore import Qt
 
 class TrackerPlugin(Plugin):
@@ -40,6 +40,11 @@ class TrackerPlugin(Plugin):
 
         self._widget.window_pushButton.clicked.connect(self._window_callback)
 
+        self._widget.background_pushButton.clicked.connect(self._background_callback)
+        self.block_background = False
+
+        self._widget.background_progressBar.hide() # Hide because feedback not working.
+
         # Setup combo box
         items = ['0', '1', '2', '3']
         self._widget.comboBox.addItems(items)
@@ -58,6 +63,10 @@ class TrackerPlugin(Plugin):
         name = "dcsl_vt_window"
         self.window_client = actionlib.SimpleActionClient(name, ToggleWindowAction)
         self.tracking_client.wait_for_server()
+
+        name = "dcsl_vt_background"
+        self.background_client = actionlib.SimpleActionClient(name, GenerateBackgroundAction)
+        self.background_client.wait_for_server()
 
     def _check_callback(self, state):
         goal = ToggleTrackingGoal(state,False)
@@ -83,6 +92,27 @@ class TrackerPlugin(Plugin):
         if response.success:
             self.window_states[camera_id] = not self.window_states[camera_id]
                                 
+    def _background_callback(self):
+        self._widget.background_pushButton.setStyleSheet('QPushButton {color: yellow}')
+        qApp.processEvents()
+        goal = GenerateBackgroundGoal(True)
+        self._widget.background_progressBar.setValue(0)
+        # self.background_client.send_goal(goal, done_cb = self._background_done_callback, feedback_cb = self._background_feedback_callback) #done_cb feedback_cb aren't working due to threading.
+        self.background_client.send_goal(goal)
+        self.background_client.wait_for_result()
+        response = self.background_client.get_result()
+        if response.successful:
+            self._widget.background_pushButton.setStyleSheet('QPushButton {color: green}')
+        else:
+            self._widget.background_pushButton.setStyleSheet('QPushButton {color: red}')
+
+    def _background_done_callback(self, status, result):
+        self.block_background = False
+        self._widget.background_progressBar.setValue(100)
+
+    def _background_feedback_callback(self, feedback):
+        print int(feedback.progress*100.0)
+        self._widget.background_progressBar.setValue(int(feedback.progress*100.0))
 
     def shutdown_plugin(self):
         pass

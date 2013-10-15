@@ -33,10 +33,14 @@ class miabot_tracker:
     _window_feedback = ToggleWindowFeedback()
     _window_result = ToggleWindowResult()
 
+    _bg_feedback = GenerateBackgroundFeedback()
+    _bg_result = GenerateBackgroundResult()
+
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
     def __init__(self):
 
         self.n_cameras = 4
+        self.generate_bg_flag = False
 
         # Get initial states
         init_poses = rospy.get_param('~initial_poses')
@@ -81,7 +85,14 @@ class miabot_tracker:
         self.window_server.start()
         self.debug_windows = []
         self.window_names = ["Camera 0", "Camera 1", "Camera 2", "Camera 3"]
-        
+
+        background_action_name = "dcsl_vt_background"
+        self.background_server = actionlib.SimpleActionServer(background_action_name, GenerateBackgroundAction, auto_start = False)
+        self.background_server.register_goal_callback(self.generate_background_cb) # This action server uses goal callback strategy whereas the other two use execute callbacks. See actionlib wiki.
+        self.background_server.register_preempt_callback(self.gb_preempt_cb)
+        self.background_server.start()
+
+
     ## Callback function for when new images are received. Senses positions of robots, sorts them into the correct order, publishes readings, and displays image.
     #
     # @param data is the image data received from the /camera/image_raw topic
@@ -93,6 +104,43 @@ class miabot_tracker:
         except CvBridgeError, e:
             print e
         
+        
+        if self.generate_bg_flag:
+            n_images = 5 # Number of images to average for each camera
+
+            # Perform average
+            if self.count[camera_id] == 0:
+                self.background_list[camera_id] = working_image
+                self.count[camera_id] = self.count[camera_id] + 1
+            elif self.count[camera_id] < n_images:
+                cv.AddWeighted(self.background_list[camera_id], float(self.count[camera_id]-1.0)/float(self.count[camera_id]), 
+                                                                working_image, 1.0/float(self.count[camera_id]), 0, self.background_list[camera_id])
+                self.count[camera_id] += 1
+
+            # Publish feedback
+            self._bg_feedback.progress = float(sum(self.count))/float(n_images*self.n_cameras)
+            self.background_server.publish_feedback(self._bg_feedback)
+            
+            # If reached n_images for all cameras
+            if sum(self.count) == n_images*self.n_cameras:
+                # Turn off background generation
+                self.generate_bg_flag = False
+                for i in xrange(0, self.n_cameras):
+                    # Save background images
+                    cv.SaveImage(self.background_locations[i], self.background_list[i])
+                    # Update tracker
+                    self.tracker.background_list = self.background_list
+                    # Action result feedback
+                    self._bg_result.successful = True
+                    if self.background_server.is_active():
+                        self.background_server.set_succeeded(self._bg_result)
+                    # Reset count
+                    self.count = [0]*self.n_cameras
+                    
+            return # return and don't do tracking
+                                                                                         
+            
+
         storage = cv.CreateMemStorage()
         # Find poses and place into a message
         measurements, image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_id, storage)
@@ -197,8 +245,10 @@ class miabot_tracker:
 
             # Load background images
             background_list = []
+            self.background_locations = []
             for i in xrange(0, self.n_cameras):
                 location = rospy.get_param('/vision_tracker/background_image' + str(i))
+                self.background_locations.append(location)
                 background = cv.LoadImageM(location,cv.CV_LOAD_IMAGE_GRAYSCALE)
                 background_list.append(background)
 
@@ -285,10 +335,20 @@ class miabot_tracker:
     ##
     #
     #
-    def generate_background(self, goal):
-        pass
+    def generate_background_cb(self):
+        goal = self.background_server.accept_new_goal()
+        if goal.generate == True:
+            self.background_list = [None]*self.n_cameras
+            self.count = [0]*self.n_cameras
+            self.generate_bg_flag = True
 
-        
+    ##
+    #
+    #
+    def gb_preempt_cb(self):
+        self.background_list = [None]*self.n_cameras
+        self.count = [0]*self.n_cameras
+        self.background_server.set_preempted()
 
 ## Runs on the startup of the node. Initializes the node and creates the MiabotTracker object.
 def main():
