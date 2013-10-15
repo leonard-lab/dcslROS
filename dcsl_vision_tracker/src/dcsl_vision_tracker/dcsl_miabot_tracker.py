@@ -214,6 +214,9 @@ class miabot_tracker:
             cv.Line(output_image, (mid_x, mid_y-length/2), (mid_x, mid_y+length/2), pink)
             cv.ShowImage(self.window_names[camera_id], output_image)
             cv.WaitKey(10)
+        else:
+            cv.DestroyWindow(self.window_names[camera_id])
+            cv.WaitKey(10)
 
         del contours, storage
         
@@ -323,8 +326,6 @@ class miabot_tracker:
             cv.NamedWindow(self.window_names[goal.camera_id])
         elif goal.show == False and goal.camera_id in self.debug_windows:
             self.debug_windows[:] = (value for value in self.debug_windows if value != goal.camera_id) # Remove goal camera id from list
-            cv.DestroyWindow(self.window_names[goal.camera_id])
-            cv.WaitKey(1)
 
         # Send result
         self._window_result.success = True
