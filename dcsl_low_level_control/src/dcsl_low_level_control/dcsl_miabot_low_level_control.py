@@ -114,7 +114,7 @@ class MiabotLowLevelController(object):
             t = float(self.state_data.header.stamp.secs) + float(self.state_data.header.stamp.nsecs)*pow(10.0, -9)
             for i, state in enumerate(self.state_data.states):
                 x = self._state_to_mat(state)
-                u_direct = self._wp_controller(x, self.current_commands)
+                u_direct = self._wp_controller(x, self.current_commands[i])
                 miabot_twist = self._u_direct_to_twist(u_direct)
                 miabot_input_array.twists.append(miabot_twist)
         else:
@@ -151,16 +151,16 @@ class MiabotLowLevelController(object):
     #
     def _u_direct_to_twist(self, u):
         t = Twist()
-        t.linear.x = int(u[0])
+        t.linear.x = u[0]
         t.angular.z = u[1]
-        t.linear.z = int(u[2])
+        t.linear.z = u[2]
         return t
 
     ##
     #
     #
     def _wp_controller(self, x, wp):
-        theta = atan2(x[5],x[6])
+        theta = m.atan2(x[5],x[6])
         r = m.sqrt(pow(x[0]-wp[0],2) + pow(x[1]-wp[1],2))
         phi = m.atan2(wp[1]-x[1], wp[0]-x[0]) - theta
 
@@ -169,11 +169,12 @@ class MiabotLowLevelController(object):
         
         if r > self.min_dist:
             if phi <= m.pi*0.5 and phi > -m.pi*0.5:
-                u[1] = self.k2*sin(phi)
+                u[1] = self.k2*m.sin(phi)
             else:
-                u[1] = -self.k2*sin(phi)
+                u[1] = -self.k2*m.sin(phi)
         else:
-            u[1] = -k2*sin(theta-wp[3])        
+            u[1] = -self.k2*m.sin(theta-wp[3])
+ 
         return u
 
 
