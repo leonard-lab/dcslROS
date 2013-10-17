@@ -56,17 +56,19 @@ class TrackerPlugin(Plugin):
         '''
 
         # Initialize action clients
+        timeout = 10 # seconds
+        dur = rospy.Duration(timeout)
         name = "dcsl_vt_toggle_tracking"
         self.tracking_client = actionlib.SimpleActionClient(name, ToggleTrackingAction)
-        self.tracking_client.wait_for_server()
+        self.tracking_client.wait_for_server(dur)
 
         name = "dcsl_vt_window"
         self.window_client = actionlib.SimpleActionClient(name, ToggleWindowAction)
-        self.tracking_client.wait_for_server()
+        self.tracking_client.wait_for_server(dur)
 
         name = "dcsl_vt_background"
         self.background_client = actionlib.SimpleActionClient(name, GenerateBackgroundAction)
-        self.background_client.wait_for_server()
+        self.background_client.wait_for_server(dur)
 
     def _check_callback(self, state):
         goal = ToggleTrackingGoal(state,False)
