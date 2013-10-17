@@ -129,7 +129,7 @@ class miabot_tracker:
                     # Save background images
                     cv.SaveImage(self.background_locations[i], self.background_list[i])
                     # Update tracker
-                    self.tracker.background_list = self.background_list
+                    self.tracker.set_background_list(self.background_list)
                     # Action result feedback
                     self._bg_result.successful = True
                     if self.background_server.is_active():

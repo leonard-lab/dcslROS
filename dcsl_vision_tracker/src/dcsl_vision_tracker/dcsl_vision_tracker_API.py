@@ -210,6 +210,14 @@ class DcslVisionTracker(object):
         grayscale_image = cv.CloneMat(image)
         return grayscale_image
 
+    ##
+    #
+    #
+    def set_background_list(self, background_list):
+        self.background_list = []
+        for background in background_list:
+            gray_background = self.convert_to_grayscale(background)
+            self.background_list.append(gray_background)
 
 #############################################################
                                               

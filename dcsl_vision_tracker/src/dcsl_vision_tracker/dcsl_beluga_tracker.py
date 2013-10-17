@@ -30,12 +30,18 @@ class BelugaTracker:
     _feedback = ToggleTrackingFeedback()
     _result = ToggleTrackingResult()
 
+    _bg_feedback = GenerateBackgroundFeedback()
+    _bg_result = GenerateBackgroundResult()
+
     ## Creates publishers and subscribers, loads background image and nRobots parameter, and creates CvBridge object.
     def __init__(self):
         
         # Get initial states
         init_poses = rospy.get_param('initial_poses', [[-2., -0.5, 1.75, 0.], [-0.5, -2.0, 1.75, 0.], [2.0, 0.0, 1.75, 0.], [1., 0., 1.75, 0.]])
         n_robots = rospy.get_param('/n_robots')
+
+        self.n_cameras = 4
+        self.generate_bg_flag = False
 
         self.initial_states = []
         for i, pose in enumerate(init_poses):
@@ -54,55 +60,32 @@ class BelugaTracker:
 
         
         # Create publisher and subscriber objects
-        self.image0_pub = rospy.Publisher("/camera0/tracked_image", Image)
-        self.image1_pub = rospy.Publisher("/camera1/tracked_image", Image)
-        self.image2_pub = rospy.Publisher("/camera2/tracked_image", Image)
-        self.image3_pub = rospy.Publisher("/camera3/tracked_image", Image)
+        self.image_pub_array = []
+        self.image_sub_array = []
+        for i in xrange(0, self.n_cameras):
+            cam_string = "/camera" + str(i)
+            self.image_pub_array.append(rospy.Publisher(cam_string+"/tracked_image", Image))
+            self.image_sub_array.append(rospy.Subscriber(cam_string+"/image_rect_color", Image, lambda data, cam_id=i: self.imageCallback(data, cam_id), queue_size = 1))
         self.measurement_pub = rospy.Publisher("planar_measurements", PoseArray)
-        self.image0_sub = rospy.Subscriber("/camera0/image_rect_color", Image, self.image0Callback)
-        self.image1_sub = rospy.Subscriber("/camera1/image_rect_color", Image, self.image1Callback)
-        self.image2_sub = rospy.Subscriber("/camera2/image_rect_color", Image, self.image2Callback)
-        self.image3_sub = rospy.Subscriber("/camera3/image_rect_color", Image, self.image3Callback)
         self.state_sub = rospy.Subscriber("state_estimate", StateArray, self.stateCallback)
         self.bridge = CvBridge()
 
-        # Create action server
+        # Create action servers
         tracking_action_name = "dcsl_vt_toggle_tracking"
         self.server = actionlib.SimpleActionServer(tracking_action_name, ToggleTrackingAction, self.toggle_tracking, False)
         self.server.start()
         
-        '''
-        # Create tracker object from API
-        binary_threshold = 5
-        erode_iterations = 4
-        min_blob_size = 350
-        max_blob_size = 1750
-        scale = pow(1.45/3.05*1.0/204.0, -1) # 1/pixels
-        camera_height = 3.14 # meters
-        refraction_ratio = 1.0/1.333 #refractive index of air/refractive index of water
-        image_width = background_list[0].width
-        image_height = background_list[0].height
-        R_cam1 = (0.984, 1.956, 5.52)
-        R_cam2 = (-1.021, 1.956, 5.52)
-        R_cam3 = (-1.057, -2.005, 5.52)
-        R_cam4 = (0.996, -1.908, 5.52)
-        translation_offset_list = [R_cam4, R_cam1, R_cam2, R_cam3]
-        self.storage = cv.CreateMemStorage()
-        self.tracker = DcslBelugaTracker(background_list, mask_list, binary_threshold, erode_iterations, min_blob_size, max_blob_size, self.storage, image_width, image_height, scale, translation_offset_list, camera_height, refraction_ratio)
-        
-        
-        # For testing
-        temp1 = DcslPose()
-        temp1.set_position((-2,-2,0))
-        temp1.set_quaternion((0,0,0,0))
-        self.current_states = [temp1]
-        '''
+        background_action_name = "dcsl_vt_background"
+        self.background_server = actionlib.SimpleActionServer(background_action_name, GenerateBackgroundAction, auto_start = False)
+        self.background_server.register_goal_callback(self.generate_background_cb) # This action server uses goal callback strategy whereas the other two use execute callbacks. See actionlib wiki.
+        self.background_server.register_preempt_callback(self.gb_preempt_cb)
+        self.background_server.start()
+
 
     ## Callback function for when new images are received on camera0. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
     #
     # @param data is the image data received from the /camera/image_raw topic
-    def image0Callback(self, data):
-        camera_number = 0;
+    def imageCallback(self, data, camera_number):
         
         # Bridge image from ROS message to OpenCV
         try:
@@ -110,6 +93,41 @@ class BelugaTracker:
         except CvBridgeError, e:
             print e
         
+        if self.generate_bg_flag:
+            n_images = 5 # Number of images to average for each camera
+
+            # Perform average
+            if self.count[camera_number] == 0:
+                self.background_list[camera_number] = working_image
+                self.count[camera_number] = self.count[camera_number] + 1
+            elif self.count[camera_number] < n_images:
+                cv.AddWeighted(self.background_list[camera_number], float(self.count[camera_number]-1.0)/float(self.count[camera_number]), 
+                                                                working_image, 1.0/float(self.count[camera_number]), 0, self.background_list[camera_number])
+                self.count[camera_number] += 1
+
+            # Publish feedback
+            self._bg_feedback.progress = float(sum(self.count))/float(n_images*self.n_cameras)
+            self.background_server.publish_feedback(self._bg_feedback)
+            
+            # If reached n_images for all cameras
+            if sum(self.count) == n_images*self.n_cameras:
+                # Turn off background generation
+                self.generate_bg_flag = False
+                for i in xrange(0, self.n_cameras):
+                    # Save background images
+                    cv.SaveImage(self.background_locations[i], self.background_list[i])
+                    # Update tracker
+                    self.tracker.set_background_list(self.background_list)
+                    # Action result feedback
+                    self._bg_result.successful = True
+                    if self.background_server.is_active():
+                        self.background_server.set_succeeded(self._bg_result)
+                    # Reset count
+                    self.count = [0]*self.n_cameras
+                    
+            return # return and don't do tracking
+
+
         # Find poses and place into a message
         storage = cv.CreateMemStorage()
         matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
@@ -126,112 +144,10 @@ class BelugaTracker:
                
         # Publish image with overlay
         try:
-            self.image0_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
+            self.image_pub_array[camera_number].publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
         except CvBridgeError, e:
             print e       
 
-        del contours, storage
-
-    ## Callback function for when new images are received on camera1. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
-    #
-    # @param data is the image data received from the /camera/image_raw topic
-    def image1Callback(self, data):
-        camera_number = 1;
-        
-        # Bridge image from ROS message to OpenCV
-        try:
-            working_image = self.bridge.imgmsg_to_cv(data, "bgr8")
-        except CvBridgeError, e:
-            print e
-        
-        # Find poses and place into a message
-        storage = cv.CreateMemStorage()
-        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
-        world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
-        image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
-
-        # Publish measuremented poses
-        if self.output_measurements:
-            world_ros_array.header.stamp = data.header.stamp
-            self.measurement_pub.publish(world_ros_array)
-
-        # Overlay tracking information
-        output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
-               
-        # Publish image with overlay
-        try:
-            self.image1_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
-        except CvBridgeError, e:
-            print e      
-
-        del contours, storage
-
-    ## Callback function for when new images are received on camera1. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
-    #
-    # @param data is the image data received from the /camera/image_raw topic
-    def image2Callback(self, data):
-        camera_number = 2;
-        
-        # Bridge image from ROS message to OpenCV
-        try:
-            working_image = self.bridge.imgmsg_to_cv(data, "bgr8")
-        except CvBridgeError, e:
-            print e
-        
-        # Find poses and place into a message
-        storage = cv.CreateMemStorage()
-        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
-        world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
-        image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
-
-        # Publish measuremented poses
-        if self.output_measurements:
-            world_ros_array.header.stamp = data.header.stamp
-            self.measurement_pub.publish(world_ros_array)
-
-        # Overlay tracking information
-        output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
-               
-        # Publish image with overlay
-        try:
-            self.image2_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
-        except CvBridgeError, e:
-            print e      
-
-        del contours, storage
-
-    ## Callback function for when new images are received on camera1. Senses positions of robots, sorts them into the correct order, and publishes readings and image.
-    #
-    # @param data is the image data received from the /camera/image_raw topic
-    def image3Callback(self, data):
-        camera_number = 3;
-        
-        # Bridge image from ROS message to OpenCV
-        try:
-            working_image = self.bridge.imgmsg_to_cv(data, "bgr8")
-        except CvBridgeError, e:
-            print e
-        
-        # Find poses and place into a message
-        storage = cv.CreateMemStorage()
-        matched_world_poses, matched_image_poses, contours = self.tracker.get_poses(working_image, self.current_states, camera_number, storage)
-        world_ros_array = self._dcsl_pose_to_ros_pose(matched_world_poses)
-        image_ros_array = self._dcsl_pose_to_ros_pose(matched_image_poses)
-
-        # Publish measuremented poses
-        if self.output_measurements:
-            world_ros_array.header.stamp = data.header.stamp
-            self.measurement_pub.publish(world_ros_array)
-
-        # Overlay tracking information
-        output_image = self._tracking_overlay(working_image, matched_image_poses, contours)
-               
-        # Publish image with overlay
-        try:
-            self.image3_pub.publish(self.bridge.cv_to_imgmsg(output_image,"bgr8"))
-        except CvBridgeError, e:
-            print e 
-        
         del contours, storage
 
     def _dcsl_pose_to_ros_pose(self, dcsl_poses):
@@ -318,6 +234,8 @@ class BelugaTracker:
             background_list.append(cv.LoadImageM(location2, cv.CV_LOAD_IMAGE_COLOR))
             location3 = rospy.get_param('/vision_tracker/background_image3')
             background_list.append(cv.LoadImageM(location3, cv.CV_LOAD_IMAGE_COLOR))
+            self.background_list = background_list
+            self.background_locations = [location0, location1, location2, location3]
 
             # Load masks
             mask_list = []
@@ -374,6 +292,24 @@ class BelugaTracker:
         self._feedback.executing = False
         self.server.publish_feedback(self._feedback)
         self.server.set_succeeded(self._result)
+
+    ##
+    #
+    #
+    def generate_background_cb(self):
+        goal = self.background_server.accept_new_goal()
+        if goal.generate == True:
+            self.background_list = [None]*self.n_cameras
+            self.count = [0]*self.n_cameras
+            self.generate_bg_flag = True
+
+    ##
+    #
+    #
+    def gb_preempt_cb(self):
+        self.background_list = [None]*self.n_cameras
+        self.count = [0]*self.n_cameras
+        self.background_server.set_preempted()
 
 
 ## Runs on the startup of the node. Initializes the node and creates the BelugaTracker object.
