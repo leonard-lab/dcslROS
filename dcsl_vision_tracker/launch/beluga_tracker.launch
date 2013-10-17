@@ -1,14 +1,14 @@
 <launch>
 	
   <node name="vision_tracker" pkg="dcsl_vision_tracker" type="dcsl_beluga_tracker.py" output="screen">
-    <param name="background_image0" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background4.png" />
-    <param name="background_image1" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background1.png" />
-    <param name="background_image2" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background2.png" />
-    <param name="background_image3" value="/home/bandrade/Dropbox/dcslROS/BackgroundImages/background3.png" />
-    <param name="mask0" value="/home/bandrade/Dropbox/dcslROS/MaskImages/mask4.png" />
-    <param name="mask1" value="/home/bandrade/Dropbox/dcslROS/MaskImages/mask1.png" />
-    <param name="mask2" value="/home/bandrade/Dropbox/dcslROS/MaskImages/mask2.png" />
-    <param name="mask3" value="/home/bandrade/Dropbox/dcslROS/MaskImages/mask3.png" />
+    <param name="background_image0" value="$(find dcsl_vision_tracker)/config/background4.png" />
+    <param name="background_image1" value="$(find dcsl_vision_tracker)/config/background1.png" />
+    <param name="background_image2" value="$(find dcsl_vision_tracker)/config/background2.png" />
+    <param name="background_image3" value="$(find dcsl_vision_tracker)/config/background3.png" />
+    <param name="mask0" value="$(find dcsl_vision_tracker)/config/mask4.png" />
+    <param name="mask1" value="$(find dcsl_vision_tracker)/config/mask1.png" />
+    <param name="mask2" value="$(find dcsl_vision_tracker)/config/mask2.png" />
+    <param name="mask3" value="$(find dcsl_vision_tracker)/config/mask3.png" />
     <remap from="tracked_image" to="output_image" />
     <remap from="/camera0/image_rect_color" to="/camera4/image_rect_color" />
   </node >
