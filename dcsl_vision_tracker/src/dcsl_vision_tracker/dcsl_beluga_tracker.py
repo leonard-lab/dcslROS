@@ -67,8 +67,8 @@ class BelugaTracker:
         self.bridge = CvBridge()
 
         # Create action server
-        self._action_name = "dcsl_vision_tracker"
-        self.server = actionlib.SimpleActionServer(self._action_name, ToggleTrackingAction, self.toggle_tracking, False)
+        tracking_action_name = "dcsl_vt_toggle_tracking"
+        self.server = actionlib.SimpleActionServer(tracking_action_name, ToggleTrackingAction, self.toggle_tracking, False)
         self.server.start()
         
         '''
