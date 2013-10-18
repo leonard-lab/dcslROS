@@ -164,6 +164,10 @@ class MiabotLowLevelController(object):
         r = m.sqrt(pow(x[0]-wp[0],2) + pow(x[1]-wp[1],2))
         phi = m.atan2(wp[1]-x[1], wp[0]-x[0]) - theta
 
+        # Wrap phi to -pi to pi (should never be off by more than +/- 2pi)
+        if abs(phi) > m.pi:
+            phi -= m.copysign(2.0*m.pi, phi)
+
         u = np.zeros(3)
         u[0] = self.k1 * r * m.cos(phi)
         
