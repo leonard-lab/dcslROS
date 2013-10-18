@@ -18,6 +18,7 @@ from dynamic_reconfigure.server import Server
 from dcsl_low_level_control.cfg import dcsl_beluga_low_level_control_configConfig as Config
 
 from dcsl_low_level_control.beluga_velocity_controller import BelugaVelocityController
+from dcsl_low_level_control.beluga_waypoint_controller import BelugaWaypointController
 
 ##
 #
@@ -45,9 +46,20 @@ class BelugaLowLevelController(object):
         K_shape = tuple(rospy.get_param('~K_shape'))
         K = np.array(rospy.get_param('~K_flat')).reshape(K_shape, order='F') #MATLAB uses fortran order
 
+        k1 = rospy.get_param('~waypoint_k1')
+        k2 = rospy.get_param('~waypoint_k2')
+        kz = rospy.get_param('~waypoint_kz')
+        beta = rospy.get_param('~waypoint_beta')
+        lambda_ = rospy.get_param('~waypoint_lambda')
+        max_velocity = rospy.get_param('~waypoint_max_velocity')
+
         # Define velocity control law
         self.velocity_controller = BelugaVelocityController(K, vc_axis_1, vc_axis_2, vc_axis_3, vc_axis_4)
         self.velocity_control_law = self.velocity_controller.control_law
+
+        # Define waypoint control law
+        self.waypoint_controller = BelugaWaypointController(k1, k2, kz, beta, lambda_, max_velocity)
+        self.waypoint_control_law = self.waypoint_controller.control_law
 
         # Setup publisher for commands to belugas
         self.input_pub = rospy.Publisher("cmd_inputs", BelugaArray)
@@ -138,7 +150,8 @@ class BelugaLowLevelController(object):
                 if self.mode == 1:
                     u_direct = self.velocity_control_law(x, np.zeros(3), self.current_commands[i])
                 elif self.mode == 2:
-                    u_direct = self.wp_controller(x, self.current_commands)
+                    u_vel = self.waypoint_control_law(x, self.current_commands[i])
+                    u_direct = self.velocity_control_law(x, np.zeros(3), u_vel)
                 else:
                     u_direct = np.array([0., 0., 0.])
                 beluga_input = self._u_direct_to_beluga_input(u_direct)

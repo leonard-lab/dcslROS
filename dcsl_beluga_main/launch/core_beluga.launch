@@ -10,7 +10,8 @@
 
   <!-- Low Level Controller -->
   <node name="low_level_controller" pkg="dcsl_low_level_control" type="dcsl_beluga_low_level_control.py" args="$(arg n)" output="screen" >
-    <rosparam command="load" file="$(find dcsl_low_level_control)/config/vel_controller.yaml" />
+    <rosparam command="load" file="$(find dcsl_low_level_control)/config/beluga_velocity.yaml" />
+    <rosparam command="load" file="$(find dcsl_low_level_control)/config/beluga_waypoint.yaml" />
   </node >
 
 </launch >
