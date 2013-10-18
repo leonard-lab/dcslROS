@@ -42,12 +42,27 @@ class BelugaWaypointController(object):
         psi = waypoint[3] - alpha # Error from goal (waypoint) heading to alpha
         delta = m.atan2(x[5], x[6]) - alpha # Error from current heading to alpha
 
+        psi = self.wrap_to_pi(psi)
+        delta = self.wrap_to_pi(delta)
+        
+        print psi
+        print delta
+
         kappa = -1.0/r * (self.k2*(delta-m.atan(-self.k1*psi)) + (1.0 + self.k1/(1.0+(self.k1*psi)**2)) * m.sin(delta)) # Control law for curvature from path
         
         v = self.v_max/(1.0 + self.beta*abs(kappa)**self.lamb) # Control law for velocity
         omega = kappa*v # Omega = curvative*velocity
         
+        print "v: " + str(v)
+        print "kappa: " + str(kappa)
+        print "omega: " + str(omega)
+
         # Proportional control for z position
         vz = -self.kz*(x[2] - waypoint[2])
         
         return np.array([v, omega, vz])
+
+    def wrap_to_pi(self, angle):
+        while angle <= -m.pi or angle > m.pi:
+            angle += -m.copysign(2.0*m.pi, angle) # if angle < 0 add 2pi, if angle > 0 substract 2pi
+        return angle
