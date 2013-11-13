@@ -38,6 +38,8 @@ class MiabotLowLevelController(object):
         self.k1 = rospy.get_param("waypoint_gain_1", 0.7)
         self.k2 = rospy.get_param("waypoint_gain_2", 0.5)
         self.min_dist = rospy.get_param("waypoint_tolerance", 0.02)
+        # change to be a ros parameter...
+        self.wp_max_speed = 0.2
 
         # Setup publisher for commands to belugas
         self.input_pub = rospy.Publisher("cmd_vel_array", TwistArray)
@@ -178,6 +180,12 @@ class MiabotLowLevelController(object):
                 u[1] = -self.k2*m.sin(phi)
         else:
             u[1] = -self.k2*m.sin(theta-wp[3])
+
+        # check if speed is too high
+        if u[0] > self.wp_max_speed:
+            kappa = u[1]/u[0] # curvature
+            u[0] = self.wp_max_speed
+            u[1] = kappa*u[0]
  
         return u
 
