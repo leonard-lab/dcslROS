@@ -1,34 +1,11 @@
 <launch>
-<!-- not sure what this is, and it's not working anyway -->
-  <node pkg="ipc"
-    name="central"
-    type="central"
-    output="screen"
-    args="-su">
-  </node>
 
-  <node pkg="ipc_geometry_msgs"
-    name="state_ipc_node"
-    type="geometry_msgs_PoseArray_publisher"
-    output="screen">
-    <remap from="~topic" to="/state_estimate"/>
-    <param name="message" value="state_message"/>
-  </node>
+  <!-- Declare argument to be passed in -->
+  <arg name="n" />
+  <arg name="control_law" />
 
-  <node pkg="ipc_geometry_msgs"
-    name="waypoint_ipc_node"
-    type="geometry_msgs_PoseArray_subscriber"
-    output="screen">
-    <remap from="~topic" to="/waypoint_input"/>
-    <param name="message" value="waypoint_message"/>
-  </node>
-
-  <node pkg="ipc_geometry_msgs"
-    name="velocity_ipc_node"
-    type="geometry_msgs_PoseArray_subscriber"
-    output="screen">
-    <remap from="~topic" to="/velocity_input"/>
-    <param name="message" value="velocity_message"/>
-  </node>
+  <node name="high_level_controller" pkg="dcsl_high_level_control" 
+    type="dcsl_miabot_high_level_control.py" args="$(arg n) $(arg control_law)" >
+  </node > 
 
 </launch>
