@@ -17,6 +17,7 @@ from geometry_msgs.msg import PoseArray, Twist, Pose
 from dcsl_messages.msg import TwistArray, StateArray, State
 from dynamic_reconfigure.server import Server
 from dcsl_high_level_control.cfg import dcsl_miabot_high_level_control_configConfig as Config
+from miabot_logger import MiabotLogger
 ##
 #
 #
@@ -33,7 +34,7 @@ class MiabotHighLevelController(object):
         self.control_law = control_law
         self.control_type = self.control_law.control_type()
         # 1 = velocity control law, 2 = waypoint control law
-        self.initial_positions = self.control_law.get_initial_conds(self.n_robots)
+        self.initial_positions = self.control_law.get_initial_conds()
 
         self.mode = 1
         self.state_data = None
@@ -56,6 +57,8 @@ class MiabotHighLevelController(object):
         self.velocity_pub = rospy.Publisher("velocity_input", TwistArray)
         self.wp_pub = rospy.Publisher("wp_input", PoseArray)
         
+        # Create name for logger
+        self.logger = None
     ##
     #
     #
@@ -85,11 +88,17 @@ class MiabotHighLevelController(object):
                 # call control law to calculate velocity inputs
                 self.vel_array = self.control_law.velocity_controller(t, self.state_array)
                 self.velocity_pub.publish(self._vel_array_to_message(t, self.vel_array))
+                if not self.logger:
+                    self.logger = MiabotLogger(self.n_robots, self.control_type)
+                self.logger.add_to_log(t, self.state_array, self.vel_array)
 
             elif self.run_control and self.control_type == 2:
                 # call control law to calculate waypoint inputs
                 self.wp_array = self.control_law.waypoint_controller(t, self.state_array)
                 self.wp_pub.publish(self._wp_array_to_message(t, self.wp_array))
+                if not self.logger:
+                    self.logger = MiabotLogger(self.n_robots, self.control_type)
+                self.logger.add_to_log(t, self.state_array, self.wp_array)
             else:
                 # send zero inputs to stop robots
                 self.velocity_pub.publish(self._vel_array_to_message(t, np.zeros([self.n_robots,3])))
@@ -99,6 +108,17 @@ class MiabotHighLevelController(object):
             self.velocity_pub.publish(self._vel_array_to_message(t, np.zeros([self.n_robots,3])))
 
         self.last_pub = rospy.get_time()
+
+        # export and destroy logger object if no longer running control
+        if self.logger and not self.run_control:
+            # check if control law contains parameter info function
+            parameter_info = getattr(self.control_law, "parameter_info", None)
+            if callable(parameter_info):
+                logfile = self.logger.export_to_mat(self.control_law.parameter_info())
+            else:
+                logfile = self.logger.export_to_mat()
+            rospy.loginfo('state trajectory saved to ' + logfile)
+            self.logger = None
 
     ## 
     #
@@ -156,20 +176,13 @@ def main():
 
     # command line args should be 'n_robots /path/to/control/law'
 
-    n_robots = sys.argv[1]
+    n_robots = int(sys.argv[1])
 
     control_law_path = sys.argv[2]
-    rospy.logerr(control_law_path)
     
-    # couldn't figure out what was wrong here... using imp instead
-    #try:
-    #    rospy.loginfo('attempting to import')
-    #    control_law_module = __import__(control_law_path)
-    #except ImportError:
-    #    rospy.logerr('Control law file not found at given location')
     control_law_module = imp.load_source('control_law_module', control_law_path)
 
-    control_law = control_law_module.MiabotControlLaw()
+    control_law = control_law_module.MiabotControlLaw(n_robots)
     controller = MiabotHighLevelController(n_robots, control_law)
     
     rospy.spin()

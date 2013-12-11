@@ -10,11 +10,11 @@
 import numpy as np
 import math as m
 class MiabotControlLaw(object):
-    def __init__(self):
+    def __init__(self, n_robots):
         ''' create any variables needed for persistant controller state'''
-        self.variable = 0
+        self.n_robots = n_robots
 
-    def get_initial_conds(self, n_robots):
+    def get_initial_conds(self):
     	''' return desired initial conditions for various numbers of robots 
     	for reference, here are the default initial miabot poses:
         [2.56, -1.46, 0.]
@@ -44,3 +44,7 @@ class MiabotControlLaw(object):
                 x is an n_robots-by-3 numpy array, with [x, y, theta] in each row
         returns: wp, an n_robots-by-3 numpy array of waypoints in same format as x'''
         return np.zeros([n_robots,3])
+
+    def parameter_info(self):
+        # return a dictionary with info about the parameters used in the control law
+        pass
