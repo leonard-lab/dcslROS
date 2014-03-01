@@ -1,9 +1,9 @@
 # Determine whether to connect (the goal)
-bool connect # True = connect miabot, False = Do nothing
+bool connect # True = connect miabot if disconnected, False = Disconnect if connected
 int16 miabot_id # Number of the Miabot to connect to
 ---
 # Determine if successfully connected (the result)
 bool connected # True = Connected, False = Not connected
 ---
 # Determine if robot is still connecting (feedback)
-bool in_progress # True = still connecting, False = finished
+bool in_progress # True = still connecting / disconnecting, False = finished
