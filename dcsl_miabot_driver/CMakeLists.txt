@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_miabot_driver)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS std_msgs geometry_msgs rospy roscpp genmsg actionlib actionlib_msgs)
-set(SYS_DEPS python-bluez python-sys)
+set(CATKIN_DEPS std_msgs geometry_msgs sensor_msgs rospy roscpp genmsg actionlib actionlib_msgs)
+set(SYS_DEPS python-bluez)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:

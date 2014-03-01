@@ -1,7 +1,7 @@
 <library path="src">
   <class name="MiabotPlugin" type="dcsl_miabot_driver.miabot_module.MiabotPlugin" base_class_type="rqt_gui_py::Plugin">
     <description>
-      An rqt plugin for connecting Miabot robots via Bluetooth using the dcsl_miabot_driver.
+      An rqt plugin for connecting Miabot robots via Bluetooth using the dcsl_miabot_node.
     </description>
     <qtgui>
       <!-- optional grouping...
@@ -14,7 +14,7 @@
       -->
       <label>Miabot Plugin </label>
       <icon type="theme">system-help</icon>
-      <statustip>Connect Miabots with dcsl_miabot_driver.</statustip>
+      <statustip>Connect Miabots with dcsl_miabot_node.</statustip>
     </qtgui>
   </class>
 </library>

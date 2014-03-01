@@ -2,7 +2,7 @@
   <name>dcsl_miabot_driver</name>
   <version>0.1.0</version>
   <description>
-    The dcsl_miabot_driver package contains the dcsl_miabot_driver.py node and the dcsl_miabot_joy node. The former subscribes to the cmd_vel topic with Twist messages, translates these into wheel speed commands, and sends them to the robot over a serial connection. The later subscribes to the joy topic and translates the joystick commands into velocities and angular velocities for the Miabot PRO which are published as Twist messages on the cmd_vel topic.
+    Contains nodes for driving a Merlin MiabotPro and controlling it with a joystick. An action is defined to initiate and close the connection. A rqt plugin is provided for triggering the action.
   </description>
   <maintainer email="brendan.andrade@alumni.tufts.edu">
     Brendan Andrade
@@ -18,15 +18,16 @@
 
   <build_depend>std_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>actionlib</build_depend>
   <build_depend>actionlib_msgs</build_depend>
   <build_depend>genmsg</build_depend>
-  <!-- <build_depend>joy</build_depend> -->
-  <!-- <build_depend>turtlebot_teleop</build_depend> -->
+
   <run_depend>std_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>actionlib</run_depend>
@@ -36,12 +37,8 @@
   <run_depend>turtlebot_teleop</run_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rqt_gui_py</run_depend>
-  <!-- <test_depend>std_msgs</test_depend> -->
-  <!-- <test_depend>geometry_msgs</test_depend> -->
-  <!-- <test_depend>rospy</test_depend> -->
-  <!-- <test_depend>roscpp</test_depend> -->
-  <!-- <test_depend>joy</test_depend> -->
-  <!-- <test_depend>turtlebot_teleop</test_depend> -->
+  <run_depend>rospkg</run_depend>
+  <run_depend>python-bluez</run_depend>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
