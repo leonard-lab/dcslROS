@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 ## @file
-# A node that subscribes to the cmd_vel topic with Twist messages. It converts the velocity and angular velocity in the message to wheel speed commands and sends them to the robot over a serial connection.
+# A node that subscribes to the cmd_vel topic with Twist messages. It converts the velocity and angular velocity in the message to wheel speed commands and sends them to the robot over a Bluetooth Socket.
+# It serves a ConnectMiabot action for initiating connecting and disconnecting of the robot.
+# It can take a YAML dictionary parameter ~miabot_dictionary that assigns bdaddr to ID numbers for each robot.
+#
+# Usage dcsl_miabot_node.py <bdaddr (optional)>
+
 
 ## @author Brendan Andrade
 
@@ -18,16 +23,21 @@ from dcsl_miabot_driver.msg import *
 from dcsl_miabot_API import *
 
 
-##
+## This class defines a ROS node for interacting with a Merlin MiabotPro robot.
 #
-#
+# It subscribes to the cmd_vel topic containing Twist messages to receive linear and angular velocity commands.
+# It serves a ConnectMiabot action for initiating connecting and disconnecting of the robot.
+# It can take a YAML dictionary parameter ~miabot_dictionary that assigns bdaddr to ID numbers for each robot.
 class MiabotNode(object):
     
     _feedback = ConnectMiabotFeedback()
     _result = ConnectMiabotResult()
-##
+
+    ## On initialization, an action server is started and subscription to cmd_vel begins.
     #
-    #
+    # @param name is the name of the node.
+    # @param port is the Bluetooth Socket port.
+    # @param bdaddr is optional. It's the Bluetooth hardware address of the robot. If none is provided, the node will scan for Bluetooth devices.
     def __init__(self, name, port, bdaddr = None):
         self._action_name = name
         self.port = port
@@ -50,7 +60,7 @@ class MiabotNode(object):
             msg = "Command received but miabot not connected"
             # rospy.logwarn(msg)
         
-    ##
+    ## Stop wheel motors and then close Bluetooth Socket to robot.
     #
     #
     def shutdown(self):
@@ -59,9 +69,10 @@ class MiabotNode(object):
             self.miabot.stop()
             self.miabot.close()
 
-    ## 
+    ## Callback function for the ConnectMiabot action server.
     #
-    #
+    # If connect variable of goal is true and miabot_dictionary set and miabot_id variable of goal is set, connect to that robot if not connected. If connect variable true and dictionary not set and miabot_id set, error. If connect var true and no miabot_id set and bdaddr was not provided, scan and connect. If connect true and no miabot_id set and bdaddr provided, connect to that robot. If connect false, disconnect if connected. Otherwise do nothing.
+    # @param goal is the goal object sent with the action command.
     def connect(self, goal):
         if goal.connect is True:
             self._feedback.in_progress = True
@@ -98,6 +109,8 @@ class MiabotNode(object):
 ## Main function which is called when the node begins
 #
 # Initializes the node and creates miabot_node object
+# @param port is the Bluetooth Socket port to use
+# @param bdaddr is optional. The bdaddr of the robot to connect to.
 def main(port = 1, bdaddr = None):
     rospy.init_node('dcsl_miabot_node',anonymous=True)
     name = rospy.get_name()

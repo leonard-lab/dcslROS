@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+## @file
+# An rqt plugin for connecting to a Merlin MiabotPro using the dcsl_miabot_node.py node through the ConnectMiabotAction.
+#
+# The ui module called miabot_module.ui is imported. It was generated using the program Qt Creator.
+#
+# A dropdown is provide to indicate which Miabot to connect to and a button connects, disconnects, and changes color to provide feedback.
+#
+# See http://wiki.ros.org/rqt/Tutorials/Writing%20a%20Python%20Plugin and http://wiki.ros.org/rqt/Tutorials/Using%20.ui%20file%20in%20rqt%20plugin for tutorials on rqt.
+
 import os
 
 import rospy
@@ -12,8 +21,15 @@ from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi, QtCore
 from python_qt_binding.QtGui import QWidget
 
+## This class defines and implements the behavior of the plugin. It inherits the plugin class.
+#
+# It provides dropdowns for selecting a robot to connect to and buttons to connect/disconnect. The button changes color to provide feedback.
 class MiabotPlugin(Plugin):
     
+
+    ## Sets up the GUI, attaches callbacks to buttons, sets up client action server.
+    #
+    # @param context is required by and passed to the superclass.
     def __init__(self, context):
 
         # Miabot connection parameters
@@ -69,8 +85,11 @@ class MiabotPlugin(Plugin):
         self.destroyed.connect(self.handle_destroy)
         '''
 
-        
-
+    ## Callback function for button clicks
+    #
+    # On a button click, if connected, a disconnect signal is sent and if disconnect connect signal sent. The selected robot to connect from the associated combo box is also sent over the action server. If the action is successful, the button turns green and if the action fails it turns red.
+    # @param button is the associated button object so that its appearance can be modified.
+    # @param robot_ID is the ID in the system (not on the robot itself) associated with the button.
     def _r_clicked(self, button, robot_ID):
 
         if self.connected_list[robot_ID] is False:
@@ -107,11 +126,20 @@ class MiabotPlugin(Plugin):
                 self.connected_list[robot_ID] = True
                 button.setText("Disconnect")
 
+    ## Called on shutdown of the widget.
+    #
+    # Not currently inplemented.
     def shutdown_plugin(self):
         pass
     
+    ## Called on save settings command.
+    #
+    # Not currently implemented.
     def save_settings(self, plugin_settings, instance_settings):
         pass
 
+    ## Called on restore settings.
+    #
+    # Not currently implemented.
     def restore_settings(self, plugin_settings, instance_settings):
         pass

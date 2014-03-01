@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with Qt Creator. It is suggested that it is edited with this program. -->
+<!-- Imported by miabot_module.py to be an rqt widget -->
 <ui version="4.0">
  <class>MiabotPlugin</class>
  <widget class="QWidget" name="MiabotPlugin">
