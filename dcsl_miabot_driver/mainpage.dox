@@ -9,18 +9,24 @@ This package provides an interface to control Miabot PRO robots from Merlin Syst
 \section rosapi ROS API
 
 List of nodes:
-- \b dcsl_miabot_driver.py 
+- \b dcsl_miabot_node.py 
 - \b dcsl_miabot_joy
+
+List of actions:
+- \b ConnectMiabot.action
+
+List of rqt plugins:
+- \b miabot_module.py
 
 <hr>
 
-\subsection dcsl_miabot_driver dcsl_miabot_driver.py
+\subsection dcsl_miabot_node dcsl_miabot_node.py
 
 This node subscribes to control inputs of velocity and angular velocity, converts these into the corresponding wheel speeds, and sends the wheel speed commands to the Miabot PRO over a serial connection.
 
 \subsection usage Usage
 \verbatim
-$ dcsl_miabot_driver.py <path to serial port> [standard ROS args]
+$ dcsl_miabot_node.py <bdaddr> [standard ROS args]
 \endverbatim
 
 \subsubsection topics ROS topics
@@ -30,6 +36,14 @@ Subscribes to (name / type):
 
 Publishes to (name / type):
 None
+
+\subsubsection parameters ROS parameters
+- \b "~miabot_dictionary" : a YAML dictionary that associates Bluetooth addresses (bdaddr) with an ID number for the robot. Example for Robot 0 at bdaddr: '00:07:80:80:11:EB' would be {'0': '00:07:80:80:11:EB'}.
+
+\subsubsection actions actionlib Action
+
+Provides (name / type): 
+- \b "<node name>/ConnectMiabot" : If connect = true and miabot is connected, do nothing. If connect = false and miabot is disconnected, do nothing. If connect = true & miabot_id given & miabot_dictionary parameter defined, connect to that Miabot. If connect = true & miabot_id given & miabot_dictionary undefined, returns error. If connect = true & no miabot_id given & no bdaddr argument provided, scan and try to connect. If connect = true & no miabot_id given & bdaddr argument provided, connect to that Miabot. If connect = false & Miabot currently connected, disconnect.
 
 <hr>
 
@@ -55,6 +69,28 @@ Publishes to (name / type):
 - \b "axis_angular" : Number of the axis of the joystick that should control angular velocity.
 - \b "scale_linear" : The scaling factor used to translate from the [-1,1] range of the axis to the velocity of the robot in m/s.
 - \b "scale_angular" : The scaling factor used to translate from the [-1,1] range of the axis to the angular velocity of the robot in rad/s.
+
+<hr>
+
+\subsection ConnectMiabot ConnectMiabot.action
+
+This actionlib action is custom defined for connecting a Miabot robot.
+
+Goal definition (name / type):
+- \b "connect / bool" : True = connect Miabot if disconnected, False = disconnect Miabot if connected
+- \b "miabot_id / int16" : Optional parameter; ID number of Miabot to connect to as defined in miabot_dictionary parameter
+
+Result definition (name / type):
+- \b "connected / bool" : True = Miabot is connected, False = not connected
+
+Feedback definition (name / type):
+- \b "in_progress / bool" : True = action in progress, False, otherwise
+
+<hr>
+
+\subsection miabot_module miabot_module.py
+
+A plugin for rqt. Allows a user to quickly call ConnectMiabot actions from a GUI. Uses the miabot_module.ui file to describe the widget tree.
 
 <hr>
 
