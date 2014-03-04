@@ -5,7 +5,7 @@
 # It serves a ConnectMiabot action for initiating connecting and disconnecting of the robot.
 # It can take a YAML dictionary parameter ~miabot_dictionary that assigns bdaddr to ID numbers for each robot.
 #
-# Usage dcsl_miabot_node.py <bdaddr (optional)>
+# Usage dcsl_miabot_node.py [bdaddr] [ROS arguments]
 
 
 ## @author Brendan Andrade
