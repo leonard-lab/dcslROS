@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 ## @file
-#  A node that subscribes to the cmd_vel_array topic with TwistArray messages and publishes cmd_velX topics with Twist messages where X is the array index from the TwistArray. 
+#  A node that subscribes to the command array topic (BelugaArray or TwistArray) and publishes a single command for each robot (BelugaInput or Twist).
+# Usage dcsl_swarm_director_node.py <robot-type>
+# robot-type can be either --miabot or --beluga
 
 ## @author Brendan Andrade
 
@@ -16,7 +18,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from dcsl_messages.msg import TwistArray, BelugaArray, belugaInput
 
-## Splits a TwistArray message on one topic into Twist messages on multiple topics
+## Splits a TwistArray or BelugaArray message on one topic into Twist or belugaInput messages on multiple topics
 class SwarmDirector:
     
     ## Sets up publishers and subscribers
@@ -48,9 +50,10 @@ class SwarmDirector:
             self.publisherArray.append(publisher)
         self.cmdArray_sub = rospy.Subscriber(sub_name, sub_type, self.callback)
         
-    ## Callback function for the TwistArray 
+    ## Callback function for the command array  
     #
-    # Routes each Twist in the TwistArray to the appropriate topic
+    # Routes each entry in the command array to the appropriate topic
+    # @param data is the message data
     def callback(self,data):
         for i in range(0,self.n):
             if self.robot_type == 0:
@@ -59,9 +62,10 @@ class SwarmDirector:
                 command = data.twists[i]
             self.publisherArray[i].publish(command)
 
-## Main function which is called when the node begins
+## Main function which is called when the node begins and creates the node object.
 # 
-# Receives the "/n_robots" parameter. Initializes the node and creates the SwarmDirector object.
+# Gets the "/n_robots" parameter. Initializes the node and creates the SwarmDirector object.
+# @param argv is the system argument vector.
 def main(argv):
     if argv[0] == '--beluga':
         robot_type = 0;
