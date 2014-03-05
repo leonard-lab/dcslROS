@@ -4,7 +4,7 @@
 
 \b dcsl_swarm_director 
 
-This node subscribes to a TwistArray message and publishes each Twist in the TwistArray as a Twist messsage on new topics. It can be used to unpack commands send to multi-agent systems.
+This package contains a node for taking an array of commands for multiple robots and spliting them into topics for each individual robot.
 
 \section rosapi ROS API
 
@@ -17,19 +17,26 @@ List of nodes:
 
 \subsubsection usage Usage
 \verbatim
-$ dcsl_swarm_director.py [standard ROS args]
+$ dcsl_swarm_director.py <robot-type> [standard ROS args]
+<robot-type> may be --miabot or --beluga
 \endverbatim
 
 \subsubsection topics ROS topics
 
 Subscribes to (name / type):
 - \b "cmd_vel_array/TwistArray" : An array of Twist messages. TwistArray is defined in the dcsl_messages package.
+- \b "cmd_inputs/BelugaArray" : An array of belugaInput messages. Both types are defined in the dcsl_messages package.
 
 Publishes to (name / type):
 - \b "cmd_vel0/Twist" : The Twist messsage contained in the 0th entry of the subscribed TwistArray
 - \b "cmd_vel1/Twist" : The Twist message contained in the 1st entry of the subscribed TwistArray
 ...
-- \b "cmd_velN/Twist" : The Twist message contained in the Nth entry of the subscibed Twist Array
+- \b "cmd_velN/Twist" : The Twist message contained in the Nth entry of the subscibed TwistArray
+
+- \b "robot0/cmd_inputs" : The belugaInput message contained in the 0th entry of the subscribed BelugaArray
+- \b "robot1/cmd_inputs" : The 1st entry
+...
+- \b "robotN/cmd_inputs" : The Nth entry
 
 \subsubsection parameters ROS parameters
 - \b "/n_robots" : The number of Twist messages to expect in the TwistArray. This defines how many topics to publish Twist messages to.
