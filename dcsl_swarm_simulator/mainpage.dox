@@ -4,11 +4,38 @@
 
 \b dcsl_swarm_simulator 
 
-<!-- 
-Provide an overview of your package.
--->
+This package provides two nodes that can be used in place of real robots that simulate their behavior in the DCSL system.
 
--->
+\section rosapi ROS API
 
+List of nodes:
+- \b beluga_sim.py
+
+<hr>
+
+\subsection beluga_sim beluga_sim.py
+
+This node integrates the system dynamics to simulate the behavior of a fleet of Belua robots.
+
+\subsection usage Usage
+\verbatim
+$ beluga_sim.py [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "/cmd_inputs / BelugaArray" : An array of commands. Entry zero is the command for Robot 0 and so on. This message type is defined in the dcsl_messages package.
+
+Publishes to (name / type):
+- \b "/planar_measurements / PoseArray" : Simulated X,Y,theta coordinates of the robots in Robot 0 to Robot N order. 
+- \b "/robot0/depth_measurement / Float32" : The depth in meters of simulated Robot 0.
+...
+- \b "/robotN/depth_measurement / Float32" : The depth in meters of simulated Robot N.
+
+\subsubsection parameters ROS parameters
+- \b "n_robots" : An integer than defines how many robots to simulate.
+
+<hr>
 
 */

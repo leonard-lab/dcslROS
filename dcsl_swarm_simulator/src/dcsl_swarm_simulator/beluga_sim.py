@@ -3,7 +3,7 @@
 ## @file
 # This node simulates the behavior of a fleet of Beluga robots. It subscribes to the command array and integrates the states of the robots over time. It publishes simulated planar measurements and depth measures at a regular interval.
 # This node is meant to be used in place of the Beluga driver, swarm director, and vision system so that the behavior of the system may be simulated with the ROS communications and estimator without using the real robots.
-# Usage beluga_sim.py <n_robots>
+# Usage beluga_sim.py [n_robots]
 
 ## @author Brendan Andrade
 
@@ -58,7 +58,7 @@ class BelugaSimulator(object):
 
     ## Callback function for command inputs. Integrates to advance the system to the current time.
     #
-    # #param data is the message data received by the subscriber.
+    # @param data is the message data received by the subscriber.
     def input_callback(self, data):
         # Get ROS time
         now = rospy.get_rostime()
