@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_swarm_director)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS rospy sensor_msgs geometry_msgs dcsl_messages std_msgs)
+set(CATKIN_DEPS rospy geometry_msgs dcsl_messages std_msgs)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:

@@ -1,7 +1,7 @@
 <package>
   <name>dcsl_swarm_director</name>
   <version>0.1.0</version>
-  <description>The dcsl_swarm_director package contains the dcsl_swarm_director node that subscribes to the cmd_vel_array topic with TwistArray messages and publishes cmd_velX topics with Twist messages where X is the array index from the TwistArray. It is designed for use with multi-agent systems.</description>
+  <description>The dcsl_swarm_director package contains the dcsl_swarm_director node that unpackages array command message for multiple robots in individual topics for each robot.</description>
   <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
 
   <license>BSD</license>
@@ -13,20 +13,14 @@
   
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>sensor_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>dcsl_messages</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <run_depend>geometry_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
   <run_depend>dcsl_messages</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
-  <!-- <test_depend>sensor_msgs</test_depend> -->
-  <!-- <test_depend>dcsl_messages</test_depend> -->
-  <!-- <test_depend>rospy</test_depend> -->
-  <!-- <test_depend>std_msgs</test_depend> -->
 
   <export>
 
