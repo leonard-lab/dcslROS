@@ -26,10 +26,10 @@ class SwarmDirector:
     # @param nRobots is the number of entries in the TwistArray
     # @param robot_type is an identifier for which robot is in use. 0 for belugas, 1 for miabots
     def __init__(self,nRobots, robot_type):
-        self.n = nRobots
-        self.publisherArray = []
+        self._n = nRobots
+        self._publisherArray = []
         
-        self.robot_type = robot_type
+        self._robot_type = robot_type
 
         if robot_type == 0: # Beluga
             pub_base_start = "robot"
@@ -44,23 +44,23 @@ class SwarmDirector:
             sub_name = "cmd_vel_array"
             sub_type = TwistArray
 
-        for i in range(0,self.n):
+        for i in range(0,self._n):
             name = pub_base_start + str(i) + pub_base_end
             publisher = rospy.Publisher(name, pub_type)
-            self.publisherArray.append(publisher)
-        self.cmdArray_sub = rospy.Subscriber(sub_name, sub_type, self.callback)
+            self._publisherArray.append(publisher)
+        self._cmdArray_sub = rospy.Subscriber(sub_name, sub_type, self.callback)
         
     ## Callback function for the command array  
     #
     # Routes each entry in the command array to the appropriate topic
     # @param data is the message data
     def callback(self,data):
-        for i in range(0,self.n):
-            if self.robot_type == 0:
+        for i in range(0,self._n):
+            if self._robot_type == 0:
                 command = data.belugas[i]
-            elif self.robot_type == 1:
+            elif self._robot_type == 1:
                 command = data.twists[i]
-            self.publisherArray[i].publish(command)
+            self._publisherArray[i].publish(command)
 
 ## Main function which is called when the node begins and creates the node object.
 # 
