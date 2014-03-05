@@ -1,7 +1,7 @@
 <package>
   <name>dcsl_swarm_simulator</name>
   <version>0.1.0</version>
-  <description>dcsl_swarm_simulator</description>
+  <description>This package contains node to simulate the behavior of DCSL robots. It uses integration publish sensor data in place of running the real robots. </description>
   <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer>
 
   <license>BSD</license>
@@ -13,7 +13,17 @@
   
   <buildtool_depend>catkin</buildtool_depend>
 
-  <export>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>dcsl_messages</build_depend>
+  <build_depend>dcsl_beluga_main</build_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>dcsl_messages</run_depend>
+  <run_depend>dcsl_beluga_main</run_depend>
+  <run_depend>python-numpy</run_depend>
+  <run_depend>python-scipy</run_depend>
 
-  </export>
 </package>
