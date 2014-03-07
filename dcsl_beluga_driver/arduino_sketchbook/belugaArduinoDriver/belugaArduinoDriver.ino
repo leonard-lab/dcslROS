@@ -1,6 +1,9 @@
 /*
  Beluga Microcontroller Software
  Created by Brendan Andrade on December 4, 2012
+ 
+ Note: This code currently uses nearly all the RAM available on an Arduino UNO board. 
+ If you add to or modify the code and it does not run, you've probably exceeded the available RAM.
  */
 
 /*
@@ -13,6 +16,10 @@
 
 #include <EEPROM.h>
 
+/*
+ This code uses teh rosserial_arduino library.
+ */
+
 #include <ros.h>
 //#include <ros/console.h>
 #include <std_msgs/Float32.h>
@@ -20,7 +27,7 @@
 #include <dcsl_messages/belugaInput.h> //For adding custom messages see http://www.ros.org/wiki/rosserial_arduino/Tutorials/Adding%20Custom%20Messages
 #include <std_srvs/Empty.h>
 
-const byte eeprom_block = 1;
+const byte eeprom_block = 1; //Position in the EEPROM to begin the store of the callibration data
 
 const byte sensorPin = 5; //Analog pin to which the depth sensor is attached
 const byte servoPin = 9; //PWM pin for to which servo is attached
