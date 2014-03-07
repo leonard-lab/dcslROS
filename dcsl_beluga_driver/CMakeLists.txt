@@ -3,11 +3,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_beluga_driver)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS rospy roscpp std_msgs sensor_msgs geometry_msgs dcsl_messages)
+set(CATKIN_DEPS roscpp std_msgs sensor_msgs dcsl_messages)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
-
-# Install python scripts using distutils
-catkin_python_setup()
 
 catkin_package(
   CATKIN_DEPENDS ${CATKIN_DEPS}
@@ -21,11 +18,7 @@ target_link_libraries(dcsl_beluga_joy ${catkin_LIBRARIES})
 add_executable(dcsl_beluga_joy_sysID src/dcsl_beluga_joy_sysID.cpp)
 target_link_libraries(dcsl_beluga_joy_sysID ${catkin_LIBRARIES})
 
-install(TARGETS dcsl_beluga_joy
+install(TARGETS dcsl_beluga_joy dcsl_beluga_joy_sysID
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
-install(PROGRAMS src/dcsl_beluga_driver/depth_converter.py
-  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
-)
