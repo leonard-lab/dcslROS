@@ -6,7 +6,7 @@
 
 This package contains the custom messages used by the DCSL ROS packages. The belugaInput message contains motor commands for the DCSL Beluga aquatic robots. The TwistArray message is an array of Twist messages similar to how a PoseArray is an array of Pose messages.
 
-<hr>
+\section messages Custom Messages
 
 \subsection belugaInput belugaInput
 
@@ -19,6 +19,36 @@ This message has the following properties (name / type):
 
 <hr>
 
+\subsection BelugaArray BelugaArray
+
+Defined in BelugaArray.msg file.
+
+This message has the following properties (name / type):
+- \b "Header / header" : Message header
+- \b "belugas / belugaInput[]" : An array of beluga input messages
+
+<hr> 
+
+\subsection State State
+
+Defined in State.msg file.
+
+This message has the following properties (name / type):
+- \b "pose / Pose" : the pose of the robot
+- \b "twist / Twist": the velocity state of the robot
+
+<hr>
+
+\subsection StateArray StateArray
+
+Defined in StateArray.msg file.
+
+This message has the following properties (name / type):
+- \b "header / Header" : message header
+- \b "states / States[]" : an array of state messages
+
+<hr>
+
 \subsection TwistArray TwistArray
 
 Defined in TwistArray.msg file.
@@ -26,6 +56,5 @@ Defined in TwistArray.msg file.
 This message has one property (name / type):
 - \b "twists / Twist[]" : an array of twist messages
 
-<hr>
 
 */
