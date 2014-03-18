@@ -6,7 +6,6 @@ project(dcsl_miabot_driver)
 set(CATKIN_DEPS std_msgs geometry_msgs sensor_msgs rospy roscpp genmsg actionlib actionlib_msgs message_runtime message_generation rospack)
 set(SYS_DEPS python-bluez)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
-find_package(python-bluez)
 
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage

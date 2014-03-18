@@ -6,8 +6,6 @@ project(dcsl_swarm_simulator)
 set(CATKIN_DEPS geometry_msgs std_msgs dcsl_messages rospy dcsl_beluga_main)
 set(SYS_DEPS python-numpy python-scipy)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
-find_package(python-numpy)
-find_package(python-scipy)
 
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
