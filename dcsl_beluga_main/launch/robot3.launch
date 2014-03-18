@@ -3,7 +3,7 @@
   <group ns="robot3" >
     <!-- dcsl_beluga_driver Node-->
     <node pkg="rosserial_python" type="serial_node.py" name="robot3" args="/dev/ttyUSB2" >
-      <!-- ttyUSB1 means this robot is connected to tether 2 -->
+      <!-- ttyUSB2 means this robot is connected to tether 2 -->
       <param name="air_reading" value="140" type="int"/>
       <param name="bottom_reading" value="613" type="int"/>
     </node>
