@@ -1,7 +1,7 @@
 <package>
   <name>dcsl_messages</name>
   <version>0.1.0</version>
-  <description>dcsl_messages</description>
+  <description>Provides custom messages for the DCSL system.</description>
   <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
 
   <license>BSD</license>
@@ -16,9 +16,15 @@
 
   <build_depend>geometry_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>genmsg</build_depend>
+  <build_depend>message_runtime</build_depend>
+  <build_depend>message_generation</build_depend>
+
   <run_depend>geometry_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
-  <!-- <test_depend>geometry_msgs</test_depend> -->
+  <run_depend>genmsg</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>message_generation</run_depend>
 
   <export>
 
