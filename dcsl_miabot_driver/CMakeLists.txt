@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(dcsl_miabot_driver)
 
 # Load catkin and all dependencies required for this package
-set(CATKIN_DEPS std_msgs geometry_msgs sensor_msgs rospy roscpp genmsg actionlib actionlib_msgs)
+set(CATKIN_DEPS std_msgs geometry_msgs sensor_msgs rospy roscpp genmsg actionlib actionlib_msgs message_runtime message_generation rospack)
 set(SYS_DEPS python-bluez)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
@@ -41,7 +41,7 @@ catkin_package(
     LIBRARIES
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS})
 
 add_executable(dcsl_miabot_joy src/dcsl_miabot_joy.cpp)
 target_link_libraries(dcsl_miabot_joy ${catkin_LIBRARIES})
@@ -53,4 +53,8 @@ install(TARGETS dcsl_miabot_joy
 
 install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_node.py src/dcsl_miabot_driver/dcsl_miabot_API.py src/dcsl_miabot_driver/miabot_module.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+)
+
+install(FILES resource/plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

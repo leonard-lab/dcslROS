@@ -21,7 +21,7 @@ catkin_package(
     CATKIN_DEPENDS ${CATKIN_DEPS}
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+# include_directories(include ${catkin_INCLUDE_DIRS})
 
 install(PROGRAMS src/dcsl_swarm_director/dcsl_swarm_director_node.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}

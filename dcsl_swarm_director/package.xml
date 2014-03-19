@@ -1,7 +1,7 @@
 <package>
   <name>dcsl_swarm_director</name>
   <version>0.1.0</version>
-  <description>The dcsl_swarm_director package contains the dcsl_swarm_director node that unpackages array command message for multiple robots in individual topics for each robot.</description>
+  <description>dcsl_swarm_director unpackages array command message for multiple robots in individual topics for each robot.</description>
   <maintainer email="brendan.andrade@alumni.tufts.edu">Brendan Andrade</maintainer> -->
 
   <license>BSD</license>

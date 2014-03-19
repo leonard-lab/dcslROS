@@ -5,7 +5,7 @@ project(dcsl_swarm_simulator)
 # Load catkin and all dependencies required for this package
 set(CATKIN_DEPS geometry_msgs std_msgs dcsl_messages rospy dcsl_beluga_main)
 set(SYS_DEPS python-numpy python-scipy)
-find_package(catkin REQUIRED ${CATKIN_DEPS})
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
@@ -29,7 +29,7 @@ catkin_package(
     LIBRARIES # TODO
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+# include_directories(include ${catkin_INCLUDE_DIRS})
 
 install(PROGRAMS src/dcsl_swarm_simulator/beluga_sim.py
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}

@@ -2,7 +2,7 @@
   <name>dcsl_miabot_driver</name>
   <version>0.1.0</version>
   <description>
-    Contains nodes for driving a Merlin MiabotPro and controlling it with a joystick. An action is defined to initiate and close the connection. A rqt plugin is provided for triggering the action.
+   Driving a Merlin MiabotPro and controlling it with a joystick. An action is defined to initiate and close the connection. A rqt plugin is provided for triggering the action.
   </description>
   <maintainer email="brendan.andrade@alumni.tufts.edu">
     Brendan Andrade
@@ -24,6 +24,10 @@
   <build_depend>actionlib</build_depend>
   <build_depend>actionlib_msgs</build_depend>
   <build_depend>genmsg</build_depend>
+  <build_depend>python-bluez</build_depend>
+  <build_depend>message_runtime</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>rospack</build_depend>
 
   <run_depend>std_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
@@ -34,11 +38,14 @@
   <run_depend>actionlib_msgs</run_depend>
   <run_depend>genmsg</run_depend>
   <run_depend>joy</run_depend>
-  <run_depend>turtlebot_teleop</run_depend>
+  <!--<run_depend>turtlebot_teleop</run_depend>--> <!--Package is not wet-->
   <run_depend>rqt_gui</run_depend>
   <run_depend>rqt_gui_py</run_depend>
-  <run_depend>rospkg</run_depend>
+  <run_depend>rospack</run_depend>
   <run_depend>python-bluez</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>message_generation</run_depend>
+  <run_depend>rospack</run_depend>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
