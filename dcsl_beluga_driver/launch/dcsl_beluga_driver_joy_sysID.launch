@@ -1,13 +1,5 @@
 <launch>
 
- <!-- dcsl_beluga_driver Node-->
- <!--
-  <node pkg="rosserial_python" type="serial_node.py" name="beluga_node" args="/dev/ttyUSB1" >
-    <param name="air_reading" value="70" type="int"/>
-    <param name="bottom_reading" value="541" type="int"/>
-  </node >
- -->
-
  <!-- joy node -->
   <node respawn="true" pkg="joy"
         type="joy_node" name="turtle_joy" >
