@@ -4,11 +4,117 @@
 
 \b dcsl_beluga_driver 
 
-<!-- 
-Provide an overview of your package.
--->
+This package contains Arduino code for running a node onboard a Beluga robot using the rosserial package. It also includes a node that maps joystick inputs to Beluga robot inputs and sister node for using the stick to generate system ID data.
 
--->
+\section rosapi ROS API
+
+List of nodes:
+- \b dcsl_beluga_joy
+- \b dcsl_beluga_joy_sysID
+- \b belugaArduinoDriver (Arduino sketch)
+
+List of launch files:
+- \b dcsl_beluga_driver_joy.launch
+- \b dcsl_beluga_driver_joy_sysID.launch
+
+<hr>
+
+\subsection dcsl_beluga_joy dcsl_beluga_joy
+
+\subsubsection usage Usage
+\verbatim
+$ dcsl_beluga_joy [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "joy / Joy" : Joystick input data
+
+Publishes to (name /type):
+- \b "cmd_inputs / belugaInput" : Input data for a Beluga robot
+
+\subsubsection parameters ROS parameters
+- \b "axis_linear" : The number of the joystick axis that should be mapped to horizontal motor
+- \b "axis_angular" : The number of the joystick axis to be mapped to servo rotation
+- \b "axis_vertical" : The number of the joystick axis to be mapped to the vertical motor
+- \b "scale_linear" : The scale to convert from joystick input values to horizontal motor values
+- \b "scale_angular" : The scale to convert from joystick input values to servo input values
+- \b "scale_vertical" : The scale to convert from joystick input values to vertical motor values
+
+<hr>
+
+\subsection dcsl_beluga_joy_sysID dcsl_beluga_joy_sysID
+
+Instead of publishing a belugaInput message each time a joy message is received, this node subscribes to the state_estimate topic and publishes inputs in time with those for easier system ID analysis.
+
+\subsubsection usage Usage
+\verbatim
+$ dcsl_beluga_joy_sysID [standard ROS args]
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "joy / Joy" : Joystick input data
+- \b "state_estimate / StateArray" : Topic that belugaInput output from this node is locked in time with
+
+Publishes to (name /type):
+- \b "cmd_inputs / belugaInput" : Input data for a Beluga robot
+
+\subsubsection parameters ROS parameters
+- \b "axis_linear" : The number of the joystick axis that should be mapped to horizontal motor
+- \b "axis_angular" : The number of the joystick axis to be mapped to servo rotation
+- \b "axis_vertical" : The number of the joystick axis to be mapped to the vertical motor
+- \b "scale_linear" : The scale to convert from joystick input values to horizontal motor values
+- \b "scale_angular" : The scale to convert from joystick input values to servo input values
+- \b "scale_vertical" : The scale to convert from joystick input values to vertical motor values
+
+<hr>
+
+\subsection belugaArduinoDriver belugaArduinoDriver
+
+\subsubsection usage Usage
+\verbatim
+$ rosserial_python serial_node.py <serial port location>
+<serial port location> should be the port the robot is attached to, example: /dev/ttyASM0 or /dev/ttyUSB0
+\endverbatim
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "cmd_inputs / belugaInput" : Motor and servo inputs. belugaInput is from the dcsl_messages package.
+
+Publishes to (name / type):
+- \b "depth_measurement / Float32" : Calibrated measurement of the depth of the robot in the water column. 0 m is the bottom of the tank.
+
+\subsubsection services ROS services:
+
+Provides the following services (name / type):
+- \b "set_air_calibration / Empty" : Call to set the calibration of the pressure sensor in air. Robot should be out of the water when this is set.
+- \b "set_bottom_calibration / Empty" : Call to set the calibration of the pressure sensor at the bottom of the tank. The ballast of the robot should be touching the bottom of the tank when this is called.
+
+<hr>
+
+\subsection launch Launch Files
+
+\subsection dcsl_beluga_driver_joy dcsl_beluga_driver_joy.launch
+
+Launches the dcsl_beluga_joy node with the correct parameters for the lab's joystick. 
+
+\subsubsection usage Usage
+\verbatim
+$ roslaunch dcsl_beluga_driver dcsl_beluga_driver_joy.launch
+\endverbatim
+
+\subsection dcsl_beluga_driver_joy_sysID dcsl_beluga_driver_joy_sysID.launch
+
+Launches the dcsl_beluga_joy_sysID node with the correct parameters for the lab's joystick. 
+
+\subsubsection usage Usage
+\verbatim
+$ roslaunch dcsl_beluga_driver dcsl_beluga_driver_joy_sysID.launch
+\endverbatim
 
 
 */

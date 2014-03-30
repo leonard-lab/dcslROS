@@ -17,6 +17,10 @@
   <build_depend>std_msgs</build_depend> 
   <build_depend>sensor_msgs</build_depend>
   <build_depend>dcsl_messages</build_depend> 
+  <build_depend>rosserial_python</build_depend>
+  <build_depend>rosserial_arduino</build_depend>
+  <build_depend>rosserial_client</build_depend>
+  <build_depend>joy</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
@@ -28,6 +32,6 @@
   <run_depend>joy</run_depend>
 
   <export>
-
+    <rosdoc config="${prefix}/rosdoc.yaml" />
   </export>
 </package>
