@@ -5,10 +5,10 @@
 #include <dcsl_messages/StateArray.h>
 #include <sensor_msgs/Joy.h>
 
-class TeleopBeluga
+class TeleopBelugaID
 {
 public:
-  TeleopBeluga();
+  TeleopBelugaID();
 
 private:
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
@@ -28,7 +28,7 @@ private:
 
 };
 
-TeleopBeluga::TeleopBeluga():
+TeleopBelugaID::TeleopBelugaID():
   linear_(1),
   angular_(2),
   vertical_(3)
@@ -44,9 +44,9 @@ TeleopBeluga::TeleopBeluga():
 
   vel_pub_ = nh_.advertise<dcsl_messages::belugaInput>("cmd_inputs",1);
 
-  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &TeleopBeluga::joyCallback, this);
+  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &TeleopBelugaID::joyCallback, this);
 
-  state_sub_ = nh_.subscribe<dcsl_messages::StateArray>("state_estimate", 10, &TeleopBeluga::stateCallback, this);
+  state_sub_ = nh_.subscribe<dcsl_messages::StateArray>("state_estimate", 10, &TeleopBelugaID::stateCallback, this);
 
   servo = 0.0;
   thrust_motor = 0;
@@ -56,7 +56,7 @@ TeleopBeluga::TeleopBeluga():
 
 
 
-void TeleopBeluga::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
+void TeleopBelugaID::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
   //dcsl_messages::belugaInput cmd_inputs;
   servo = a_scale_*double(joy->axes[angular_]);
@@ -65,7 +65,7 @@ void TeleopBeluga::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
   //vel_pub_.publish(cmd_inputs);
 }
 
-void TeleopBeluga::stateCallback(const dcsl_messages::StateArray::ConstPtr& state_array)
+void TeleopBelugaID::stateCallback(const dcsl_messages::StateArray::ConstPtr& state_array)
 {
   dcsl_messages::belugaInput cmd_inputs;
   cmd_inputs.servo = servo;
@@ -78,7 +78,7 @@ void TeleopBeluga::stateCallback(const dcsl_messages::StateArray::ConstPtr& stat
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "teleop_beluga");
-  TeleopBeluga teleop_beluga;
+  TeleopBelugaID teleop_beluga_id;
 
   ros::spin();
 }
