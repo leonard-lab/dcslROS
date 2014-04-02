@@ -55,6 +55,6 @@ install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_node.py src/dcsl_miabot_driv
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
 
-install(FILES resource/plugin.xml
+install(FILES resource/miabot_module.ui
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
