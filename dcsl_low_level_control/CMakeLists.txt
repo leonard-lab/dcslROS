@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
+## Install python modules using setup.py (non executable files)
 catkin_python_setup()
 
 generate_dynamic_reconfigure_options(
@@ -26,13 +27,23 @@ generate_dynamic_reconfigure_options(
 ## INCLUDE_DIRS: 
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 catkin_package(
-    DEPENDS 
+    DEPENDS
     CATKIN_DEPENDS ${CATKIN_DEPS}
     INCLUDE_DIRS 
     LIBRARIES
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS})
 
-install(PROGRAMS src/dcsl_low_level_control/dcsl_beluga_low_level_control.py src/dcsl_low_level_control/dcsl_miabot_low_level_control.py
-  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION})
+## Install executable python scripts
+install(DIRECTORY scripts/
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  USE_SOURCE_PERMISSIONS)
+
+## Install launch files
+install(DIRECTORY launch/ 
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+
+## Install config files
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config)
