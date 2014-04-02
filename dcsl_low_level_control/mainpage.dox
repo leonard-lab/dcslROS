@@ -4,35 +4,75 @@
 
 \b dcsl_low_level_control 
 
-This package provides "low level control" for Miabot PRO robots from Merlin System Corp. Ltd. It forms an intermediate step between a "high level control" node and the actual Miabot driver node.
+This package provides two nodes that do closed loop control for the MiabotPro and Beluga robots, respectively, in the DCSL. Each low level controller automatically switches between velocity, waypoint, and direct motor control based on what high level topic is being published too. They also have a dynamic parameter that allows joystick commands to override the closed loop control.
 
 \section rosapi ROS API
 
 List of nodes:
-- \b dcsl_miabot_low_level_control.cc
+- \b dcsl_beluga_low_level_control.py
+- \b dcsl_miabot_low_level_control.py
 
-List of libraries:
-- \b dcsl_miabot_control_math.h
+List of python modules:
+- \b beluga_velocity_controller.py
+- \b beluga_waypoint_controller.py
 
 <hr>
 
-\subsection dcsl_miabot_low_level_control
+\subsection dcsl_beluga_low_level_control dcsl_beluga_low_level_control.py
 
-This node subscribes to control inputs of waypoints or desired velocities in PoseArray form, and converts them to velocities in TwistArray form to send to swarm director node.
+This node provides closed loop velocity regulation and waypoint control for DCSL Beluga robots. It also provides a service to override control with joystick commands. The last command received is on wp_input, velocity_input, or direct_input is continuously applied until another command is received.
 
 \subsection usage Usage
 \verbatim
-$ dcsl_miabot_low_level_control [options] [standard ROS args]
-    options:        --way  listen for waypoint inputs (default)
-                    --vel  listen for velocity inputs
+$ dcsl_beluga_low_level_control.py [n_robots] [standard ROS args]
+    n_robots: an integer number of robots in use in the system
 \endverbatim
 
 \subsubsection topics ROS topics
 
 Subscribes to (name / type):
-- \b "waypoint_input/PoseArray" : (waypoint mode) array "poses" holds desired pose waypoint for each robot.
-- \b "state_estimate/PoseArray" : (waypoint mode) array "poses" holds estimate of current pose for each robot.
-- \b "velocity_input/PoseArray" : (velocity mode) array "poses" holds desired velocity for each robot, with desired linear speed in m/s stored as position.x, and desired angular velocity in rad/s stored as orientation.z
+- \b "wp_input / PoseArray" : The array "poses" holds desired pose waypoint for each robot. 
+- \b "velocity_input / TwistArray" : The array "twists" holds the desired velocities for each robot.
+- \b "direct_input / BelugaArray" : An array of desired motor commands for each robot.
+- \b "state_estimate / StateArray" : Current state estimate for each robot. Used for feedback control.
+- \b "joy_cmd / belugaInput" : Motor commands received from the joystick teleop node.
+
+Publishes to (name / type):
+- \b "cmd_inputs / BelugaArray" : Array of motor commands to be sent to each robot.
+
+\subsubsection parameters ROS parameters
+
+The velocity controller uses a gain scheduled LQG controller. The gain matrix is interpolated in 4 dimensions. A grid is formed in 4D. The axis coordinates are the points in each dimension that the gain matrix is calculated at. ~K_flat is a 4D array of calculated gain matrices that has been flattened to 1D using Fortran ordering. ~K_shape is the shape of the 4D array and is used with the reshape function to turn K_flat back into a 4D array that can be interpolated on.
+- \b "~axis_1_coordinates" : Grid points for the 1st dimension.
+- \b "~axis_2_coordinates" : Grid points for the 2nd dimension.
+- \b "~axis_3_coordinates" : Grid points for the 3rd dimension.
+- \b "~axis_4_coordinates" : Grid points for the 4th dimension.
+- \b "~K_shape" : The multidimension shape of the scheduled K's.
+- \b "~K_flat" : A flattened to 1D array that was originally a 4D array of scheduled gain matrices. Fortran ordering.
+
+The waypoint controller's parameters (not currently performing):
+- \b "~waypoint_k1"
+- \b "~waypoint_k2"
+- \b "~waypoint_beta"
+- \b "~waypoint_lambda"
+- \b "~waypoint_max_velocity"
+
+Dynamic parameter for joystick override:
+- \b "JoystickRobot" : An integer corresponding to the robot to take over with the joystick: -1 = No joystick control.
+
+<hr>
+
+\subsection dcsl_miabot_low_level_control dcsl_miabot_low_level_control.py
+
+This node provides closed loop velocity regulation and waypoint control for MiabotPro robots. It also provides a service to override control with joystick commands. The last command received is on wp_input or velocity_input is continuously applied until another command is received.
+
+\subsubsection topics ROS topics
+
+Subscribes to (name / type):
+- \b "wp_input / PoseArray" : The array "poses" holds desired pose waypoint for each robot. 
+- \b "velocity_input / TwistArray" : The array "twists" holds the desired velocities for each robot.
+- \b "state_estimate / StateArray" : Current state estimate for each robot. Used for feedback control.
+- \b "joy_cmd / Twist" : Twist received from the joystick teleop node.
 
 Publishes to (name / type):
 - \b "cmd_vel_array/TwistArray" : array "twists" holds a Twist for each robot, linear.x is the desired linear speed in m/s; angular.z is the desired angular rotation rate in rad/s.
@@ -40,14 +80,20 @@ Publishes to (name / type):
 
 \subsubsection parameters ROS parameters
 
-- \b "/n_robots" : Number of robots to be controlled.
 - \b "waypoint_gain_1" : Forward velocity gain for waypoint controller (default 0.7).
 - \b "waypoint_gain_2" : Angular velocity gain for waypoint controller (default 0.5).
+- \b "waypoint_tolerance" : How close to the waypoint is acceptable in meters (default 0.02).
 
 <hr>
 
-\subsection dcsl_miabot_control_math
+\section python_modules Python modules
 
-This is a C++ shared-object library that includes the math functions used in the dcsl_miabot_low_level_control package.
+\subsection beluga_velocity_controller beluga_velocity_controller.py
+
+Contains an object that performs a gain scheduled LQG calculation for closed loop velocity regulation of a Beluga robot.
+
+\subsection beluga_waypoint_controller beluga_waypoint_controller.py
+
+Contains an prototype object for a beluga waypoint controller. It does not currently provide good performance.
 
 */
