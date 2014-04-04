@@ -14,15 +14,16 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
-# Install python scripts using distutils
-catkin_python_setup()
+# Install python modules using distutils
+# catkin_python_setup()
 
 catkin_package(
     CATKIN_DEPENDS ${CATKIN_DEPS}
 )
 
-# include_directories(include ${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS})
 
-install(PROGRAMS src/dcsl_swarm_director/dcsl_swarm_director_node.py
-  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+install(DIRECTORY scripts/
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  USE_SOURCE_PERMISSIONS
 )
