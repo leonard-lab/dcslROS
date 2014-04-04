@@ -4,7 +4,6 @@ project(dcsl_miabot_driver)
 
 # Load catkin and all dependencies required for this package
 set(CATKIN_DEPS std_msgs geometry_msgs sensor_msgs rospy roscpp genmsg actionlib actionlib_msgs message_runtime message_generation rospack)
-set(SYS_DEPS python-bluez)
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 # Set the build type.  Options are:
@@ -21,7 +20,7 @@ add_action_files(
   FILES ConnectMiabot.action
 )
 
-# Install python scripts using distutils
+# Install python modules using distutils (setup.py)
 catkin_python_setup()
 
 
@@ -35,7 +34,7 @@ generate_messages(
 ## INCLUDE_DIRS: 
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 catkin_package(
-    DEPENDS ${SYS_DEPS}
+    DEPENDS
     CATKIN_DEPENDS ${CATKIN_DEPS}
     INCLUDE_DIRS
     LIBRARIES
@@ -51,10 +50,22 @@ install(TARGETS dcsl_miabot_joy
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(PROGRAMS src/dcsl_miabot_driver/dcsl_miabot_node.py src/dcsl_miabot_driver/dcsl_miabot_API.py src/dcsl_miabot_driver/miabot_module.py
-  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+## Install executable python scripts
+install(DIRECTORY scripts/
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  USE_SOURCE_PERMISSIONS
 )
 
-install(FILES resource/miabot_module.ui
+## Install launch files
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+
+## Install UI resource files
+install(DIRECTORY resource/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/resource
+)
+
+## Install rqt plugin.xml file
+install(FILES plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

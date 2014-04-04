@@ -24,7 +24,6 @@
   <build_depend>actionlib</build_depend>
   <build_depend>actionlib_msgs</build_depend>
   <build_depend>genmsg</build_depend>
-  <build_depend>python-bluez</build_depend>
   <build_depend>message_runtime</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>rospack</build_depend>
