@@ -160,6 +160,7 @@ class miabot_tracker:
 
             # Publish measuremented poses
             pose_array.header.stamp = data.header.stamp
+            pose_array.header.frame_id = str(camera_id)
             self.measurement_pub.publish(pose_array)
 
         # Publish robot poses in pixel coordinates
