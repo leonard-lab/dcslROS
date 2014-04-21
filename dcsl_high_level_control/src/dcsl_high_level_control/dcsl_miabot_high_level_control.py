@@ -111,12 +111,18 @@ class MiabotHighLevelController(object):
 
         # export and destroy logger object if no longer running control
         if self.logger and not self.run_control:
+            # check if control law has name defined
+            if self.control_law.name:
+                name = self.control_law.name
+            else:
+                name = ""
             # check if control law contains parameter info function
             parameter_info = getattr(self.control_law, "parameter_info", None)
             if callable(parameter_info):
-                logfile = self.logger.export_to_mat(self.control_law.parameter_info())
+                parameter_info = self.control_law.parameter_info()
             else:
-                logfile = self.logger.export_to_mat()
+                parameter_info = {}
+            logfile = self.logger.export_to_mat(parameter_info,name)
             rospy.loginfo('state trajectory saved to ' + logfile)
             self.logger = None
 

@@ -46,12 +46,12 @@ class MiabotLogger(object):
         self.u_list[self.i_list][self.i,:,:] = u
         self.i += 1
         
-    def export_to_mat(self, info_dict={}):
+    def export_to_mat(self, info_dict={}, name=""):
         # exports t, x, and u to a matlab-formatted .mat file, with date as filename
         # optional argument info_dict contains extra variables with info about control law
 
         timestr = time.strftime("%Y%m%d-%H%M%S") # string of 'year month day - hour min sec'
-        filename = timestr + '.mat'
+        filename = timestr + name + '.mat'
 
         # trim the data in last array and put all arrays together
         self.t_list[-1] = self.t_list[-1][0:self.i]
