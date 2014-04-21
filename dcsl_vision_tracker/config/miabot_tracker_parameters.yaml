@@ -1,10 +1,29 @@
 
 # Vectors from origin to each camera
+# measured with measuring tape
+#camera_offset_vectors:
+#   - [1.7526, -1.0812, 3.4131]  # Camera 0
+#   - [1.6246, 1.2052, 3.2623]   # Camera 1
+#   - [-1.4360, 1.2936, 3.3496]   # Camera 2
+#   - [-1.3264, -0.9536, 3.3623] # Camera 3
+
+# Vectors from origin to each camera
+# calculated from pixel measurements
 camera_offset_vectors:
-   - [1.7526, -1.0812, 3.4131]  # Camera 0
-   - [1.6246, 1.2052, 3.2623]   # Camera 1
-   - [-1.4360, 1.2936, 3.3496]   # Camera 2
-   - [-1.3264, -0.9536, 3.3623] # Camera 3
+   - [1.7184, -1.0783, 3.3404]  # Camera 0
+   - [1.5944, 1.1992, 3.3175]   # Camera 1
+   - [-1.3750, 1.2497, 3.1905]   # Camera 2
+   - [-1.2881, -0.9144, 3.2473] # Camera 3
+
+
+# new measurements to camera image centers
+# and subtracting bot height (0.0778 m) from camera height
+# camera_offset_vectors:
+#   - [1.74, -1.003, 3.3353]  # Camera 0
+#   - [1.6065, 1.1557, 3.1845]   # Camera 1
+#   - [-1.4072, 1.2413, 3.2718]   # Camera 2
+#   - [-1.3303, -0.87, 3.2845] # Camera 3
+
 
 # Normalized pixel scale in 1/Pixels
 scale: 0.00090255
