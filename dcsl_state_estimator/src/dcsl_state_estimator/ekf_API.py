@@ -20,7 +20,7 @@ class ekf(object):
     ##
     #
     #
-    def __init__(self, init_t, init_x, init_P, init_u, f, h, F, G, H, L, Q, R):
+    def __init__(self, init_t, init_x, init_P, init_u, f, h, F, G, H, L, Q, R,g=None):
         self._t = init_t
         self._x_hat_plus = self._ra_to_cm(init_x)
         self._P_plus = np.asmatrix(init_P)
@@ -33,6 +33,7 @@ class ekf(object):
         self._L = L
         self._Q = np.asmatrix(Q)
         self._R = np.asmatrix(R)
+        self._g = g # threshold for measurement error
       
     ##
     #
@@ -43,12 +44,16 @@ class ekf(object):
         P_minus = self._propagate_covariance_estimate(t)
         K = self._calculate_filter_gain(t, x_hat_minus, P_minus)
         x_hat_plus = self._update_state_estimate(t, x_hat_minus, z, K)
-        P_plus = self._update_covariance(t, x_hat_minus, P_minus, K)
-        self._x_hat_plus = x_hat_plus
-        self._P_plus = P_plus
+        if x_hat_plus is not None:
+            P_plus = self._update_covariance(t, x_hat_minus, P_minus, K)
+            self._x_hat_plus = x_hat_plus
+            self._P_plus = P_plus
+        else:
+            self._x_hat_plus = x_hat_minus
+            self._P_plus = P_minus
         self._t = t
         self._u = [self._u[-1]]
-        return self._cm_to_ra(x_hat_plus)
+        return self._cm_to_ra(self._x_hat_plus)
         
     
     ##
@@ -97,7 +102,11 @@ class ekf(object):
     #
     def _update_state_estimate(self, t, x_hat_minus, z, K):
         z_hat = self._ra_to_cm(self._h(self._cm_to_ra(x_hat_minus), t))
-        x_hat_plus = x_hat_minus + K*(z - z_hat)
+        v = z - z_hat
+        if self._g and self._meas_error(v) > self._g:
+            x_hat_plus = None
+        else:
+            x_hat_plus = x_hat_minus + K*(z - z_hat)
         return x_hat_plus
     
     ##
@@ -188,3 +197,20 @@ class ekf(object):
                 k4 = func(y_n + h*k3, t_n+h, *args)
                 y_n = y_n + 1.0/6.0*h*(k1 + 2.0*k2 + 2.0*k3 + k4)
             return y_n
+
+    ##
+    #
+    #
+    def _meas_error(self,v):
+        # calculate the predicted measurement error from v = z-zhat
+        e2 = 0
+        e2 = e2 + v[0]**2/(self._P_plus[0,0]+self._R[0,0])
+        e2 = e2 + v[1]**2/(self._P_plus[1,1]+self._R[1,1])
+        #e2 = e2 + v[2]**2/(self._P_plus[2,2]+self._R[2,2])
+        e2 = e2 + v[3]**2/(self._P_plus[5,5]+self._R[3,3])
+        e2 = e2 + v[4]**2/(self._P_plus[6,6]+self._R[4,4])
+        np.set_printoptions(precision=1)
+        print(e2)
+        print((v[0],v[1],v[3],v[4]))
+        print((self._P_plus[0,0],self._P_plus[1,1],self._P_plus[5,5],self._P_plus[6,6])) # debugging: does the P matrix converge???
+        return m.sqrt(e2)

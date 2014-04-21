@@ -31,11 +31,13 @@ class MiabotEstimator:
         self.pub = rospy.Publisher("state_estimate", StateArray)
 
         self.init_P = np.ones((8,8))*0.1
+        #self.init_P = np.identity(8)*0.1
         self.init_u = np.array([0., 0., 0.])
         self.Q = np.identity(8)*0.001
         self.R = np.identity(5)*0.001
-        self.R[3][3] = 0.01
-        self.R[4][4] = 0.01
+        #self.R[3][3] = 0.01
+        #self.R[4][4] = 0.01
+        self.g = 10 # threshold to throw out outlier measurements
 
         self.current_u = np.zeros((self.n_robots,3))
 
@@ -57,7 +59,7 @@ class MiabotEstimator:
                     self.ekfs[i] = ekf(t, state_estimate, self.init_P, 
                                        self.init_u, self.miabot.f, self.miabot.h, 
                                        self.miabot.F, self.miabot.G, self.miabot.H, 
-                                       self.miabot.L, self.Q, self.R)
+                                       self.miabot.L, self.Q, self.R, self.g)
                 else:
                     state_estimate = self.ekfs[i].estimate(t, z)
         '''
