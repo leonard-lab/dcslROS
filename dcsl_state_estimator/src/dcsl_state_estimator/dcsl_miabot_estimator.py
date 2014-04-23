@@ -30,16 +30,16 @@ class MiabotEstimator:
         self.input_sub = rospy.Subscriber("cmd_vel_array", TwistArray, self.input_callback, queue_size = 1)
         self.pub = rospy.Publisher("state_estimate", StateArray)
 
-        self.init_P = np.ones((8,8))*0.1
-        #self.init_P = np.identity(8)*0.1
-        self.init_u = np.array([0., 0., 0.])
-        self.Q = np.identity(8)*0.001
-        self.R = np.identity(5)*0.001
-        #self.R[3][3] = 0.01
-        #self.R[4][4] = 0.01
+        self.init_P = np.ones((4,4))*0.5
+        #self.init_P = np.identity(4)*0.5
+        self.init_u = np.array([0., 0.])
+        self.Q = np.identity(4)*0.1
+        self.R = np.identity(4)*0.001
+        self.R[2][2] = 0.01
+        self.R[3][3] = 0.01
         self.g = 10 # threshold to throw out outlier measurements
 
-        self.current_u = np.zeros((self.n_robots,3))
+        self.current_u = np.zeros((self.n_robots,2))
 
         self.ekfs = [None]*7
         self.miabot = Miabot()
@@ -55,7 +55,7 @@ class MiabotEstimator:
                 z = self._pose_to_z_array(pose)
                 # Initialize ekf for robot if necessary
                 if self.ekfs[i] is None:
-                    state_estimate = np.array([z[0], z[1], z[2], 0., 0., m.sin(z[3]), m.cos(z[3]), 0.]) #Assume initial velocities are zero
+                    state_estimate = np.array([z[0], z[1], z[2], z[3]]) 
                     self.ekfs[i] = ekf(t, state_estimate, self.init_P, 
                                        self.init_u, self.miabot.f, self.miabot.h, 
                                        self.miabot.F, self.miabot.G, self.miabot.H, 
@@ -108,7 +108,7 @@ class MiabotEstimator:
         for i in xrange(0, self.n_robots):
             # If not initialized
             if self.ekfs[i] is None:
-                state_estimate = np.zeros(8)
+                state_estimate = np.zeros(4)
                 state = self._x_array_to_state(state_estimate, self.current_u[i])
                 state.pose.orientation.w = 0
             else:
@@ -126,22 +126,20 @@ class MiabotEstimator:
     #
     #
     def _pose_to_z_array(self, pose):
-        z = np.zeros(5)
+        z = np.zeros(4)
         z[0] = pose.position.x
         z[1] = pose.position.y
-        z[2] = pose.position.z
-        z[3] = m.sin(pose.orientation.z)
-        z[4] = m.cos(pose.orientation.z)
+        z[2] = m.sin(pose.orientation.z)
+        z[3] = m.cos(pose.orientation.z)
         return z
 
     ##
     #
     #
     def _twist_to_u_array(self, twist):
-        u = np.zeros(3)
+        u = np.zeros(2)
         u[0] = twist.linear.x
         u[1] = twist.angular.z
-        u[2] = twist.linear.z
         return u
 
     ##
@@ -151,10 +149,8 @@ class MiabotEstimator:
         state = State()
         state.pose.position.x = x[0]
         state.pose.position.y = x[1]
-        state.pose.position.z = x[2]
-        state.pose.orientation.z = m.atan2(x[5],x[6])
+        state.pose.orientation.z = m.atan2(x[2],x[3])
         state.twist.linear.x = u[0]
-        state.twist.linear.z = u[2]
         state.twist.angular.z = u[1]
         return state
     
