@@ -54,7 +54,7 @@ class BelugaSimulator(object):
             self._state_array.append(initial_poses[i])
         now = rospy.get_rostime()
         self._t = float(now.secs) + float(now.nsecs)*pow(10., -9)
-        self._current_input = np.zeros((self.n_robots, 3))
+        self._current_input = np.zeros((self._n_robots, 3))
 
     ## Callback function for command inputs. Integrates to advance the system to the current time.
     #
