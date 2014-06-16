@@ -448,31 +448,42 @@ class DcslBelugaTracker(DcslVisionTracker):
     #
     # Return sensed_poses is a list of DcslPose objects in a right hand coordinate system in meters and radians centered at the center of the image with x up in the image frame and y to the right. Theta measured CCW from x axis.
     # @param image_poses a list of poses in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta measured CCW from x axis.
-    # @param estimated_poses (List of DcslPose objects) not required for miabot tracker.
-    # @param camera_id (int) not required for miabot tracker.    
+    # @param estimated_poses (List of DcslPose objects) of estimated poses of belugas in order.
+    # @param camera_id (int)
     def image_to_world(self, image_poses, estimated_poses, camera_id):
         world_poses = []
-        R_x = self.translation[camera_id][0]
-        R_y = self.translation[camera_id][1]
-        R_z = self.translation[camera_id][2]
-        alpha = self.scale
+        T_x = self.translation[camera_id][0]
+        T_y = self.translation[camera_id][1]
+        T_z = self.translation[camera_id][2]
+        alpha = self.scale #lambda in thesis (lambda is a special word in python)
         for idx, pose in enumerate(image_poses):
             world_pose = DcslPose()
             if pose.position[0] is not None:
                 z_world = estimated_poses[idx].position_z()
                 x_image = pose.position_x()
                 y_image = pose.position_y()
-                z_camera = -1*(z_world-R_z)
-                beta = self._beta(z_camera)
-                x_camera = 1/alpha*(x_image - 0.5*self.image_width)*z_camera*beta
-                y_camera = 1/alpha*(y_image - 0.5*self.image_height)*z_camera*beta
-                x_world = x_camera + R_x
-                y_world = -y_camera + R_y
+                z_camera = -1*(z_world-T_z)
+                x_cam_prime = (x_image - self.image_width*0.5)*-z_camera/alpha
+                y_cam_prime = (y_image - self.image_height*0.5)*-z_camera/alpha
+                L_prime = m.sqrt(x_cam_prime**2 + y_cam_prime**2)
+                if L_prime < 0.0005 and L_prime > -0.0005:
+                    x_camera = x_cam_prime
+                    y_camera = y_cam_prime
+                else:
+                    theta1 = m.atan(L_prime/z_camera)
+                    theta2 = m.asin(self.refraction_ratio*m.sin(theta1))
+                    H = self.camera_height 
+                    L = H*m.tan(theta1) + (z_camera - H)*m.tan(theta2)
+                    x_camera = L/L_prime*x_cam_prime
+                    y_camera = L/L_prime*y_cam_prime
+                x_world = x_camera + T_x
+                y_world = -y_camera + T_y
                 world_pose.set_position((x_world, y_world, None))
                 world_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             world_pose.set_detected(pose.detected)
             world_poses.append(world_pose)       
         return world_poses
+
 
     def _beta(self, z_camera):
         H = self.camera_height
@@ -480,12 +491,11 @@ class DcslBelugaTracker(DcslVisionTracker):
         beta = pow(rir + (1 - rir)*H/z_camera, 0.5)
         return beta
 
-
     ## Applies coordinate transform from world frame to image frame on world_poses and returns image_poses.
     #
     # Return image_poses is a list of DcslPose objects in image (pixel) coordinates. Top left corner is the origin with the y axis down and the x axis right. Theta is measured CCW from x axis.
     # @param world_poses a list of poses in the world reference frame (meters and radians).
-    # @param camera_id (int) not required for miabot tracker.
+    # @param camera_id (int)
     def world_to_image(self, world_poses, camera_id):
         image_poses = []
         R_x = self.translation[camera_id][0]
