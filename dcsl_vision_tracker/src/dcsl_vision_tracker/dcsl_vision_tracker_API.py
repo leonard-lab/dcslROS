@@ -9,6 +9,7 @@
 
 
 import math as m
+from scipy.optimize import fsolve
 import cv
 from munkres import Munkres
 
@@ -455,7 +456,7 @@ class DcslBelugaTracker(DcslVisionTracker):
         T_x = self.translation[camera_id][0]
         T_y = self.translation[camera_id][1]
         T_z = self.translation[camera_id][2]
-        alpha = self.scale #lambda in thesis (lambda is a special word in python)
+        alpha = self.scale #lambda in Andrade thesis (lambda is a special word in python)
         for idx, pose in enumerate(image_poses):
             world_pose = DcslPose()
             if pose.position[0] is not None:
@@ -466,6 +467,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                 x_cam_prime = (x_image - self.image_width*0.5)*-z_camera/alpha
                 y_cam_prime = (y_image - self.image_height*0.5)*-z_camera/alpha
                 L_prime = m.sqrt(x_cam_prime**2 + y_cam_prime**2)
+              
                 if L_prime < 0.0005 and L_prime > -0.0005:
                     x_camera = x_cam_prime
                     y_camera = y_cam_prime
@@ -477,7 +479,7 @@ class DcslBelugaTracker(DcslVisionTracker):
                     x_camera = L/L_prime*x_cam_prime
                     y_camera = L/L_prime*y_cam_prime
                 x_world = x_camera + T_x
-                y_world = -y_camera + T_y
+                y_world = -y_camera + T_y #-1 because of term in rotation matrix
                 world_pose.set_position((x_world, y_world, None))
                 world_pose.set_quaternion((None, None, pose.quaternion_z(), None))
             world_pose.set_detected(pose.detected)
@@ -485,11 +487,6 @@ class DcslBelugaTracker(DcslVisionTracker):
         return world_poses
 
 
-    def _beta(self, z_camera):
-        H = self.camera_height
-        rir = self.refraction_ratio
-        beta = pow(rir + (1 - rir)*H/z_camera, 0.5)
-        return beta
 
     ## Applies coordinate transform from world frame to image frame on world_poses and returns image_poses.
     #
@@ -498,22 +495,34 @@ class DcslBelugaTracker(DcslVisionTracker):
     # @param camera_id (int)
     def world_to_image(self, world_poses, camera_id):
         image_poses = []
-        R_x = self.translation[camera_id][0]
-        R_y = self.translation[camera_id][1]
-        R_z = self.translation[camera_id][2]
-        alpha = self.scale
+        T_x = self.translation[camera_id][0]
+        T_y = self.translation[camera_id][1]
+        T_z = self.translation[camera_id][2]
+        alpha = self.scale #lambda in Andrade thesis
         for pose in world_poses:
             image_pose = DcslPose()
             if pose.position[0] is not None:
+                # Calculate known values
                 x_world = pose.position_x()
                 y_world = pose.position_y()
                 z_world = pose.position_z()
-                x_camera = x_world - R_x
-                y_camera = -1*(y_world - R_y)
-                z_camera = -1*(z_world - R_z)
-                beta = self._beta(z_camera)
-                x_camera_prime = x_camera * 1/beta
-                y_camera_prime = y_camera * 1/beta
+                x_camera = x_world - T_x
+                y_camera = -1*(y_world - T_y)
+                z_camera = -1*(z_world - T_z)
+                L = m.sqrt(m.pow(x_world, 2.0) + m.pow(y_world, 2.0))
+                if z_camera == 0:
+                    t0 = m.pi/2
+                else:
+                    t0 = m.tan(L/z_camera)
+                #Iterative solve for theta1
+                theta1, infodict, ier, mesg = fsolve(self._f_new, t0, args=(x_camera, y_camera, z_camera), xtol = 0.00000001, full_output = True, maxfev = 1000)
+                if ier is not 1:
+                    raise Exception("Numerical solve for image coordinates failed." + mesg)
+          
+                #Calculate x_image and y_image
+                L_prime = z_camera*m.tan(theta1)
+                x_camera_prime = x_camera * L_prime/L
+                y_camera_prime = y_camera * L_prime/L
                 x_image = alpha * x_camera_prime/z_camera + self.image_width*0.5
                 y_image = alpha * y_camera_prime/z_camera + self.image_height*0.5
                 image_pose.set_position((x_image, y_image, None))
@@ -522,13 +531,27 @@ class DcslBelugaTracker(DcslVisionTracker):
             image_poses.append(image_pose)
         return image_poses
 
+    ## Equation for using fsolve in world-to-image function
+    #
+    # @param theta1 is solved for by fsolve
+    # @param x_camera is the x coordinate of the robot in the camera frame
+    # @param y_camera is the y coordinate of the robot in the camera frame
+    # @param z_camera is the z coordinate of the robot in the camera frame
+    def _f_new(self, theta1, x_camera, y_camera, z_camera):
+        k = self.refraction_ratio
+        H = self.camera_height
+        theta2 = m.asin(k*m.sin(theta1))
+        L = m.sqrt(m.pow(x_camera, 2.0) + m.pow(y_camera, 2.0))
+        return H*m.tan(theta1) + (z_camera - H)*m.tan(theta2) - L
+
+    '''
     def _f(self, theta1, x, y, z):
         f = self.camera_height*m.tan(theta1) - z*m.tan(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5))-(pow(x,2)+pow(y,2))
         return f
     def _delf(self, theta1, x, y, z):
         delf = self.camera_height*pow(m.cos(theta1),-2) - self.refraction_ratio*z*pow(m.cos(self.refraction_ratio*theta1/pow(1-pow(self.refraction_ratio*theta1,2), 0.5)), -2)/pow(1-pow(self.refraction_ratio*theta1, 2), 1.5)
         return delf
-
+    '''
 
     ## Takes the contours found in an image and returns the positions and headings of the blobs in image frame coordinates
     #
