@@ -1,0 +1,20 @@
+
+# Vectors from origin to each camera
+camera_offset_vectors:
+   - [1.7526, -1.0812, 3.4131]  # Camera 0
+   - [1.6246, 1.2052, 3.2623]   # Camera 1
+   - [-1.4360, 1.2936, 3.3496]   # Camera 2
+   - [-1.3264, -0.9536, 3.3623] # Camera 3
+
+# Normalized pixel scale in 1/Pixels
+scale: 0.00090255
+
+# Expected initial pose for each robot
+initial_poses:
+  - [2.56, -1.46, 0., 0.]
+  - [2.56, -1.20, 0., 0.]
+  - [2.56, -0.98, 0., 0.]
+  - [2.56, -0.74, 0., 0.]
+  - [2.56, -0.50, 0., 0.]
+  - [2.56, -0.26, 0., 0.]
+  - [2.56, -0.03, 0., 0.]
